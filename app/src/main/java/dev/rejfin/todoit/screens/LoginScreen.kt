@@ -11,22 +11,28 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import dev.rejfin.todoit.AuthViewModel
 import dev.rejfin.todoit.R
 import dev.rejfin.todoit.components.AppLogo
 import dev.rejfin.todoit.components.InputField
 import dev.rejfin.todoit.ui.theme.TodoItTheme
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun LoginScreen(){
+fun LoginScreen(viewModel: AuthViewModel = viewModel()){
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+
+    val _uiState = viewModel.uiState
     Column(Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center) {
         Column{
-            AppLogo(modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 45.dp).align(Alignment.CenterHorizontally))
-            InputField(label = stringResource(id = R.string.email), onTextChange = {email = it}, keyboardType = KeyboardType.Email, modifier = Modifier.fillMaxWidth(0.7f))
-            InputField(label = stringResource(id = R.string.password), onTextChange = {password = it}, keyboardType = KeyboardType.Password, visualTransformation = PasswordVisualTransformation(), modifier = Modifier.fillMaxWidth(0.7f))
+            AppLogo(modifier = Modifier
+                .padding(0.dp, 0.dp, 0.dp, 45.dp)
+                .align(Alignment.CenterHorizontally))
+            InputField(label = stringResource(id = R.string.email), onTextChange = {email = it},_uiState.email ,keyboardType = KeyboardType.Email, modifier = Modifier.fillMaxWidth(0.7f))
+            InputField(label = stringResource(id = R.string.password), onTextChange = {password = it},_uiState.password ,keyboardType = KeyboardType.Password,isPasswordField = true, modifier = Modifier.fillMaxWidth(0.7f))
             Button(onClick = {
                 /*ToDO*/
             }, modifier = Modifier
