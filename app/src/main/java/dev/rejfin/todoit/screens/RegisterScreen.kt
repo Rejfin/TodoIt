@@ -1,37 +1,55 @@
 package dev.rejfin.todoit.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
+import androidx.compose.material.LinearProgressIndicator
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.navigation.popUpTo
 import dev.rejfin.todoit.AuthViewModel
 import dev.rejfin.todoit.R
 import dev.rejfin.todoit.components.AppLogo
+import dev.rejfin.todoit.components.ErrorDialog
+import dev.rejfin.todoit.components.InfoDialog
 import dev.rejfin.todoit.components.InputField
+import dev.rejfin.todoit.screens.destinations.HomeScreenDestination
+import dev.rejfin.todoit.screens.destinations.LoginScreenDestination
+import dev.rejfin.todoit.screens.destinations.RegisterScreenDestination
 import dev.rejfin.todoit.ui.theme.TodoItTheme
 
+@Destination
 @Composable
-fun RegisterScreen(viewModel: AuthViewModel = viewModel()) {
-    val _uiState = viewModel.uiState
+fun RegisterScreen(navigator: DestinationsNavigator?, viewModel: AuthViewModel = viewModel()) {
+    val _uiState = viewModel.registerUiState
     var nick by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var repeatedPassword by remember { mutableStateOf("") }
+
     Column(
         Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Column {
-            AppLogo(modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 45.dp).align(Alignment.CenterHorizontally))
+        Column(Modifier.fillMaxSize(0.7f)) {
+            AppLogo(modifier = Modifier
+                .padding(0.dp, 0.dp, 0.dp, 45.dp)
+                .align(CenterHorizontally))
             InputField(
                 label = stringResource(id = R.string.nick),
                 onTextChange = {
@@ -39,7 +57,9 @@ fun RegisterScreen(viewModel: AuthViewModel = viewModel()) {
                     viewModel.clearError(_uiState.nick)
                 },
                 _uiState.nick,
-                modifier = Modifier.fillMaxWidth(0.7f)
+                imeAction= ImeAction.Next,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !_uiState.isAuthInProgress
             )
             InputField(
                 label = stringResource(id = R.string.email),
@@ -49,7 +69,9 @@ fun RegisterScreen(viewModel: AuthViewModel = viewModel()) {
                 },
                 _uiState.email,
                 keyboardType = KeyboardType.Email,
-                modifier = Modifier.fillMaxWidth(0.7f)
+                imeAction= ImeAction.Next,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !_uiState.isAuthInProgress
             )
             InputField(
                 label = stringResource(id = R.string.password),
@@ -59,8 +81,10 @@ fun RegisterScreen(viewModel: AuthViewModel = viewModel()) {
                 },
                 _uiState.password,
                 keyboardType = KeyboardType.Password,
+                imeAction= ImeAction.Next,
                 isPasswordField = true,
-                modifier = Modifier.fillMaxWidth(0.7f)
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !_uiState.isAuthInProgress
             )
             InputField(
                 label = stringResource(id = R.string.repeat_password),
@@ -70,18 +94,59 @@ fun RegisterScreen(viewModel: AuthViewModel = viewModel()) {
                 },
                 _uiState.repeatedPassword,
                 keyboardType = KeyboardType.Password,
+                imeAction= ImeAction.Done,
                 isPasswordField = true,
-                modifier = Modifier.fillMaxWidth(0.7f)
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !_uiState.isAuthInProgress
             )
+            Row(modifier = Modifier
+                .padding(vertical = 15.dp)
+                .align(CenterHorizontally)){
+                Text(stringResource(id = R.string.have_acc), fontSize = 15.sp)
+                Text(
+                    stringResource(id = R.string.log_in_now),
+                    color = MaterialTheme.colors.primary,
+                    fontSize = 15.sp,
+                    modifier = Modifier.clickable(enabled = !_uiState.isAuthInProgress){
+                    navigator?.navigate(LoginScreenDestination) {
+                        popUpTo(RegisterScreenDestination) {
+                            inclusive = true
+                        }
+                    }
+                }
+                )
+            }
             Button(
                 onClick = {
-                    viewModel.registerUser(nick, email, password, repeatedPassword)
+                    viewModel.registerUserWithEmail(nick, email, password, repeatedPassword)
                 }, modifier = Modifier
                     .align(Alignment.End)
                     .widthIn(140.dp, 200.dp),
-                enabled = !_uiState.isRegisterInProgress
+                enabled = !_uiState.isAuthInProgress,
+                shape = RoundedCornerShape(12.dp)
             ) {
                 Text(text = stringResource(id = R.string.register))
+            }
+            if(_uiState.isAuthInProgress){
+                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+            }
+            if(_uiState.authFailedMessage != null){
+                ErrorDialog(title = stringResource(id = R.string.register_error), errorText = _uiState.authFailedMessage, onDialogClose = {
+                    viewModel.dismissAuthError()
+                })
+            }
+            if(_uiState.registerSuccess){
+                InfoDialog(
+                    title = stringResource(id = R.string.register_success),
+                    infoText = stringResource(id = R.string.register_success_message),
+                    onDialogClose = {
+                        navigator?.navigate(LoginScreenDestination){
+                            popUpTo(RegisterScreenDestination) {
+                                inclusive = true
+                            }
+                        }
+                    }
+                )
             }
         }
     }
@@ -91,6 +156,6 @@ fun RegisterScreen(viewModel: AuthViewModel = viewModel()) {
 @Composable
 fun RegisterPreview() {
     TodoItTheme {
-        RegisterScreen()
+        RegisterScreen(null)
     }
 }

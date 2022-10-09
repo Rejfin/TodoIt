@@ -3,6 +3,7 @@ package dev.rejfin.todoit.components
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -13,8 +14,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -24,6 +28,7 @@ import androidx.compose.ui.unit.sp
 import dev.rejfin.todoit.R
 import dev.rejfin.todoit.utils.ValidationResult
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun InputField(label:String,
                onTextChange: (String) -> Unit,
@@ -31,8 +36,11 @@ fun InputField(label:String,
                modifier: Modifier = Modifier,
                placeholder: String = "",
                keyboardType: KeyboardType = KeyboardType.Text,
-               isPasswordField: Boolean = false){
+               imeAction: ImeAction = ImeAction.None,
+               isPasswordField: Boolean = false,
+               enabled:Boolean = true){
 
+    val keyboardController = LocalSoftwareKeyboardController.current
     var text by remember { mutableStateOf(placeholder) }
     var passwordVisibility by remember { mutableStateOf(false) }
 
@@ -45,8 +53,8 @@ fun InputField(label:String,
             },
             label = { Text(label) },
             singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-            visualTransformation = if (passwordVisibility) VisualTransformation.None else PasswordVisualTransformation(),
+            keyboardOptions = if(isPasswordField) KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = imeAction) else KeyboardOptions(keyboardType = keyboardType, imeAction = imeAction),
+            visualTransformation = if (passwordVisibility || !isPasswordField) VisualTransformation.None else PasswordVisualTransformation(),
             shape = RoundedCornerShape(10.dp),
             modifier = modifier,
             isError = validationResult.isError,
@@ -63,7 +71,11 @@ fun InputField(label:String,
                         Icon(imageVector  = image, description)
                     }
                 }
-            }
+            },
+            keyboardActions = KeyboardActions(
+                onDone = {keyboardController?.hide()}
+            ),
+            enabled = enabled
         )
         if(validationResult.isError){
             Text(text = validationResult.errorMessage!!, color = MaterialTheme.colors.error, fontSize = 13.sp, modifier = Modifier.padding(horizontal = 8.dp))

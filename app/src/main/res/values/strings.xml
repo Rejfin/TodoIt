@@ -3,9 +3,18 @@
     <string name="email">Email</string>
     <string name="password">Password</string>
     <string name="repeat_password">Repeat Password</string>
-    <string name="login">login</string>
+    <string name="log_in">log in</string>
     <string name="register">Register</string>
     <string name="nick">Nick</string>
     <string name="hide_password">Hide password</string>
     <string name="show_password">Show password</string>
+    <string name="dont_have_acc">"You don't have account? "</string>
+    <string name="create_now">Create now!</string>
+    <string name="have_acc">"You already have account? "</string>
+    <string name="log_in_now">Log in</string>
+    <string name="ok">OK</string>
+    <string name="register_error">Register Error</string>
+    <string name="log_in_error">Log in error</string>
+    <string name="register_success_message">Your account has been successfully created. You can now log in to your newly created account.</string>
+    <string name="register_success">Registration successfully completed</string>
 </resources>
