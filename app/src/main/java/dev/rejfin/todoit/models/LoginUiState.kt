@@ -1,4 +1,4 @@
-package dev.rejfin.todoit.utils
+package dev.rejfin.todoit.models
 
 data class LoginUiState(
     val email: ValidationResult = ValidationResult(),

@@ -26,7 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.rejfin.todoit.R
-import dev.rejfin.todoit.utils.ValidationResult
+import dev.rejfin.todoit.models.ValidationResult
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable

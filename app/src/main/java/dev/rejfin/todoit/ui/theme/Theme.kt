@@ -9,13 +9,15 @@ import androidx.compose.runtime.Composable
 private val DarkColorPalette = darkColors(
     primary = PrimaryColor,
     primaryVariant = Purple700,
-    secondary = Teal200
+    secondary = Teal200,
+    background = Background
 )
 
 private val LightColorPalette = lightColors(
-    primary =PrimaryColor,
+    primary = PrimaryColor,
     primaryVariant = Purple700,
-    secondary = Teal200
+    secondary = Teal200,
+    background = Background
 
     /* Other default colors to override
     background = Color.White,
@@ -29,11 +31,13 @@ private val LightColorPalette = lightColors(
 
 @Composable
 fun TodoItTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
-    val colors = if (darkTheme) {
-        DarkColorPalette
-    } else {
-        LightColorPalette
-    }
+//    val colors = if (darkTheme) {
+//        DarkColorPalette
+//    } else {
+//        LightColorPalette
+//    }
+
+    val colors = LightColorPalette
 
     MaterialTheme(
         colors = colors,

@@ -6,10 +6,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.auth.ktx.userProfileChangeRequest
 import com.google.firebase.ktx.Firebase
-import dev.rejfin.todoit.utils.LoginUiState
-import dev.rejfin.todoit.utils.RegisterUiState
-import dev.rejfin.todoit.utils.ValidationResult
+import dev.rejfin.todoit.models.LoginUiState
+import dev.rejfin.todoit.models.RegisterUiState
+import dev.rejfin.todoit.models.ValidationResult
 
 class AuthViewModel: ViewModel() {
     var registerUiState by mutableStateOf(RegisterUiState())
@@ -19,7 +20,6 @@ class AuthViewModel: ViewModel() {
         private set
 
     private var auth: FirebaseAuth = Firebase.auth
-
 
     fun registerUserWithEmail(nick: String, email:String, password:String, repeatedPassword: String){
         registerUiState = registerUiState.copy(isAuthInProgress = true)
@@ -34,8 +34,17 @@ class AuthViewModel: ViewModel() {
         }else{
             auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener {
                 if(it.isSuccessful){
-                    registerUiState = registerUiState.copy(isAuthInProgress = false, registerSuccess = true)
-                    auth.signOut()
+
+                    val user = Firebase.auth.currentUser
+                    val profileUpdate = userProfileChangeRequest {
+                        displayName = nick
+                    }
+
+                    user!!.updateProfile(profileUpdate).addOnCompleteListener {
+                        registerUiState = registerUiState.copy(isAuthInProgress = false, registerSuccess = true)
+                        auth.signOut()
+                    }
+
                 }else{
                     registerUiState = registerUiState.copy(isAuthInProgress = false, authFailedMessage = it.exception?.localizedMessage, registerSuccess = false)
                 }
