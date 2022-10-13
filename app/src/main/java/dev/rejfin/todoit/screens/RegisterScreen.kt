@@ -3,10 +3,7 @@ package dev.rejfin.todoit.screens
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.LinearProgressIndicator
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
@@ -27,10 +24,10 @@ import dev.rejfin.todoit.components.AppLogo
 import dev.rejfin.todoit.components.ErrorDialog
 import dev.rejfin.todoit.components.InfoDialog
 import dev.rejfin.todoit.components.InputField
-import dev.rejfin.todoit.screens.destinations.HomeScreenDestination
 import dev.rejfin.todoit.screens.destinations.LoginScreenDestination
 import dev.rejfin.todoit.screens.destinations.RegisterScreenDestination
-import dev.rejfin.todoit.ui.theme.TodoItTheme
+import dev.rejfin.todoit.ui.theme.CustomJetpackComposeTheme
+import dev.rejfin.todoit.ui.theme.CustomThemeManager
 
 @Destination
 @Composable
@@ -102,10 +99,13 @@ fun RegisterScreen(navigator: DestinationsNavigator?, viewModel: AuthViewModel =
             Row(modifier = Modifier
                 .padding(vertical = 15.dp)
                 .align(CenterHorizontally)){
-                Text(stringResource(id = R.string.have_acc), fontSize = 15.sp)
+                Text(stringResource(id = R.string.have_acc),
+                    fontSize = 15.sp,
+                    color = CustomThemeManager.colors.textColorSecond
+                )
                 Text(
                     stringResource(id = R.string.log_in_now),
-                    color = MaterialTheme.colors.primary,
+                    color = CustomThemeManager.colors.primaryColor,
                     fontSize = 15.sp,
                     modifier = Modifier.clickable(enabled = !_uiState.isAuthInProgress){
                     navigator?.navigate(LoginScreenDestination) {
@@ -123,9 +123,13 @@ fun RegisterScreen(navigator: DestinationsNavigator?, viewModel: AuthViewModel =
                     .align(Alignment.End)
                     .widthIn(140.dp, 200.dp),
                 enabled = !_uiState.isAuthInProgress,
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(backgroundColor = CustomThemeManager.colors.primaryColor)
             ) {
-                Text(text = stringResource(id = R.string.register))
+                Text(
+                    text = stringResource(id = R.string.register),
+                    color = CustomThemeManager.colors.textColorOnPrimary
+                )
             }
             if(_uiState.isAuthInProgress){
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
@@ -154,8 +158,8 @@ fun RegisterScreen(navigator: DestinationsNavigator?, viewModel: AuthViewModel =
 
 @Preview(showBackground = true)
 @Composable
-fun RegisterPreview() {
-    TodoItTheme {
+private fun RegisterPreview() {
+    CustomJetpackComposeTheme() {
         RegisterScreen(null)
     }
 }

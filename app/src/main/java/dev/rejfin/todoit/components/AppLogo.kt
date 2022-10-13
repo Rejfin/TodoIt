@@ -9,7 +9,7 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
-import dev.rejfin.todoit.ui.theme.TodoItTheme
+import dev.rejfin.todoit.ui.theme.CustomJetpackComposeTheme
 
 @Composable
 fun AppLogo(modifier: Modifier = Modifier){
@@ -30,7 +30,7 @@ fun AppLogo(modifier: Modifier = Modifier){
 @Preview(showBackground = true)
 @Composable
 fun LoginPreview() {
-    TodoItTheme {
+    CustomJetpackComposeTheme() {
         AppLogo()
     }
 }

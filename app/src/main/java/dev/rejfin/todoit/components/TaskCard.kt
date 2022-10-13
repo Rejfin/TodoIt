@@ -1,6 +1,5 @@
 package dev.rejfin.todoit.components
 
-import android.text.format.DateFormat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,7 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.rejfin.todoit.models.TaskModel
-import dev.rejfin.todoit.ui.theme.PrimaryColor
+import dev.rejfin.todoit.ui.theme.CustomThemeManager
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -42,11 +41,11 @@ fun TaskCard(task: TaskModel){
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(8.dp, 8.dp, 8.dp, 0.dp),
-            color = if(task.taskParts.all { it.first }) Color.Gray else Color.Black,
+            color = if(task.taskParts.all { it.first }) CustomThemeManager.colors.textColorSecond else CustomThemeManager.colors.textColorFirst,
             style = if(task.taskParts.all { it.first }) TextStyle(textDecoration = TextDecoration.LineThrough) else TextStyle.Default
         )
         Text(text = task.description,
-            color= Color.Gray,
+            color= CustomThemeManager.colors.textColorSecond,
             modifier = Modifier.padding(8.dp),
             style = if(task.taskParts.all { it.first }) TextStyle(textDecoration = TextDecoration.LineThrough) else TextStyle.Default
         )
@@ -58,17 +57,17 @@ fun TaskCard(task: TaskModel){
                             Icon(imageVector = Icons.Filled.CheckCircle,
                                 contentDescription = "task done",
                                 modifier = Modifier.size(20.dp),
-                                tint = if(task.taskParts.all { it.first }) Color.Gray else Color(0xFF03B14B)
+                                tint = if(task.taskParts.all { it.first }) CustomThemeManager.colors.textColorSecond else CustomThemeManager.colors.doneColor
                             )
                         }else{
                             Icon(imageVector = Icons.Outlined.Circle,
                                 contentDescription = "task undone",
                                 modifier = Modifier.size(20.dp),
-                                tint = PrimaryColor
+                                tint = CustomThemeManager.colors.primaryColor
                             )
                         }
                         Text(text = pair.second,
-                            color = if(pair.first) Color.Gray else Color.Black,
+                            color = if(pair.first) CustomThemeManager.colors.textColorSecond else CustomThemeManager.colors.textColorFirst,
                             style = if(pair.first) TextStyle(textDecoration = TextDecoration.LineThrough) else TextStyle.Default,
                             modifier = Modifier.padding(start = 8.dp)
                         )
@@ -76,8 +75,8 @@ fun TaskCard(task: TaskModel){
                 }
                 LinearProgressIndicator(
                     progress = task.taskParts.count { it.first } * 1f/task.taskParts.size,
-                    color = if(task.taskParts.all { it.first }) Color.Gray else PrimaryColor,
-                    backgroundColor = Color.Gray,
+                    color = if(task.taskParts.all { it.first }) CustomThemeManager.colors.textColorThird else CustomThemeManager.colors.primaryColor,
+                    backgroundColor = CustomThemeManager.colors.textColorThird,
                     modifier = Modifier
                         .padding(top = 8.dp)
                         .height(10.dp)
@@ -98,14 +97,16 @@ fun TaskCard(task: TaskModel){
                     Icon(
                         imageVector = Icons.Filled.Notifications,
                         contentDescription = "task time",
-                        tint = Color.Gray,
+                        tint = CustomThemeManager.colors.textColorThird,
                     )
-                    Text(text = "${sdfDate.format(task.timestampStart!! * 1000L)} - ${sdfDate.format(task.timestampStop!! * 1000L)}", color = Color.Gray)
+                    Text(text = "${sdfDate.format(task.timestampStart!! * 1000L)} - ${sdfDate.format(task.timestampStop!! * 1000L)}",
+                        color = CustomThemeManager.colors.textColorSecond
+                    )
                 }
             }else{
                 Box(){}
             }
-            Text(text = "${task.xpForTask} xp", color = Color.Gray)
+            Text(text = "${task.xpForTask} xp", color = CustomThemeManager.colors.textColorSecond)
         }
     }
 }

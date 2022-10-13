@@ -86,7 +86,7 @@ fun InputField(label:String,
 
 @Preview(showBackground = true)
 @Composable()
-fun InputPreview(){
+private fun InputPreview(){
     val validRes = ValidationResult(isError = true, errorMessage = "some error")
     InputField(label = "test", onTextChange = { }, validationResult = validRes)
 }

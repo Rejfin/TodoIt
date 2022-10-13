@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.sp
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.rejfin.todoit.components.Calendar
-import dev.rejfin.todoit.ui.theme.Background
+import dev.rejfin.todoit.ui.theme.CustomThemeManager
 
 @Destination
 @Composable
@@ -24,19 +24,27 @@ fun HomeScreen(navigator: DestinationsNavigator?){
     Column(horizontalAlignment = Alignment.CenterHorizontally, 
         modifier = Modifier
             .fillMaxSize()
-            .background(Background)) {
+            .background(CustomThemeManager.colors.appBackground)) {
         Column(modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
             .clip(RoundedCornerShape(8.dp))
             .background(Color.White)
         ) {
-            Text(text = "Witaj Jan Kowalski", fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(8.dp, 8.dp, 8.dp, 0.dp))
-            Text(text = "Wykonanych zadań na dziś 1/4", color= Color.Gray, modifier = Modifier.padding(8.dp, 0.dp, 8.dp, 8.dp))
+            Text(text = "Witaj Jan Kowalski",
+                fontSize = 18.sp,
+                color = CustomThemeManager.colors.textColorFirst,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(8.dp, 8.dp, 8.dp, 0.dp)
+            )
+            Text(text = "Wykonanych zadań na dziś 1/4",
+                color= CustomThemeManager.colors.textColorSecond,
+                modifier = Modifier.padding(8.dp, 0.dp, 8.dp, 8.dp)
+            )
         }
         Calendar(modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White)
+            .background(CustomThemeManager.colors.cardBackgroundColor)
             .padding(horizontal = 8.dp, vertical = 14.dp)
         )
     }

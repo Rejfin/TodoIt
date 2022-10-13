@@ -3,10 +3,7 @@ package dev.rejfin.todoit.screens
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.LinearProgressIndicator
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,7 +17,6 @@ import dev.rejfin.todoit.AuthViewModel
 import dev.rejfin.todoit.R
 import dev.rejfin.todoit.components.AppLogo
 import dev.rejfin.todoit.components.InputField
-import dev.rejfin.todoit.ui.theme.TodoItTheme
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
@@ -30,6 +26,8 @@ import dev.rejfin.todoit.components.ErrorDialog
 import dev.rejfin.todoit.screens.destinations.HomeScreenDestination
 import dev.rejfin.todoit.screens.destinations.LoginScreenDestination
 import dev.rejfin.todoit.screens.destinations.RegisterScreenDestination
+import dev.rejfin.todoit.ui.theme.CustomJetpackComposeTheme
+import dev.rejfin.todoit.ui.theme.CustomThemeManager
 
 @RootNavGraph(start = true)
 @Destination
@@ -78,10 +76,13 @@ fun LoginScreen(navigator: DestinationsNavigator?, viewModel: AuthViewModel = vi
             Row(modifier = Modifier
                 .padding(vertical = 15.dp)
                 .align(Alignment.CenterHorizontally)){
-                Text(stringResource(id = R.string.dont_have_acc), fontSize = 15.sp)
+                Text(stringResource(id = R.string.dont_have_acc),
+                    color = CustomThemeManager.colors.textColorSecond,
+                    fontSize = 15.sp
+                )
                 Text(
                     stringResource(id = R.string.create_now),
-                    color = MaterialTheme.colors.primary,
+                    color = CustomThemeManager.colors.primaryColor,
                     fontSize = 15.sp,
                     modifier = Modifier.clickable(enabled = !_uiState.isAuthInProgress) {
                         navigator?.navigate(RegisterScreenDestination){
@@ -98,15 +99,21 @@ fun LoginScreen(navigator: DestinationsNavigator?, viewModel: AuthViewModel = vi
                 .align(Alignment.End)
                 .widthIn(140.dp, 200.dp),
                 enabled = !_uiState.isAuthInProgress,
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(backgroundColor = CustomThemeManager.colors.primaryColor)
             ) {
-                Text(text = stringResource(id = R.string.log_in))
+                Text(text = stringResource(id = R.string.log_in),
+                    color = CustomThemeManager.colors.textColorOnPrimary
+                )
             }
             if(_uiState.isAuthInProgress){
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
             if(_uiState.authFailedMessage != null){
-                ErrorDialog(title = stringResource(id = R.string.log_in_error), errorText = _uiState.authFailedMessage, onDialogClose = {
+                ErrorDialog(
+                    title = stringResource(id = R.string.log_in_error),
+                    errorText = _uiState.authFailedMessage,
+                    onDialogClose = {
                     viewModel.dismissAuthError()
                 })
             }
@@ -124,7 +131,7 @@ fun LoginScreen(navigator: DestinationsNavigator?, viewModel: AuthViewModel = vi
 @Preview(showBackground = true)
 @Composable
 fun LoginPreview() {
-    TodoItTheme {
+    CustomJetpackComposeTheme() {
         LoginScreen(navigator = null)
     }
 }

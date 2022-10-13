@@ -14,7 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.rejfin.todoit.models.CalendarDay
-import dev.rejfin.todoit.ui.theme.PrimaryColor
+import dev.rejfin.todoit.ui.theme.CustomThemeManager
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -31,7 +31,7 @@ fun Calendar(modifier: Modifier = Modifier) {
         modifier = modifier
     ) {
 
-        mDays.forEachIndexed { index, calendarDay ->
+        mDays.forEach{calendarDay ->
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
@@ -39,7 +39,7 @@ fun Calendar(modifier: Modifier = Modifier) {
                     .padding(vertical = 8.dp)
             ) {
                 Text(text = sdfName.format(calendarDay.timestamp),
-                    color=Color.Gray,
+                    color= CustomThemeManager.colors.textColorThird,
                     fontWeight = FontWeight.W500,
                     fontSize = 16.sp,
                     modifier = Modifier.padding(bottom = 3.dp)
@@ -47,12 +47,12 @@ fun Calendar(modifier: Modifier = Modifier) {
                 if(sdfNumber.format(calendarDay.timestamp) == sdfNumber.format(cal.time.time)){
                     Box(contentAlignment = Alignment.Center, modifier = Modifier
                         .clip(RoundedCornerShape(90.dp))
-                        .background(PrimaryColor)
+                        .background(CustomThemeManager.colors.primaryColor)
                         .width(35.dp)
                         .height(35.dp)
                     ){
                         Text(text = sdfNumber.format(calendarDay.timestamp),
-                            color = Color.White,
+                            color = CustomThemeManager.colors.textColorOnPrimary,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.W600
                         )
@@ -65,7 +65,8 @@ fun Calendar(modifier: Modifier = Modifier) {
                     ){
                         Text(text = sdfNumber.format(calendarDay.timestamp),
                             fontSize = 18.sp,
-                            fontWeight = FontWeight.W600
+                            fontWeight = FontWeight.W600,
+                            color = CustomThemeManager.colors.textColorFirst
                         )
                     }
                 }
@@ -76,7 +77,7 @@ fun Calendar(modifier: Modifier = Modifier) {
                         modifier = Modifier
                             .padding(top = 4.dp, bottom = 4.dp)
                             .clip(RoundedCornerShape(90.dp))
-                            .background(PrimaryColor)
+                            .background(CustomThemeManager.colors.primaryColor)
                             .width(8.dp)
                             .height(8.dp)
                     ){}
@@ -97,8 +98,6 @@ private fun getDaysInCurrentWeek(): List<CalendarDay>{
     val listOfDays = mutableListOf<CalendarDay>()
     for (i in 0..6) {
         listOfDays.add(CalendarDay(cal.time.time, i))
-        //println(sdf.format(cal.time))
-        //println(cal.time.time)
         cal.add(Calendar.DAY_OF_WEEK, 1)
     }
     return listOfDays

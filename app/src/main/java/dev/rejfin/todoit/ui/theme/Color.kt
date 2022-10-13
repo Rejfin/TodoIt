@@ -1,10 +1,107 @@
 package dev.rejfin.todoit.ui.theme
 
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 
-val Purple200 = Color(0xFFBB86FC)
-val Purple500 = Color(0xFF6200EE)
-val Purple700 = Color(0xFF3700B3)
-val Teal200 = Color(0xFF03DAC5)
-val PrimaryColor = Color(0xFF2E81FF)
-val Background = Color(0xFFE5E5E5)
+enum class CustomTheme{
+    LIGHT, DARK
+}
+
+//Light colors
+val primaryColor = Color(0xFF2E81FF)
+val secondaryColor = Color(0xFFFF792E)
+val cardBackgroundColor = Color(0xFFFFFFFF)
+val textFirstColor = Color(0xFF0D0D0D)
+val textSecondColor = Color(0xFF5F5F5F)
+val textThirdColor = Color(0xFFA5A5A5)
+val textColorOnPrimary = Color(0xFFFFFFFF)
+val appBackground = Color(0xFFF5F5F5)
+val cardBorderColor = Color(0xFFCACACA)
+val doneColor = Color(0xFF03B14B)
+
+
+//Dark colors
+val darkPrimaryColor = Color(0xFF2196F3)
+val darkSecondaryColor = Color(0xFFFF792E)
+val darkCardBackgroundColor = Color(0xFFFFFFFF)
+val darkTextFirstColor = Color(0xFF0D0D0D)
+val darkTextSecondColor = Color(0xFF5F5F5F)
+val darkTextThirdColor = Color(0xFFA7A7A7)
+val darkTextColorOnPrimary = Color(0xFFFFFFFF)
+val darkAppBackground = Color(0xFFEEEEEE)
+val darkCardBorderColor = Color(0xFF2C2C2C)
+val darkDoneColor = Color(0xFF03B14B)
+
+
+@Stable
+class CustomColors(
+    primaryColor: Color,
+    secondaryColor: Color,
+    cardBackgroundColor: Color,
+    textColorFirst: Color,
+    textColorSecond: Color,
+    textColorThird: Color,
+    textColorOnPrimary: Color,
+    appBackground: Color,
+    cardBorderColor: Color,
+    doneColor: Color
+){
+    var primaryColor by mutableStateOf(primaryColor)
+        private set
+
+    var secondaryColor by mutableStateOf(secondaryColor)
+        private set
+
+    var cardBackgroundColor by mutableStateOf(cardBackgroundColor)
+        private set
+
+    var textColorFirst by mutableStateOf(textColorFirst)
+        private set
+
+    var textColorSecond by mutableStateOf(textColorSecond)
+        private set
+
+    var textColorThird by mutableStateOf(textColorThird)
+        private set
+
+    var appBackground by mutableStateOf(appBackground)
+        private set
+
+    var cardBorderColor by mutableStateOf(cardBorderColor)
+        private set
+
+    var textColorOnPrimary by mutableStateOf(textColorOnPrimary)
+        private set
+
+    var doneColor by mutableStateOf(doneColor)
+
+
+    fun update(colors: CustomColors){
+        this.primaryColor = colors.primaryColor
+        this.secondaryColor = colors.secondaryColor
+        this.cardBackgroundColor = colors.cardBackgroundColor
+        this.textColorFirst = colors.textColorFirst
+        this.textColorSecond = colors.textColorSecond
+        this.textColorThird = colors.textColorThird
+        this.textColorOnPrimary = colors.textColorOnPrimary
+        this.appBackground = colors.appBackground
+        this.cardBorderColor = colors.cardBorderColor
+        this.doneColor = colors.doneColor
+    }
+
+    fun copy() = CustomColors(
+        primaryColor,
+        secondaryColor,
+        cardBackgroundColor,
+        textColorFirst,
+        textColorSecond,
+        textColorThird,
+        textColorOnPrimary,
+        appBackground,
+        cardBorderColor,
+        doneColor
+    )
+}
