@@ -33,7 +33,6 @@ fun TaskCard(task: TaskModel){
 
     Column(modifier = Modifier
         .fillMaxWidth()
-        .padding(8.dp)
         .clip(RoundedCornerShape(8.dp))
         .background(Color.White)
     ) {
@@ -100,13 +99,18 @@ fun TaskCard(task: TaskModel){
                         tint = CustomThemeManager.colors.textColorThird,
                     )
                     Text(text = "${sdfDate.format(task.timestampStart!! * 1000L)} - ${sdfDate.format(task.timestampStop!! * 1000L)}",
-                        color = CustomThemeManager.colors.textColorSecond
+                        color = CustomThemeManager.colors.textColorSecond,
+                        style = if(task.taskParts.all { it.first }) TextStyle(textDecoration = TextDecoration.LineThrough) else TextStyle.Default
                     )
                 }
             }else{
                 Box(){}
             }
-            Text(text = "${task.xpForTask} xp", color = CustomThemeManager.colors.textColorSecond)
+            Text(
+                text = "${task.xpForTask} xp",
+                color = CustomThemeManager.colors.textColorSecond,
+                style = if(task.taskParts.all { it.first }) TextStyle(textDecoration = TextDecoration.LineThrough) else TextStyle.Default
+            )
         }
     }
 }

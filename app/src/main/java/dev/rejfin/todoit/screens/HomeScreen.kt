@@ -2,6 +2,8 @@ package dev.rejfin.todoit.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -15,12 +17,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import dev.rejfin.todoit.HomeViewModel
 import dev.rejfin.todoit.components.Calendar
 import dev.rejfin.todoit.ui.theme.CustomThemeManager
+import androidx.lifecycle.viewmodel.compose.viewModel
+import dev.rejfin.todoit.components.TaskCard
+import dev.rejfin.todoit.models.TaskModel
 
 @Destination
 @Composable
-fun HomeScreen(navigator: DestinationsNavigator?){
+fun HomeScreen(navigator: DestinationsNavigator?, viewModel: HomeViewModel = viewModel()){
     Column(horizontalAlignment = Alignment.CenterHorizontally, 
         modifier = Modifier
             .fillMaxSize()
@@ -42,11 +48,26 @@ fun HomeScreen(navigator: DestinationsNavigator?){
                 modifier = Modifier.padding(8.dp, 0.dp, 8.dp, 8.dp)
             )
         }
-        Calendar(modifier = Modifier
+        Calendar(
+            viewModel.calendarDays,
+            onDayClick = {},
+            modifier = Modifier
             .fillMaxWidth()
             .background(CustomThemeManager.colors.cardBackgroundColor)
             .padding(horizontal = 8.dp, vertical = 14.dp)
         )
+        LazyColumn(
+            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ){
+            items(items = viewModel.taskList,
+                key = {task -> task.id },
+                contentType = { TaskModel::class.java }
+            )
+            {task ->
+                TaskCard(task = task)
+            }
+        }
     }
 }
 
