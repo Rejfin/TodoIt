@@ -1,4 +1,4 @@
-package dev.rejfin.todoit.components
+package dev.rejfin.todoit.ui.components
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.AlertDialog
@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import dev.rejfin.todoit.R
 
 @Composable
-fun InfoDialog(title:String, infoText: String, onDialogClose: () -> Unit = {}){
+fun ErrorDialog(title:String, errorText: String, onDialogClose: () -> Unit = {}){
     var showDialog by remember{ mutableStateOf(true) }
 
     if (showDialog) {
@@ -25,7 +25,7 @@ fun InfoDialog(title:String, infoText: String, onDialogClose: () -> Unit = {}){
                 Text(text = title, modifier = Modifier.fillMaxWidth())
             },
             text = {
-                Text(text = infoText)
+                Text(text = errorText)
             },
             buttons = {
                 Row(
@@ -53,6 +53,6 @@ fun InfoDialog(title:String, infoText: String, onDialogClose: () -> Unit = {}){
 
 @Preview(showBackground = true)
 @Composable
-fun InfoPreview(){
-    InfoDialog(title = "test title", infoText = "test error message")
+fun errorPreview(){
+    ErrorDialog(title = "test title", errorText = "test error message")
 }

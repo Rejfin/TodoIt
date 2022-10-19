@@ -1,4 +1,4 @@
-package dev.rejfin.todoit.components
+package dev.rejfin.todoit.ui.components
 
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable

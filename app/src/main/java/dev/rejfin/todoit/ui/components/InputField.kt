@@ -1,4 +1,4 @@
-package dev.rejfin.todoit.components
+package dev.rejfin.todoit.ui.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.rejfin.todoit.R
 import dev.rejfin.todoit.models.ValidationResult
+import dev.rejfin.todoit.ui.theme.CustomThemeManager
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -52,11 +53,14 @@ fun InputField(label:String,
                 onTextChange(it)
             },
             label = { Text(label) },
+            modifier = modifier,
+            colors = TextFieldDefaults.textFieldColors(
+                backgroundColor = CustomThemeManager.colors.cardBackgroundColor
+            ),
             singleLine = true,
             keyboardOptions = if(isPasswordField) KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = imeAction) else KeyboardOptions(keyboardType = keyboardType, imeAction = imeAction),
             visualTransformation = if (passwordVisibility || !isPasswordField) VisualTransformation.None else PasswordVisualTransformation(),
             shape = RoundedCornerShape(10.dp),
-            modifier = modifier,
             isError = validationResult.isError,
             trailingIcon = {
                 if(isPasswordField){

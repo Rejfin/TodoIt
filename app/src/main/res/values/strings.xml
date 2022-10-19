@@ -17,4 +17,14 @@
     <string name="log_in_error">Log in error</string>
     <string name="register_success_message">Your account has been successfully created. You can now log in to your newly created account.</string>
     <string name="register_success">Registration successfully completed</string>
+    <string name="task_title">Task title</string>
+    <string name="task_description">Task description</string>
+    <string name="new_task_part">Add task part</string>
+    <string name="day_of_completion">Day of task completion</string>
+    <string name="is_all_day">Is the task taking all day?</string>
+    <string name="start_time">start time</string>
+    <string name="stop_time">stop time</string>
+    <string name="difficulty_level">Difficulty level</string>
+    <string name="time_consuming">Time consuming</string>
+    <string name="reward_for_task">Reward for completing a task</string>
 </resources>

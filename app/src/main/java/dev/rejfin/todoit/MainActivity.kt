@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import com.ramcosta.composedestinations.DestinationsNavHost
-import dev.rejfin.todoit.screens.NavGraphs
+import dev.rejfin.todoit.ui.screens.NavGraphs
 import dev.rejfin.todoit.ui.theme.CustomJetpackComposeTheme
 
 class MainActivity : ComponentActivity() {

@@ -1,7 +1,8 @@
-package dev.rejfin.todoit
+package dev.rejfin.todoit.viewmodels
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
+import dev.rejfin.todoit.utils.CalendarUtility
 import dev.rejfin.todoit.models.CalendarDay
 import dev.rejfin.todoit.models.TaskModel
 

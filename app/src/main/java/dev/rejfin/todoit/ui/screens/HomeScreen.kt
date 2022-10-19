@@ -1,4 +1,4 @@
-package dev.rejfin.todoit.screens
+package dev.rejfin.todoit.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -17,11 +17,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import dev.rejfin.todoit.HomeViewModel
-import dev.rejfin.todoit.components.Calendar
+import dev.rejfin.todoit.viewmodels.HomeViewModel
+import dev.rejfin.todoit.ui.components.Calendar
 import dev.rejfin.todoit.ui.theme.CustomThemeManager
 import androidx.lifecycle.viewmodel.compose.viewModel
-import dev.rejfin.todoit.components.TaskCard
+import dev.rejfin.todoit.ui.components.TaskCard
 import dev.rejfin.todoit.models.TaskModel
 
 @Destination
@@ -58,7 +58,7 @@ fun HomeScreen(navigator: DestinationsNavigator?, viewModel: HomeViewModel = vie
         )
         LazyColumn(
             contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ){
             items(items = viewModel.taskList,
                 key = {task -> task.id },

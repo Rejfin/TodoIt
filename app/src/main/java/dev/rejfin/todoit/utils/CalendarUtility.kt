@@ -1,4 +1,4 @@
-package dev.rejfin.todoit
+package dev.rejfin.todoit.utils
 
 import dev.rejfin.todoit.models.CalendarDay
 import java.text.SimpleDateFormat

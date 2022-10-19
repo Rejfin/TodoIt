@@ -1,4 +1,4 @@
-package dev.rejfin.todoit.screens
+package dev.rejfin.todoit.ui.screens
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -18,21 +18,21 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.popUpTo
-import dev.rejfin.todoit.AuthViewModel
+import dev.rejfin.todoit.viewmodels.AuthViewModel
 import dev.rejfin.todoit.R
-import dev.rejfin.todoit.components.AppLogo
-import dev.rejfin.todoit.components.ErrorDialog
-import dev.rejfin.todoit.components.InfoDialog
-import dev.rejfin.todoit.components.InputField
-import dev.rejfin.todoit.screens.destinations.LoginScreenDestination
-import dev.rejfin.todoit.screens.destinations.RegisterScreenDestination
+import dev.rejfin.todoit.ui.components.AppLogo
+import dev.rejfin.todoit.ui.components.ErrorDialog
+import dev.rejfin.todoit.ui.components.InfoDialog
+import dev.rejfin.todoit.ui.components.InputField
+import dev.rejfin.todoit.ui.screens.destinations.LoginScreenDestination
+import dev.rejfin.todoit.ui.screens.destinations.RegisterScreenDestination
 import dev.rejfin.todoit.ui.theme.CustomJetpackComposeTheme
 import dev.rejfin.todoit.ui.theme.CustomThemeManager
 
 @Destination
 @Composable
 fun RegisterScreen(navigator: DestinationsNavigator?, viewModel: AuthViewModel = viewModel()) {
-    val _uiState = viewModel.registerUiState
+    val uiState = viewModel.registerUiState
     var nick by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -51,50 +51,50 @@ fun RegisterScreen(navigator: DestinationsNavigator?, viewModel: AuthViewModel =
                 label = stringResource(id = R.string.nick),
                 onTextChange = {
                     nick = it
-                    viewModel.clearError(_uiState.nick)
+                    viewModel.clearError(uiState.nick)
                 },
-                _uiState.nick,
+                uiState.nick,
                 imeAction= ImeAction.Next,
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !_uiState.isAuthInProgress
+                enabled = !uiState.isAuthInProgress
             )
             InputField(
                 label = stringResource(id = R.string.email),
                 onTextChange = {
                     email = it
-                    viewModel.clearError(_uiState.email)
+                    viewModel.clearError(uiState.email)
                 },
-                _uiState.email,
+                uiState.email,
                 keyboardType = KeyboardType.Email,
                 imeAction= ImeAction.Next,
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !_uiState.isAuthInProgress
+                enabled = !uiState.isAuthInProgress
             )
             InputField(
                 label = stringResource(id = R.string.password),
                 onTextChange = {
                     password = it
-                    viewModel.clearError(_uiState.password)
+                    viewModel.clearError(uiState.password)
                 },
-                _uiState.password,
+                uiState.password,
                 keyboardType = KeyboardType.Password,
                 imeAction= ImeAction.Next,
                 isPasswordField = true,
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !_uiState.isAuthInProgress
+                enabled = !uiState.isAuthInProgress
             )
             InputField(
                 label = stringResource(id = R.string.repeat_password),
                 onTextChange = {
                     repeatedPassword = it
-                    viewModel.clearError(_uiState.repeatedPassword)
+                    viewModel.clearError(uiState.repeatedPassword)
                 },
-                _uiState.repeatedPassword,
+                uiState.repeatedPassword,
                 keyboardType = KeyboardType.Password,
                 imeAction= ImeAction.Done,
                 isPasswordField = true,
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !_uiState.isAuthInProgress
+                enabled = !uiState.isAuthInProgress
             )
             Row(modifier = Modifier
                 .padding(vertical = 15.dp)
@@ -107,7 +107,7 @@ fun RegisterScreen(navigator: DestinationsNavigator?, viewModel: AuthViewModel =
                     stringResource(id = R.string.log_in_now),
                     color = CustomThemeManager.colors.primaryColor,
                     fontSize = 15.sp,
-                    modifier = Modifier.clickable(enabled = !_uiState.isAuthInProgress){
+                    modifier = Modifier.clickable(enabled = !uiState.isAuthInProgress){
                     navigator?.navigate(LoginScreenDestination) {
                         popUpTo(RegisterScreenDestination) {
                             inclusive = true
@@ -122,7 +122,7 @@ fun RegisterScreen(navigator: DestinationsNavigator?, viewModel: AuthViewModel =
                 }, modifier = Modifier
                     .align(Alignment.End)
                     .widthIn(140.dp, 200.dp),
-                enabled = !_uiState.isAuthInProgress,
+                enabled = !uiState.isAuthInProgress,
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(backgroundColor = CustomThemeManager.colors.primaryColor)
             ) {
@@ -131,15 +131,15 @@ fun RegisterScreen(navigator: DestinationsNavigator?, viewModel: AuthViewModel =
                     color = CustomThemeManager.colors.textColorOnPrimary
                 )
             }
-            if(_uiState.isAuthInProgress){
+            if(uiState.isAuthInProgress){
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
-            if(_uiState.authFailedMessage != null){
-                ErrorDialog(title = stringResource(id = R.string.register_error), errorText = _uiState.authFailedMessage, onDialogClose = {
+            if(uiState.authFailedMessage != null){
+                ErrorDialog(title = stringResource(id = R.string.register_error), errorText = uiState.authFailedMessage, onDialogClose = {
                     viewModel.dismissAuthError()
                 })
             }
-            if(_uiState.registerSuccess){
+            if(uiState.registerSuccess){
                 InfoDialog(
                     title = stringResource(id = R.string.register_success),
                     infoText = stringResource(id = R.string.register_success_message),

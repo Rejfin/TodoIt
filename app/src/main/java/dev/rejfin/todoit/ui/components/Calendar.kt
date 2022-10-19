@@ -1,4 +1,4 @@
-package dev.rejfin.todoit.components
+package dev.rejfin.todoit.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,7 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.rejfin.todoit.CalendarUtility
+import dev.rejfin.todoit.utils.CalendarUtility
 import dev.rejfin.todoit.models.CalendarDay
 import dev.rejfin.todoit.ui.theme.CustomThemeManager
 

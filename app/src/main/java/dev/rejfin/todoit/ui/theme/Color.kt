@@ -18,7 +18,7 @@ val textFirstColor = Color(0xFF0D0D0D)
 val textSecondColor = Color(0xFF5F5F5F)
 val textThirdColor = Color(0xFFA5A5A5)
 val textColorOnPrimary = Color(0xFFFFFFFF)
-val appBackground = Color(0xFFF5F5F5)
+val appBackground = Color(0xFFF0F0F0)
 val cardBorderColor = Color(0xFFCACACA)
 val doneColor = Color(0xFF03B14B)
 

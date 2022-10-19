@@ -1,4 +1,4 @@
-package dev.rejfin.todoit.components
+package dev.rejfin.todoit.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -15,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -33,6 +34,11 @@ fun TaskCard(task: TaskModel){
 
     Column(modifier = Modifier
         .fillMaxWidth()
+        .shadow(
+            elevation = 8.dp,
+            shape = RoundedCornerShape(8.dp),
+            clip = true
+        )
         .clip(RoundedCornerShape(8.dp))
         .background(Color.White)
     ) {
