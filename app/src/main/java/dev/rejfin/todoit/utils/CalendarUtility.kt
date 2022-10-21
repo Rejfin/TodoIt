@@ -1,12 +1,14 @@
 package dev.rejfin.todoit.utils
 
 import dev.rejfin.todoit.models.CalendarDay
+import dev.rejfin.todoit.models.CustomDateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
 class CalendarUtility {
     private val sdfNumber = SimpleDateFormat("dd", Locale.getDefault())
     private val sdfName = SimpleDateFormat("EEE", Locale.getDefault())
+    private val calendarInstance: Calendar = Calendar.getInstance(Locale.UK)
 
     fun getDaysInCurrentWeek(): List<CalendarDay>{
         val cal: Calendar = Calendar.getInstance(Locale.UK)
@@ -21,15 +23,26 @@ class CalendarUtility {
     }
 
     fun getCurrentTimeStamp():Long{
-        val cal: Calendar = Calendar.getInstance(Locale.UK)
-        return cal.timeInMillis
+        return calendarInstance.timeInMillis
     }
 
-    fun timestampToDayNumber(timestamp:Long):String{
+    fun timestampToDayNumber(timestamp:Long?):String{
+        if(timestamp == null) return "-"
         return sdfNumber.format(timestamp)
     }
 
-    fun timestampToDayName(timestamp:Long):String{
+    fun timestampToDayName(timestamp:Long?):String{
+        if(timestamp == null) return "-"
         return sdfName.format(timestamp)
+    }
+
+    fun getCurrentDate():CustomDateFormat{
+        return CustomDateFormat(
+            year = calendarInstance[Calendar.YEAR],
+            month = calendarInstance[Calendar.MONTH],
+            day = calendarInstance[Calendar.DAY_OF_MONTH],
+            hour = calendarInstance[Calendar.HOUR],
+            minutes = calendarInstance[Calendar.MINUTE]
+        )
     }
 }

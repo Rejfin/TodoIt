@@ -39,7 +39,8 @@ fun InputField(label:String,
                keyboardType: KeyboardType = KeyboardType.Text,
                imeAction: ImeAction = ImeAction.None,
                isPasswordField: Boolean = false,
-               enabled:Boolean = true){
+               enabled:Boolean = true,
+               singleLine: Boolean = true){
 
     val keyboardController = LocalSoftwareKeyboardController.current
     var text by remember { mutableStateOf(placeholder) }
@@ -57,7 +58,7 @@ fun InputField(label:String,
             colors = TextFieldDefaults.textFieldColors(
                 backgroundColor = CustomThemeManager.colors.cardBackgroundColor
             ),
-            singleLine = true,
+            singleLine = singleLine,
             keyboardOptions = if(isPasswordField) KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = imeAction) else KeyboardOptions(keyboardType = keyboardType, imeAction = imeAction),
             visualTransformation = if (passwordVisibility || !isPasswordField) VisualTransformation.None else PasswordVisualTransformation(),
             shape = RoundedCornerShape(10.dp),
