@@ -43,14 +43,16 @@ fun HomeScreen(navigator: DestinationsNavigator?, viewModel: HomeViewModel = vie
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(8.dp, 8.dp, 8.dp, 0.dp)
             )
-            Text(text = "Wykonanych zadań na dziś 1/4",
+            Text(text = "Wykonanych zadań na dziś ${viewModel.numberOfDoneTask.value}/${viewModel.numberOfAllTasks.value}",
                 color= CustomThemeManager.colors.textColorSecond,
                 modifier = Modifier.padding(8.dp, 0.dp, 8.dp, 8.dp)
             )
         }
         Calendar(
             viewModel.calendarDays,
-            onDayClick = {},
+            onDayClick = {
+                viewModel.getTaskFromDay(it)
+            },
             modifier = Modifier
             .fillMaxWidth()
             .background(CustomThemeManager.colors.cardBackgroundColor)

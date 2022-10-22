@@ -4,10 +4,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import dev.rejfin.todoit.models.CustomDateFormat
-import dev.rejfin.todoit.models.TaskUiState
-import dev.rejfin.todoit.models.ValidationResult
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
+import dev.rejfin.todoit.models.*
 import dev.rejfin.todoit.utils.CalendarUtility
+import java.util.*
 
 class NewTaskViewModel: ViewModel() {
     var taskUiState by mutableStateOf(TaskUiState())
@@ -15,6 +17,10 @@ class NewTaskViewModel: ViewModel() {
 
     var calendarUtility: CalendarUtility
         private set
+
+    private val database = Firebase.database
+    private val dbRef = database.getReference("tasks")
+    private val firebaseAuth = Firebase.auth
 
     init {
         calendarUtility = CalendarUtility()
@@ -31,15 +37,15 @@ class NewTaskViewModel: ViewModel() {
     }
 
     fun addTaskPart(text: String){
-        val newList = mutableListOf<Pair<Boolean, String>>()
+        val newList = mutableListOf<TaskPartModel>()
         newList.addAll(taskUiState.taskParts)
-        newList.add(Pair(false, text))
+        newList.add(TaskPartModel(false, text))
         taskUiState = taskUiState.copy(taskParts = newList)
     }
 
     fun updateTaskPart(index:Int, text: String){
         val taskList = taskUiState.taskParts.toMutableList()
-        taskList[index] = taskList[index].copy(second = text)
+        taskList[index] = taskList[index].copy(desc = text)
         taskUiState = taskUiState.copy(taskParts = taskList)
     }
 
@@ -75,6 +81,10 @@ class NewTaskViewModel: ViewModel() {
         taskUiState = taskUiState.copy(startDate = taskUiState.startDate.copy(year = date.year, month = date.month, day = date.day))
     }
 
+    fun clearError(){
+        taskUiState = taskUiState.copy(taskErrorMessage = null)
+    }
+
     fun createTask(){
         taskUiState = taskUiState.copy(
             taskTitleValidation = ValidationResult(
@@ -101,11 +111,37 @@ class NewTaskViewModel: ViewModel() {
             }
         }
 
-        //save only task parts with text inside
-        val taskList = taskUiState.taskParts.filter { it.second.isNotEmpty() }
-
         if(taskUiState.taskTitleValidation.isError || taskUiState.taskDescriptionValidation.isError){
             return
+        }
+
+        if(firebaseAuth.currentUser == null){
+            return
+        }
+
+        //save only task parts with text inside
+        val taskList = taskUiState.taskParts.filter { it.desc.isNotEmpty() }
+
+        val timestamp = calendarUtility.timestampFromDate(taskUiState.startDate.year, taskUiState.startDate.month, taskUiState.startDate.day)
+
+        val taskModel = TaskModel(
+            id = UUID.randomUUID().toString(),
+            title = taskUiState.taskTitle,
+            description = taskUiState.taskDescription,
+            taskParts = taskList,
+            xpForTask = taskUiState.xpForCompleteTask,
+            isAllDay = taskUiState.isAllDay,
+            startDate = taskUiState.startDate,
+            endDate = taskUiState.endDate,
+            isDone = false
+        )
+
+        dbRef.child(firebaseAuth.uid!!).child(timestamp.toString()).child(taskModel.id).setValue(taskModel).addOnCompleteListener {
+            taskUiState = if(it.isSuccessful){
+                taskUiState.copy(isDataSending = false, isDateSent = true)
+            }else{
+                taskUiState.copy(isDataSending = false, isDateSent = false, taskErrorMessage = it.exception?.localizedMessage)
+            }
         }
     }
 }

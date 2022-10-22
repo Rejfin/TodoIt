@@ -16,13 +16,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.rejfin.todoit.utils.CalendarUtility
 import dev.rejfin.todoit.models.CalendarDay
+import dev.rejfin.todoit.models.CustomDateFormat
 import dev.rejfin.todoit.ui.theme.CustomThemeManager
 
 @Composable
-fun Calendar(listOfDays: List<CalendarDay>, onDayClick:(clickedDayTimeStamp: Long)-> Unit, modifier: Modifier = Modifier) {
+fun Calendar(listOfDays: List<CalendarDay>, onDayClick:(clickedDayDate: CustomDateFormat)-> Unit, modifier: Modifier = Modifier) {
 
     val calendarUtility by remember {mutableStateOf(CalendarUtility()) }
-    var selectedDay by remember{ mutableStateOf(calendarUtility.getCurrentTimeStamp()) }
+    var selectedDay by remember{ mutableStateOf(calendarUtility.getCurrentDate()) }
 
     Row(
         modifier = modifier
@@ -34,24 +35,24 @@ fun Calendar(listOfDays: List<CalendarDay>, onDayClick:(clickedDayTimeStamp: Lon
                     .weight(1f)
                     .padding(vertical = 8.dp)
                     .clickable {
-                        onDayClick(calendarDay.timestamp)
-                        selectedDay = calendarDay.timestamp
+                        onDayClick(calendarDay.date)
+                        selectedDay = calendarDay.date
                     }
             ) {
-                Text(text = calendarUtility.timestampToDayName(calendarDay.timestamp),
+                Text(text = calendarDay.dayName,
                     color= CustomThemeManager.colors.textColorThird,
                     fontWeight = FontWeight.W500,
                     fontSize = 16.sp,
                     modifier = Modifier.padding(bottom = 3.dp)
                 )
-                if(calendarUtility.timestampToDayNumber(calendarDay.timestamp) == calendarUtility.timestampToDayNumber(selectedDay)){
+                if(calendarUtility.areDateSame(calendarDay.date, selectedDay)){
                     Box(contentAlignment = Alignment.Center, modifier = Modifier
                         .clip(RoundedCornerShape(90.dp))
                         .background(CustomThemeManager.colors.primaryColor)
                         .width(35.dp)
                         .height(35.dp)
                     ){
-                        Text(text = calendarUtility.timestampToDayNumber(calendarDay.timestamp),
+                        Text(text = calendarDay.date.day.toString(),
                             color = CustomThemeManager.colors.textColorOnPrimary,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.W600
@@ -63,7 +64,7 @@ fun Calendar(listOfDays: List<CalendarDay>, onDayClick:(clickedDayTimeStamp: Lon
                         .width(35.dp)
                         .height(35.dp)
                     ){
-                        Text(text = calendarUtility.timestampToDayNumber(calendarDay.timestamp),
+                        Text(text = calendarDay.date.day.toString(),
                             fontSize = 18.sp,
                             fontWeight = FontWeight.W600,
                             color = CustomThemeManager.colors.textColorFirst
