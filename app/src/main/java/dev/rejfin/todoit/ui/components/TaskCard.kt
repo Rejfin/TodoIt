@@ -11,7 +11,6 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.outlined.Circle
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,8 +26,6 @@ import dev.rejfin.todoit.models.CustomDateFormat
 import dev.rejfin.todoit.models.TaskModel
 import dev.rejfin.todoit.models.TaskPartModel
 import dev.rejfin.todoit.ui.theme.CustomThemeManager
-import java.text.SimpleDateFormat
-import java.util.*
 
 @Composable
 fun TaskCard(task: TaskModel){
@@ -46,13 +43,13 @@ fun TaskCard(task: TaskModel){
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(8.dp, 8.dp, 8.dp, 0.dp),
-            color = if(task.isDone) CustomThemeManager.colors.textColorSecond else CustomThemeManager.colors.textColorFirst,
-            style = if(task.isDone) TextStyle(textDecoration = TextDecoration.LineThrough) else TextStyle.Default
+            color = if(task.taskParts.all { it.status } && task.done) CustomThemeManager.colors.textColorSecond else CustomThemeManager.colors.textColorFirst,
+            style = if(task.taskParts.all { it.status } && task.done) TextStyle(textDecoration = TextDecoration.LineThrough) else TextStyle.Default
         )
         Text(text = task.description,
             color= CustomThemeManager.colors.textColorSecond,
             modifier = Modifier.padding(8.dp),
-            style = if(task.isDone) TextStyle(textDecoration = TextDecoration.LineThrough) else TextStyle.Default
+            style = if(task.taskParts.all { it.status } && task.done) TextStyle(textDecoration = TextDecoration.LineThrough) else TextStyle.Default
         )
         if(task.taskParts.isNotEmpty()){
             Column(modifier = Modifier.padding(horizontal = 8.dp)) {
@@ -62,7 +59,7 @@ fun TaskCard(task: TaskModel){
                             Icon(imageVector = Icons.Filled.CheckCircle,
                                 contentDescription = "task done",
                                 modifier = Modifier.size(20.dp),
-                                tint = if(task.isDone) CustomThemeManager.colors.textColorSecond else CustomThemeManager.colors.doneColor
+                                tint = if(task.taskParts.all { it.status } && task.done) CustomThemeManager.colors.textColorSecond else CustomThemeManager.colors.doneColor
                             )
                         }else{
                             Icon(imageVector = Icons.Outlined.Circle,
@@ -80,7 +77,7 @@ fun TaskCard(task: TaskModel){
                 }
                 LinearProgressIndicator(
                     progress = task.taskParts.count { it.status } * 1f/task.taskParts.size,
-                    color = if(task.isDone) CustomThemeManager.colors.textColorThird else CustomThemeManager.colors.primaryColor,
+                    color = if(task.taskParts.all { it.status } && task.done) CustomThemeManager.colors.textColorThird else CustomThemeManager.colors.primaryColor,
                     backgroundColor = CustomThemeManager.colors.textColorThird,
                     modifier = Modifier
                         .padding(top = 8.dp)
@@ -97,7 +94,7 @@ fun TaskCard(task: TaskModel){
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ){
-            if(!task.isAllDay){
+            if(!task.allDay){
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Filled.Notifications,
@@ -106,7 +103,7 @@ fun TaskCard(task: TaskModel){
                     )
                     Text(text = "${String.format("%02d",task.startDate.hour)}:${String.format("%02d",task.startDate.minutes)} - ${String.format("%02d",task.endDate.hour)}:${String.format("%02d",task.endDate.minutes)}",
                         color = CustomThemeManager.colors.textColorSecond,
-                        style = if(task.isDone) TextStyle(textDecoration = TextDecoration.LineThrough) else TextStyle.Default
+                        style = if(task.taskParts.all { it.status } && task.done) TextStyle(textDecoration = TextDecoration.LineThrough) else TextStyle.Default
                     )
                 }
             }else{
@@ -115,7 +112,7 @@ fun TaskCard(task: TaskModel){
             Text(
                 text = "${task.xpForTask} xp",
                 color = CustomThemeManager.colors.textColorSecond,
-                style = if(task.isDone) TextStyle(textDecoration = TextDecoration.LineThrough) else TextStyle.Default
+                style = if(task.taskParts.all { it.status } && task.done) TextStyle(textDecoration = TextDecoration.LineThrough) else TextStyle.Default
             )
         }
     }
@@ -128,10 +125,14 @@ private fun TaskCardPreview(){
     task = task.copy(
         title = "test",
         description = "asdasd",
-        isAllDay = false,
+        allDay = false,
         startDate = CustomDateFormat(2022, 12 ,2, 11, 25),
         endDate = CustomDateFormat(2022, 12 ,2, 14, 25),
-        isDone = true
+        done = true,
+        taskParts = listOf(
+            TaskPartModel(false, "asdasd"),
+            TaskPartModel(true, "fgjfn")
+        )
     )
     TaskCard(task)
 }

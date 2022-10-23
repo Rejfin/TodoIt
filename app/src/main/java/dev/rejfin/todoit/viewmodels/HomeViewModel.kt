@@ -64,6 +64,7 @@ class HomeViewModel : ViewModel() {
                     val calendarDay = calendarDays.find { calendarUtility.areDateSame(it.date, date) }
                     val index = calendarDays.indexOf(calendarDay)
                     calendarDays[index].numberOfTasks = 0
+
                     for (taskSnapshot in snapshot.children) {
                         taskSnapshot.getValue<TaskModel>()?.let {
                             taskList.add(it)
@@ -73,7 +74,7 @@ class HomeViewModel : ViewModel() {
 
                             if(calendarUtility.areDateSame(date, calendarUtility.getCurrentDate())){
                                 viewModelScope.launch(Dispatchers.Main) {
-                                    if(it.isDone){
+                                    if(it.done){
                                         numberOfDoneTask.value++
                                     }
                                     numberOfAllTasks.value++

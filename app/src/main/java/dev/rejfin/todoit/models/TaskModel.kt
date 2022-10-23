@@ -6,8 +6,10 @@ data class TaskModel(
     val description: String = "",
     val taskParts: List<TaskPartModel> = emptyList(),
     val xpForTask: Int = 100,
-    val isAllDay: Boolean = true,
+    val allDay: Boolean = true,
     val startDate: CustomDateFormat = CustomDateFormat(),
     val endDate: CustomDateFormat = CustomDateFormat(),
-    val isDone: Boolean = false
-)
+    val done: Boolean = false
+){
+
+}

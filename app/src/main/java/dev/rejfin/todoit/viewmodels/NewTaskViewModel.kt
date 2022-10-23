@@ -130,10 +130,10 @@ class NewTaskViewModel: ViewModel() {
             description = taskUiState.taskDescription,
             taskParts = taskList,
             xpForTask = taskUiState.xpForCompleteTask,
-            isAllDay = taskUiState.isAllDay,
+            allDay = taskUiState.isAllDay,
             startDate = taskUiState.startDate,
             endDate = taskUiState.endDate,
-            isDone = false
+            done = false
         )
 
         dbRef.child(firebaseAuth.uid!!).child(timestamp.toString()).child(taskModel.id).setValue(taskModel).addOnCompleteListener {
