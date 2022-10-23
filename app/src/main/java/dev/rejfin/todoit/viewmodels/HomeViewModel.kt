@@ -1,7 +1,9 @@
 package dev.rejfin.todoit.viewmodels
 
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.ktx.auth
@@ -11,41 +13,31 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
+import dev.rejfin.todoit.models.*
 import dev.rejfin.todoit.utils.CalendarUtility
-import dev.rejfin.todoit.models.CalendarDay
-import dev.rejfin.todoit.models.CustomDateFormat
-import dev.rejfin.todoit.models.TaskModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class HomeViewModel : ViewModel() {
+    var homeUiState by mutableStateOf(HomeUiState())
+        private set
+
     val taskList = mutableStateListOf<TaskModel>()
 
     var calendarDays = mutableStateListOf<CalendarDay>()
         private set
 
-    var calendarUtility: CalendarUtility
-        private set
-
-    var numberOfDoneTask = mutableStateOf(0)
-        private set
-
-    var numberOfAllTasks = mutableStateOf(0)
-        private set
-
+    private val calendarUtility: CalendarUtility = CalendarUtility()
     private val database = Firebase.database
     private val dbRef = database.getReference("tasks")
     private val firebaseAuth = Firebase.auth
 
     init {
-        calendarUtility = CalendarUtility()
 
-        val date = calendarUtility.getCurrentDate()
-        getTaskFromDay(date)
-
-        calendarDays.addAll(
-            CalendarUtility().getDaysInCurrentWeek()
-        )
+        CalendarUtility().getDaysInCurrentWeek().forEach {
+            calendarDays.add(it)
+            getTaskFromDay(it.date)
+        }
     }
 
     fun getTaskFromDay(date: CustomDateFormat){
@@ -54,10 +46,8 @@ class HomeViewModel : ViewModel() {
         dbRef.child(firebaseAuth.uid!!).child(timestamp.toString()).addValueEventListener(
             object: ValueEventListener{
                 override fun onDataChange(snapshot: DataSnapshot) {
-
                     if(calendarUtility.areDateSame(date, calendarUtility.getCurrentDate())){
-                        numberOfAllTasks.value = 0
-                        numberOfDoneTask.value = 0
+                        homeUiState = homeUiState.copy(numberOfAllTasks = 0, numberOfDoneTask = 0)
                     }
 
                     taskList.clear()
@@ -74,10 +64,14 @@ class HomeViewModel : ViewModel() {
 
                             if(calendarUtility.areDateSame(date, calendarUtility.getCurrentDate())){
                                 viewModelScope.launch(Dispatchers.Main) {
-                                    if(it.done){
-                                        numberOfDoneTask.value++
-                                    }
-                                    numberOfAllTasks.value++
+                                    homeUiState = homeUiState.copy(
+                                        numberOfAllTasks = homeUiState.numberOfAllTasks + 1,
+                                        numberOfDoneTask = if(it.done){
+                                            homeUiState.numberOfDoneTask + 1
+                                        }else{
+                                            homeUiState.numberOfDoneTask
+                                        }
+                                    )
                                 }
                             }
                         }
@@ -85,9 +79,21 @@ class HomeViewModel : ViewModel() {
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
+                    homeUiState = homeUiState.copy(errorMessage = error.message)
                 }
             }
         )
+    }
+
+    fun clearError(){
+        homeUiState = homeUiState.copy(errorMessage = null)
+    }
+
+    fun showTaskDetails(task: TaskModel){
+        homeUiState = homeUiState.copy(showDetailsDialog = true, taskToShowDetails = task)
+    }
+
+    fun hideTaskDetails(){
+        homeUiState = homeUiState.copy(showDetailsDialog = false, taskToShowDetails = null)
     }
 }

@@ -28,8 +28,8 @@ import dev.rejfin.todoit.models.TaskPartModel
 import dev.rejfin.todoit.ui.theme.CustomThemeManager
 
 @Composable
-fun TaskCard(task: TaskModel){
-    Column(modifier = Modifier
+fun TaskCard(task: TaskModel, modifier: Modifier = Modifier){
+    Column(modifier = modifier
         .fillMaxWidth()
         .shadow(
             elevation = 8.dp,

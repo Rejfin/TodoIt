@@ -1,4 +1,4 @@
-package dev.rejfin.todoit.ui.components
+package dev.rejfin.todoit.ui.dialogs
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.AlertDialog

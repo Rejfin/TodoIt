@@ -17,7 +17,6 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -36,7 +35,7 @@ import dev.rejfin.todoit.ui.theme.CustomJetpackComposeTheme
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.rejfin.todoit.models.CustomDateFormat
 import dev.rejfin.todoit.ui.components.ButtonRadioGroup
-import dev.rejfin.todoit.ui.components.ErrorDialog
+import dev.rejfin.todoit.ui.dialogs.ErrorDialog
 import dev.rejfin.todoit.ui.components.StepsProgressBar
 import dev.rejfin.todoit.ui.theme.CustomThemeManager
 
@@ -150,7 +149,7 @@ fun NewTaskScreen(navigator: DestinationsNavigator?, viewModel: NewTaskViewModel
                             .padding(bottom = 4.dp)
                     )
                     Text(
-                        text = "${String.format("%02d",uiState.startDate.day)}.${String.format("%02d",uiState.startDate.month)}.${uiState.startDate.year}",
+                        text = String.format("%02d.%02d.%d",uiState.startDate.day,uiState.startDate.month,uiState.startDate.year),
                         color = CustomThemeManager.colors.textColorFirst,
                         textAlign = TextAlign.Center,
                         modifier = Modifier

@@ -21,8 +21,8 @@ import com.ramcosta.composedestinations.navigation.popUpTo
 import dev.rejfin.todoit.viewmodels.AuthViewModel
 import dev.rejfin.todoit.R
 import dev.rejfin.todoit.ui.components.AppLogo
-import dev.rejfin.todoit.ui.components.ErrorDialog
-import dev.rejfin.todoit.ui.components.InfoDialog
+import dev.rejfin.todoit.ui.dialogs.ErrorDialog
+import dev.rejfin.todoit.ui.dialogs.InfoDialog
 import dev.rejfin.todoit.ui.components.InputField
 import dev.rejfin.todoit.ui.screens.destinations.LoginScreenDestination
 import dev.rejfin.todoit.ui.screens.destinations.RegisterScreenDestination
