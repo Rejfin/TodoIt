@@ -13,42 +13,33 @@ import dev.rejfin.todoit.R
 
 @Composable
 fun InfoDialog(title:String, infoText: String, onDialogClose: () -> Unit = {}){
-    var showDialog by remember{ mutableStateOf(true) }
-
-    if (showDialog) {
-        AlertDialog(
-            onDismissRequest = {
-                showDialog = false
-                onDialogClose()
-            },
-            title = {
-                Text(text = title, modifier = Modifier.fillMaxWidth())
-            },
-            text = {
-                Text(text = infoText)
-            },
-            buttons = {
-                Row(
-                    modifier = Modifier.padding(all = 8.dp),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Button(
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = { 
-                            showDialog = false 
-                            onDialogClose()
-                        }
-                    ) {
-                        Text(stringResource(id = R.string.ok))
+    AlertDialog(
+        onDismissRequest = {
+            onDialogClose()
+        },
+        title = {
+            Text(text = title, modifier = Modifier.fillMaxWidth())
+        },
+        text = {
+            Text(text = infoText)
+        },
+        buttons = {
+            Row(
+                modifier = Modifier.padding(all = 8.dp),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        onDialogClose()
                     }
+                ) {
+                    Text(stringResource(id = R.string.ok))
                 }
-            },
-            modifier = Modifier.fillMaxWidth()
-        )
-    }
-
-
-
+            }
+        },
+        modifier = Modifier.fillMaxWidth()
+    )
 }
 
 @Preview(showBackground = true)
