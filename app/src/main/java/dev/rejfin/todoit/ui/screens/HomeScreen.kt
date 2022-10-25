@@ -35,65 +35,62 @@ import dev.rejfin.todoit.ui.dialogs.TaskDetailsDialog
 fun HomeScreen(navigator: DestinationsNavigator?, viewModel: HomeViewModel = viewModel()){
     val uiState: HomeUiState = viewModel.homeUiState
 
-    Box(Modifier.fillMaxSize()) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxSize()
-                .background(CustomThemeManager.colors.appBackground)) {
-            Column(modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(Color.White)
-            ) {
-                Text(text = stringResource(id = R.string.welcome, uiState.loggedUser),
-                    fontSize = 18.sp,
-                    color = CustomThemeManager.colors.textColorFirst,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(8.dp, 8.dp, 8.dp, 0.dp)
-                )
-                Text(text = stringResource(id = R.string.done_tasks, uiState.numberOfDoneTask, uiState.numberOfAllTasks) ,
-                    color= CustomThemeManager.colors.textColorSecond,
-                    modifier = Modifier.padding(8.dp, 0.dp, 8.dp, 8.dp)
-                )
-            }
-            Calendar(
-                viewModel.calendarDays,
-                onDayClick = {
-                    viewModel.getTaskFromDay(it)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(CustomThemeManager.colors.cardBackgroundColor)
-                    .padding(horizontal = 8.dp, vertical = 14.dp)
+    Column(horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxSize()
+            .background(CustomThemeManager.colors.appBackground)) {
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .background(Color.White)
+        ) {
+            Text(text = stringResource(id = R.string.welcome, uiState.loggedUser),
+                fontSize = 18.sp,
+                color = CustomThemeManager.colors.textColorFirst,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(8.dp, 8.dp, 8.dp, 0.dp)
             )
-            LazyColumn(
-                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
-            ){
-                items(items = viewModel.taskList,
-                    key = {task -> task.id },
-                    contentType = { TaskModel::class.java }
-                )
-                {task ->
-                    TaskCard(task = task, modifier = Modifier.clickable {
-                        viewModel.showTaskDetails(task)
-                    })
-                }
+            Text(text = stringResource(id = R.string.done_tasks, uiState.numberOfDoneTask, uiState.numberOfAllTasks) ,
+                color= CustomThemeManager.colors.textColorSecond,
+                modifier = Modifier.padding(8.dp, 0.dp, 8.dp, 8.dp)
+            )
+        }
+        Calendar(
+            viewModel.calendarDays,
+            onDayClick = {
+                viewModel.switchTaskListDay(it)
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(CustomThemeManager.colors.cardBackgroundColor)
+                .padding(horizontal = 8.dp, vertical = 14.dp)
+        )
+        LazyColumn(
+            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ){
+            items(items = viewModel.taskList,
+                key = {task -> task.id },
+                contentType = { TaskModel::class.java }
+            )
+            {task ->
+                TaskCard(task = task, modifier = Modifier.clickable {
+                    viewModel.showTaskDetails(task)
+                })
             }
-            if(uiState.errorMessage != null){
-                ErrorDialog(title = stringResource(id = R.string.error), errorText = uiState.errorMessage){
-                    viewModel.clearError()
-                }
+        }
+        if(uiState.errorMessage != null){
+            ErrorDialog(title = stringResource(id = R.string.error), errorText = uiState.errorMessage){
+                viewModel.clearError()
             }
         }
         if(uiState.showDetailsDialog){
             TaskDetailsDialog(
                 task = uiState.taskToShowDetails!!,
-                modifier = Modifier.align(Alignment.Center),
                 onClose = {
-                viewModel.hideTaskDetails()
-            })
+                    viewModel.hideTaskDetails()
+                })
         }
     }
 }
