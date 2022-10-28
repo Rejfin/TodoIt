@@ -41,11 +41,15 @@ import dev.rejfin.todoit.ui.theme.CustomThemeManager
 
 @Destination
 @Composable
-fun NewTaskScreen(navigator: DestinationsNavigator?, viewModel: NewTaskViewModel = viewModel()){
+fun NewTaskScreen(navigator: DestinationsNavigator?, userOrGroupId:String?, viewModel: NewTaskViewModel = viewModel()){
     val uiState = viewModel.taskUiState
     val calendarUtility = viewModel.calendarUtility
 
     val mContext = LocalContext.current
+
+    LaunchedEffect(key1 = Unit){
+        viewModel.setIdToSave(userOrGroupId)
+    }
 
     Box(modifier = Modifier.fillMaxSize()){
         Column(
@@ -387,7 +391,7 @@ fun NewTaskScreen(navigator: DestinationsNavigator?, viewModel: NewTaskViewModel
 @Composable
 private fun PreviewNewTaskScreen(){
     CustomJetpackComposeTheme{
-        NewTaskScreen(navigator = null)
+        NewTaskScreen(navigator = null, "")
     }
 }
 

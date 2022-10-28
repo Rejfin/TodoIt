@@ -4,10 +4,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.google.firebase.auth.ktx.auth
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import dev.rejfin.todoit.models.*
+import dev.rejfin.todoit.models.states.TaskUiState
 import dev.rejfin.todoit.utils.CalendarUtility
 import java.util.*
 
@@ -20,7 +21,12 @@ class NewTaskViewModel: ViewModel() {
 
     private val database = Firebase.database
     private val dbRef = database.getReference("tasks")
-    private val firebaseAuth = Firebase.auth
+    private val auth = FirebaseAuth.getInstance()
+    private lateinit var userOrGroupId: String
+
+    fun setIdToSave(id: String?){
+        userOrGroupId = id ?: auth.uid!!
+    }
 
     init {
         calendarUtility = CalendarUtility()
@@ -115,10 +121,6 @@ class NewTaskViewModel: ViewModel() {
             return
         }
 
-        if(firebaseAuth.currentUser == null){
-            return
-        }
-
         //save only task parts with text inside
         val taskList = taskUiState.taskParts.filter { it.desc.isNotEmpty() }
 
@@ -136,7 +138,7 @@ class NewTaskViewModel: ViewModel() {
             done = false
         )
 
-        dbRef.child(firebaseAuth.uid!!).child(timestamp.toString()).child(taskModel.id).setValue(taskModel).addOnCompleteListener {
+        dbRef.child(userOrGroupId).child(timestamp.toString()).child(taskModel.id).setValue(taskModel).addOnCompleteListener {
             taskUiState = if(it.isSuccessful){
                 taskUiState.copy(isDataSending = false, isDateSent = true)
             }else{

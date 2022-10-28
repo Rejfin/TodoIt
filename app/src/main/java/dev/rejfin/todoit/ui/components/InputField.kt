@@ -56,7 +56,10 @@ fun InputField(label:String,
             label = { Text(label) },
             modifier = modifier,
             colors = TextFieldDefaults.textFieldColors(
-                backgroundColor = CustomThemeManager.colors.cardBackgroundColor
+                backgroundColor = CustomThemeManager.colors.cardBackgroundColor,
+                focusedIndicatorColor = CustomThemeManager.colors.primaryColor,
+                focusedLabelColor = CustomThemeManager.colors.primaryColor,
+                cursorColor = CustomThemeManager.colors.primaryColor
             ),
             singleLine = singleLine,
             keyboardOptions = if(isPasswordField) KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = imeAction) else KeyboardOptions(keyboardType = keyboardType, imeAction = imeAction),

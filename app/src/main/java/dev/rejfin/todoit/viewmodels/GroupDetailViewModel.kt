@@ -1,6 +1,9 @@
 package dev.rejfin.todoit.viewmodels
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.ktx.auth
@@ -10,35 +13,41 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
-import dev.rejfin.todoit.models.*
-import dev.rejfin.todoit.models.states.HomeUiState
+import dev.rejfin.todoit.models.CalendarDay
+import dev.rejfin.todoit.models.CustomDateFormat
+import dev.rejfin.todoit.models.GroupModel
+import dev.rejfin.todoit.models.TaskModel
+import dev.rejfin.todoit.models.states.GroupDetailUiState
 import dev.rejfin.todoit.utils.CalendarUtility
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class HomeViewModel : ViewModel() {
-    var homeUiState by mutableStateOf(HomeUiState())
+class GroupDetailViewModel : ViewModel() {
+    var uiState by mutableStateOf(GroupDetailUiState())
         private set
 
     val allTaskList = mutableMapOf<Long, MutableList<TaskModel>>()
     val taskList = mutableStateListOf<TaskModel>()
+    private val calendarUtility: CalendarUtility = CalendarUtility()
+    private val database = Firebase.database
+    private val dbRef = database.getReference("tasks")
+    private var selectedDate = CustomDateFormat()
 
 
     var calendarDays = mutableStateListOf<CalendarDay>()
         private set
 
-    private val calendarUtility: CalendarUtility = CalendarUtility()
-    private val database = Firebase.database
-    private val dbRef = database.getReference("tasks")
-    private val firebaseAuth = Firebase.auth
-    private var selectedDate = CustomDateFormat()
+    fun setGroupId(id:String){
+        uiState = uiState.copy(groupId = id)
 
-    init {
-        homeUiState = homeUiState.copy(loggedUser = firebaseAuth.currentUser!!.displayName!!)
+        getInfoAboutGroup()
+
+        calendarDays.clear()
         CalendarUtility().getDaysInCurrentWeek().forEach {
             calendarDays.add(it)
             getTaskFromDay(it.date)
         }
+
         selectedDate = calendarUtility.getCurrentDate()
     }
 
@@ -53,15 +62,32 @@ class HomeViewModel : ViewModel() {
         switchTaskListDay(selectedDate)
     }
 
+    private fun getInfoAboutGroup(){
+        database.getReference("groups").child(uiState.groupId).addListenerForSingleValueEvent(
+            object: ValueEventListener{
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    snapshot.getValue<GroupModel>()?.let{
+                        uiState = uiState.copy(groupName = it.name, groupMembers = it.membersList, groupImage = it.imageUrl)
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    uiState = uiState.copy(errorMessage = error.message)
+                }
+
+            }
+        )
+    }
+
     private fun getTaskFromDay(date: CustomDateFormat){
         val timestamp = calendarUtility.timestampFromDate(date.year, date.month, date.day)
 
-        dbRef.child(firebaseAuth.uid!!).child(timestamp.toString()).addValueEventListener(
-            object: ValueEventListener{
+        dbRef.child(uiState.groupId).child(timestamp.toString()).addValueEventListener(
+            object: ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     // if date are exact same as today then count number of done tasks
                     if(calendarUtility.areDateSame(date, calendarUtility.getCurrentDate())){
-                        homeUiState = homeUiState.copy(numberOfAllTasks = 0, numberOfDoneTask = 0)
+                        uiState = uiState.copy(numberOfAllTasks = 0, numberOfDoneTask = 0)
                     }
 
                     // find day in list of days to update number of tasks
@@ -84,12 +110,12 @@ class HomeViewModel : ViewModel() {
 
                             if(calendarUtility.areDateSame(date, calendarUtility.getCurrentDate())){
                                 viewModelScope.launch(Dispatchers.Main) {
-                                    homeUiState = homeUiState.copy(
-                                        numberOfAllTasks = homeUiState.numberOfAllTasks + 1,
+                                   uiState = uiState.copy(
+                                        numberOfAllTasks = uiState.numberOfAllTasks + 1,
                                         numberOfDoneTask = if(it.done){
-                                            homeUiState.numberOfDoneTask + 1
+                                            uiState.numberOfDoneTask + 1
                                         }else{
-                                            homeUiState.numberOfDoneTask
+                                            uiState.numberOfDoneTask
                                         }
                                     )
                                 }
@@ -100,21 +126,9 @@ class HomeViewModel : ViewModel() {
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    homeUiState = homeUiState.copy(errorMessage = error.message)
+                    uiState = uiState.copy(errorMessage = error.message)
                 }
             }
         )
-    }
-
-    fun clearError(){
-        homeUiState = homeUiState.copy(errorMessage = null)
-    }
-
-    fun showTaskDetails(task: TaskModel){
-        homeUiState = homeUiState.copy(showDetailsDialog = true, taskToShowDetails = task)
-    }
-
-    fun hideTaskDetails(){
-        homeUiState = homeUiState.copy(showDetailsDialog = false, taskToShowDetails = null)
     }
 }

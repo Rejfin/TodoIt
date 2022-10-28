@@ -12,33 +12,35 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import dev.rejfin.todoit.viewmodels.HomeViewModel
-import dev.rejfin.todoit.ui.components.Calendar
-import dev.rejfin.todoit.ui.theme.CustomThemeManager
+import dev.rejfin.todoit.viewmodels.GroupDetailViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.rejfin.todoit.R
-import dev.rejfin.todoit.models.states.HomeUiState
-import dev.rejfin.todoit.ui.components.TaskCard
 import dev.rejfin.todoit.models.TaskModel
+import dev.rejfin.todoit.ui.components.Calendar
+import dev.rejfin.todoit.ui.components.TaskCard
 import dev.rejfin.todoit.ui.dialogs.ErrorDialog
-import dev.rejfin.todoit.ui.dialogs.TaskDetailsDialog
 import dev.rejfin.todoit.ui.screens.destinations.NewTaskScreenDestination
+import dev.rejfin.todoit.ui.theme.CustomThemeManager
 
 @Destination
 @Composable
-fun HomeScreen(navigator: DestinationsNavigator?, viewModel: HomeViewModel = viewModel()){
-    val uiState: HomeUiState = viewModel.homeUiState
+fun GroupDetailsScreen(navigator: DestinationsNavigator?, groupId: String, viewModel: GroupDetailViewModel = viewModel()){
+    val uiState = viewModel.uiState
+
+    LaunchedEffect(key1 = Unit){
+        viewModel.setGroupId(groupId)
+    }
 
     Box(modifier = Modifier.fillMaxSize()){
         Column(horizontalAlignment = Alignment.CenterHorizontally,
@@ -51,7 +53,7 @@ fun HomeScreen(navigator: DestinationsNavigator?, viewModel: HomeViewModel = vie
                 .clip(RoundedCornerShape(8.dp))
                 .background(Color.White)
             ) {
-                Text(text = stringResource(id = R.string.welcome, uiState.loggedUser),
+                Text(text = uiState.groupName,
                     fontSize = 18.sp,
                     color = CustomThemeManager.colors.textColorFirst,
                     fontWeight = FontWeight.Bold,
@@ -62,8 +64,7 @@ fun HomeScreen(navigator: DestinationsNavigator?, viewModel: HomeViewModel = vie
                     modifier = Modifier.padding(8.dp, 0.dp, 8.dp, 8.dp)
                 )
             }
-            Calendar(
-                viewModel.calendarDays,
+            Calendar(viewModel.calendarDays,
                 onDayClick = {
                     viewModel.switchTaskListDay(it)
                 },
@@ -82,27 +83,27 @@ fun HomeScreen(navigator: DestinationsNavigator?, viewModel: HomeViewModel = vie
                 )
                 {task ->
                     TaskCard(task = task, modifier = Modifier.clickable {
-                        viewModel.showTaskDetails(task)
+                        //viewModel.showTaskDetails(task)
                     })
                 }
             }
             if(uiState.errorMessage != null){
                 ErrorDialog(title = stringResource(id = R.string.error), errorText = uiState.errorMessage){
-                    viewModel.clearError()
+                    //viewModel.clearError()
                 }
             }
-            if(uiState.showDetailsDialog){
-                TaskDetailsDialog(
-                    task = uiState.taskToShowDetails!!,
-                    onClose = {
-                        viewModel.hideTaskDetails()
-                    })
-            }
+//            if(uiState.showDetailsDialog){
+//                TaskDetailsDialog(
+//                    task = uiState.taskToShowDetails!!,
+//                    onClose = {
+//                        viewModel.hideTaskDetails()
+//                    })
+//            }
         }
 
         FloatingActionButton(
             onClick = {
-                navigator?.navigate(NewTaskScreenDestination(null))
+                navigator?.navigate(NewTaskScreenDestination(groupId))
             },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
@@ -115,10 +116,4 @@ fun HomeScreen(navigator: DestinationsNavigator?, viewModel: HomeViewModel = vie
             )
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun HomePreview(){
-    HomeScreen(navigator = null)
 }

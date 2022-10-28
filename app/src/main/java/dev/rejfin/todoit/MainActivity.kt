@@ -19,10 +19,7 @@ import com.ramcosta.composedestinations.navigation.navigate
 import dev.rejfin.todoit.ui.components.BottomBar
 import dev.rejfin.todoit.ui.screens.NavGraphs
 import dev.rejfin.todoit.ui.screens.appCurrentDestinationAsState
-import dev.rejfin.todoit.ui.screens.destinations.HomeScreenDestination
-import dev.rejfin.todoit.ui.screens.destinations.LoginScreenDestination
-import dev.rejfin.todoit.ui.screens.destinations.NewTaskScreenDestination
-import dev.rejfin.todoit.ui.screens.destinations.RegisterScreenDestination
+import dev.rejfin.todoit.ui.screens.destinations.*
 import dev.rejfin.todoit.ui.theme.CustomJetpackComposeTheme
 import dev.rejfin.todoit.ui.theme.CustomThemeManager
 
@@ -40,34 +37,12 @@ class MainActivity : ComponentActivity() {
                     NewTaskScreenDestination.route
                 )
 
-                val listOfDestinationWithFab = listOf(
-                    HomeScreenDestination.route
-                )
-
                 navController.appCurrentDestinationAsState().value
 
                 Scaffold(
                     bottomBar = {
                         if(!listOfDestinationWithoutNavBar.contains(navController.appCurrentDestinationAsState().value?.route)){
                             BottomBar(navController)
-                        }
-                    },
-                    floatingActionButton = {
-                        if(listOfDestinationWithFab.contains(navController.appCurrentDestinationAsState().value?.route)){
-                            FloatingActionButton(onClick = {
-                                for (route in listOfDestinationWithFab){
-                                    if(route == HomeScreenDestination.route){
-                                        navController.navigate(NewTaskScreenDestination)
-                                        break
-                                    }
-                                }
-                            }, backgroundColor = CustomThemeManager.colors.secondaryColor) {
-                                Icon(
-                                    imageVector = Icons.Default.Add,
-                                    contentDescription = stringResource(id = R.string.new_task),
-                                    tint = CustomThemeManager.colors.textColorOnPrimary
-                                )
-                            }
                         }
                     }
                 ){padding->

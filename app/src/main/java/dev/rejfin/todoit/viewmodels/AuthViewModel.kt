@@ -4,13 +4,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.auth.ktx.userProfileChangeRequest
+import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import dev.rejfin.todoit.models.LoginUiState
-import dev.rejfin.todoit.models.RegisterUiState
+import dev.rejfin.todoit.models.states.LoginUiState
+import dev.rejfin.todoit.models.states.RegisterUiState
 import dev.rejfin.todoit.models.ValidationResult
+import kotlinx.coroutines.launch
 
 class AuthViewModel: ViewModel() {
     var registerUiState by mutableStateOf(RegisterUiState())
@@ -20,6 +23,7 @@ class AuthViewModel: ViewModel() {
         private set
 
     private var auth: FirebaseAuth = Firebase.auth
+    private val dbRef = Firebase.database.getReference("users")
 
     fun registerUserWithEmail(nick: String, email:String, password:String, repeatedPassword: String){
         registerUiState = registerUiState.copy(isAuthInProgress = true)
@@ -40,11 +44,23 @@ class AuthViewModel: ViewModel() {
                         displayName = nick
                     }
 
-                    user!!.updateProfile(profileUpdate).addOnCompleteListener {
+                    viewModelScope.launch {
+                        val updateProfile = launch {user!!.updateProfile(profileUpdate)}
+                        val createEntryInDatabase = launch{dbRef.child(user!!.uid).setValue(mapOf(
+                            "nick" to nick,
+                            "uid" to user.uid,
+                            "taskDone" to 0,
+                            "allTask" to 0,
+                            "xp" to 0,
+                            "level" to 1,
+                        ))}
+
+                        updateProfile.join()
+                        createEntryInDatabase.join()
+
                         registerUiState = registerUiState.copy(isAuthInProgress = false, registerSuccess = true)
                         auth.signOut()
                     }
-
                 }else{
                     registerUiState = registerUiState.copy(isAuthInProgress = false, authFailedMessage = it.exception?.localizedMessage, registerSuccess = false)
                 }

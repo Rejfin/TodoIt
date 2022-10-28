@@ -1,4 +1,6 @@
-package dev.rejfin.todoit.models
+package dev.rejfin.todoit.models.states
+
+import dev.rejfin.todoit.models.ValidationResult
 
 data class RegisterUiState(
     val nick: ValidationResult = ValidationResult(),

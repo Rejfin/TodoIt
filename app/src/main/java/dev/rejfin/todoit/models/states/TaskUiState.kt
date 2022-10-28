@@ -1,4 +1,8 @@
-package dev.rejfin.todoit.models
+package dev.rejfin.todoit.models.states
+
+import dev.rejfin.todoit.models.CustomDateFormat
+import dev.rejfin.todoit.models.TaskPartModel
+import dev.rejfin.todoit.models.ValidationResult
 
 data class TaskUiState(
     val taskTitle: String = "",
