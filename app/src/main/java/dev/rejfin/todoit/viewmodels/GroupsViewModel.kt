@@ -13,6 +13,7 @@ import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import dev.rejfin.todoit.models.GroupModel
+import dev.rejfin.todoit.models.UserModel
 import java.util.*
 
 class GroupsViewModel : ViewModel() {
@@ -84,7 +85,9 @@ class GroupsViewModel : ViewModel() {
     fun createNewGroup(name:String, description: String, image: Uri){
         val groupId = UUID.randomUUID().toString()
         sendImage(image, groupId){ imageUrl ->
-            dbGroupRef.child(groupId).setValue(GroupModel(groupId, name, description, firebaseAuth.uid!! , imageUrl))
+            dbGroupRef.child(groupId).setValue(GroupModel(groupId, name, description, firebaseAuth.uid!! , imageUrl, listOf(
+                UserModel(id = firebaseAuth.uid!!, displayName = firebaseAuth.currentUser!!.displayName!!, firebaseAuth.currentUser!!.photoUrl.toString())
+            )))
             val newGroupList = userGroupList
             newGroupList.add(groupId)
             dbUsersRef.child(firebaseAuth.uid!!).child("groups").setValue(newGroupList)

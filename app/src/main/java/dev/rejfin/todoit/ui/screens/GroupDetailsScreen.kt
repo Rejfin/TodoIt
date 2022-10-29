@@ -5,26 +5,35 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.rejfin.todoit.viewmodels.GroupDetailViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import dev.rejfin.todoit.R
 import dev.rejfin.todoit.models.TaskModel
 import dev.rejfin.todoit.ui.components.Calendar
@@ -43,28 +52,70 @@ fun GroupDetailsScreen(navigator: DestinationsNavigator?, groupId: String, viewM
     }
 
     Box(modifier = Modifier.fillMaxSize()){
-        Column(horizontalAlignment = Alignment.CenterHorizontally,
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
-                .background(CustomThemeManager.colors.appBackground)) {
-            Column(modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(Color.White)
-            ) {
-                Text(text = uiState.groupName,
-                    fontSize = 18.sp,
-                    color = CustomThemeManager.colors.textColorFirst,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(8.dp, 8.dp, 8.dp, 0.dp)
+                .background(CustomThemeManager.colors.appBackground)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(CustomThemeManager.colors.cardBackgroundColor)
+
+            ){
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(uiState.groupData.imageUrl)
+                        .crossfade(true)
+                        .build(),
+                    placeholder = rememberVectorPainter(Icons.Filled.Group),
+                    contentDescription = uiState.groupData.name,
+                    contentScale = ContentScale.Crop,
+                    error = rememberVectorPainter(Icons.Filled.Group),
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .clip(CircleShape)
+                        .size(50.dp, 50.dp)
                 )
-                Text(text = stringResource(id = R.string.done_tasks, uiState.numberOfDoneTask, uiState.numberOfAllTasks) ,
-                    color= CustomThemeManager.colors.textColorSecond,
-                    modifier = Modifier.padding(8.dp, 0.dp, 8.dp, 8.dp)
-                )
+                Column(verticalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp)
+                ) {
+                    Text(text = uiState.groupData.name,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        fontSize = 18.sp,
+                        color = CustomThemeManager.colors.textColorFirst,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Row(Modifier.fillMaxWidth().padding(top = 2.dp)){
+                        uiState.groupData.membersList.forEach { member->
+                            AsyncImage(
+                                model = ImageRequest.Builder(LocalContext.current)
+                                    .data(member.imageUrl)
+                                    .crossfade(true)
+                                    .build(),
+                                placeholder = rememberVectorPainter(Icons.Filled.Person),
+                                contentDescription = member.displayName,
+                                contentScale = ContentScale.Crop,
+                                error = rememberVectorPainter(Icons.Filled.Person),
+                                modifier = Modifier
+                                    .padding(end = 8.dp)
+                                    .clip(CircleShape)
+                                    .size(20.dp, 20.dp)
+                                    .background(CustomThemeManager.colors.textColorThird)
+                            )
+                        }
+
+                    }
+                }
             }
-            Calendar(viewModel.calendarDays,
+
+            Calendar(uiState.calendarDays,
                 onDayClick = {
                     viewModel.switchTaskListDay(it)
                 },
@@ -77,7 +128,7 @@ fun GroupDetailsScreen(navigator: DestinationsNavigator?, groupId: String, viewM
                 contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ){
-                items(items = viewModel.taskList,
+                items(items = uiState.selectedTaskList,
                     key = {task -> task.id },
                     contentType = { TaskModel::class.java }
                 )
