@@ -1,8 +1,10 @@
 package dev.rejfin.todoit.viewmodels
 
+import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
@@ -10,6 +12,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.auth.ktx.userProfileChangeRequest
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
 import dev.rejfin.todoit.models.states.LoginUiState
 import dev.rejfin.todoit.models.states.RegisterUiState
 import dev.rejfin.todoit.models.ValidationResult
@@ -24,8 +27,10 @@ class AuthViewModel: ViewModel() {
 
     private var auth: FirebaseAuth = Firebase.auth
     private val dbRef = Firebase.database.getReference("users")
+    private val storage = FirebaseStorage.getInstance()
+    private val storageRef = storage.getReference("users")
 
-    fun registerUserWithEmail(nick: String, email:String, password:String, repeatedPassword: String){
+    fun registerUserWithEmail(nick: String, email:String, password:String, repeatedPassword: String, imageUri: Uri){
         registerUiState = registerUiState.copy(isAuthInProgress = true)
 
         validateNick(nick)
@@ -36,19 +41,28 @@ class AuthViewModel: ViewModel() {
         if(registerUiState.nick.isError || registerUiState.email.isError || registerUiState.password.isError || registerUiState.repeatedPassword.isError){
             registerUiState = registerUiState.copy(isAuthInProgress = false)
         }else{
-            auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener {
+            auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { it ->
                 if(it.isSuccessful){
 
                     val user = Firebase.auth.currentUser
+
+                    var imageUrl: String? = null
+                    sendImage(imageUri, user!!.uid){ link ->
+                        imageUrl = link
+                    }
+
+
                     val profileUpdate = userProfileChangeRequest {
                         displayName = nick
+                        photoUri = imageUrl?.toUri()
                     }
 
                     viewModelScope.launch {
-                        val updateProfile = launch {user!!.updateProfile(profileUpdate)}
-                        val createEntryInDatabase = launch{dbRef.child(user!!.uid).setValue(mapOf(
+                        val updateProfile = launch {user.updateProfile(profileUpdate)}
+                        val createEntryInDatabase = launch{dbRef.child(user.uid).setValue(mapOf(
                             "nick" to nick,
                             "uid" to user.uid,
+                            "imageUrl" to imageUrl,
                             "taskDone" to 0,
                             "allTask" to 0,
                             "xp" to 0,
@@ -127,5 +141,23 @@ class AuthViewModel: ViewModel() {
         val isRepeatedPasswordOk = password == repeatedPassword
         registerUiState = registerUiState.copy(repeatedPassword = ValidationResult(isError = !isRepeatedPasswordOk, errorMessage = "Your passwords doesn't match"))
         return isRepeatedPasswordOk
+    }
+
+    private fun sendImage(image: Uri, userId: String, callback: (imageUrl:String?) -> Unit){
+        val ref = storageRef.child(userId)
+        val uploadTask = ref.putFile(image)
+
+        uploadTask.continueWithTask { task ->
+            if (!task.isSuccessful) {
+                callback(null)
+            }
+            ref.downloadUrl
+        }.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                callback(task.result.toString())
+            } else {
+                callback(null)
+            }
+        }
     }
 }
