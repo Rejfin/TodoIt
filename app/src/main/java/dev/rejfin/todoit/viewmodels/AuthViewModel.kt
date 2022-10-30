@@ -8,6 +8,8 @@ import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthException
+import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.auth.ktx.userProfileChangeRequest
 import com.google.firebase.database.ktx.database
@@ -17,6 +19,7 @@ import dev.rejfin.todoit.models.states.LoginUiState
 import dev.rejfin.todoit.models.states.RegisterUiState
 import dev.rejfin.todoit.models.ValidationResult
 import kotlinx.coroutines.launch
+import java.lang.Exception
 
 class AuthViewModel: ViewModel() {
     var registerUiState by mutableStateOf(RegisterUiState())
@@ -26,57 +29,91 @@ class AuthViewModel: ViewModel() {
         private set
 
     private var auth: FirebaseAuth = Firebase.auth
-    private val dbRef = Firebase.database.getReference("users")
+    private val usersDbRef = Firebase.database.getReference("users")
+    private val nicksDbRef = Firebase.database.getReference("nicks")
     private val storage = FirebaseStorage.getInstance()
     private val storageRef = storage.getReference("users")
 
-    fun registerUserWithEmail(nick: String, email:String, password:String, repeatedPassword: String, imageUri: Uri){
+    fun registerUserWithEmail(nick: String, displayName:String, email:String, password:String, repeatedPassword: String, imageUri: Uri){
         registerUiState = registerUiState.copy(isAuthInProgress = true)
 
         validateNick(nick)
+        validateDisplayName(displayName)
         validateEmail(email)
         validatePassword(password)
         validateRepeatedPassword(password, repeatedPassword)
 
-        if(registerUiState.nick.isError || registerUiState.email.isError || registerUiState.password.isError || registerUiState.repeatedPassword.isError){
+        if(registerUiState.nick.isError || registerUiState.email.isError || registerUiState.password.isError || registerUiState.repeatedPassword.isError || registerUiState.displayName.isError){
             registerUiState = registerUiState.copy(isAuthInProgress = false)
         }else{
-            auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { it ->
-                if(it.isSuccessful){
+            nicksDbRef.child(nick).get().addOnSuccessListener { dbNick ->
+                if(!dbNick.exists()){
+                    auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener {
+                        if(it.isSuccessful){
+                            val user = Firebase.auth.currentUser
 
-                    val user = Firebase.auth.currentUser
+                            nicksDbRef.child(nick).setValue(mapOf(
+                                "userId" to user!!.uid
+                            ))
 
-                    var imageUrl: String? = null
-                    sendImage(imageUri, user!!.uid){ link ->
-                        imageUrl = link
-                    }
+                            var imageUrl: String? = null
+                            sendImage(imageUri, user.uid){ link ->
+                                imageUrl = link
+                            }
 
+                            val profileUpdate = userProfileChangeRequest {
+                                this.displayName = displayName
+                                photoUri = imageUrl?.toUri()
+                            }
 
-                    val profileUpdate = userProfileChangeRequest {
-                        displayName = nick
-                        photoUri = imageUrl?.toUri()
-                    }
+                            viewModelScope.launch {
+                                val updateProfile = launch {user.updateProfile(profileUpdate)}
+                                val createEntryInDatabase = launch{usersDbRef.child(user.uid).setValue(mapOf(
+                                    "nick" to nick,
+                                    "displayName" to displayName,
+                                    "uid" to user.uid,
+                                    "imageUrl" to imageUrl,
+                                    "taskDone" to 0,
+                                    "allTask" to 0,
+                                    "xp" to 0,
+                                    "level" to 1,
+                                ))}
 
-                    viewModelScope.launch {
-                        val updateProfile = launch {user.updateProfile(profileUpdate)}
-                        val createEntryInDatabase = launch{dbRef.child(user.uid).setValue(mapOf(
-                            "nick" to nick,
-                            "uid" to user.uid,
-                            "imageUrl" to imageUrl,
-                            "taskDone" to 0,
-                            "allTask" to 0,
-                            "xp" to 0,
-                            "level" to 1,
-                        ))}
+                                updateProfile.join()
+                                createEntryInDatabase.join()
 
-                        updateProfile.join()
-                        createEntryInDatabase.join()
-
-                        registerUiState = registerUiState.copy(isAuthInProgress = false, registerSuccess = true)
-                        auth.signOut()
+                                registerUiState = registerUiState.copy(isAuthInProgress = false, registerSuccess = true)
+                                auth.signOut()
+                            }
+                        }else{
+                            try{
+                                throw it.exception!!
+                            }catch (e: FirebaseAuthUserCollisionException){
+                                registerUiState = registerUiState.copy(
+                                    isAuthInProgress = false,
+                                    authFailedMessage = it.exception?.localizedMessage,
+                                    registerSuccess = false,
+                                    email = ValidationResult(
+                                        isError = true,
+                                        errorMessage = "user with this email already exist"
+                                    )
+                                )
+                            }catch (e: Exception){
+                                registerUiState = registerUiState.copy(
+                                    isAuthInProgress = false,
+                                    authFailedMessage = it.exception?.localizedMessage,
+                                    registerSuccess = false
+                                )
+                            }
+                        }
                     }
                 }else{
-                    registerUiState = registerUiState.copy(isAuthInProgress = false, authFailedMessage = it.exception?.localizedMessage, registerSuccess = false)
+                    registerUiState = registerUiState.copy(nick = ValidationResult(
+                        isError = true,
+                        errorMessage = "user with such a nickname already exists",),
+                        isAuthInProgress = false,
+                        authFailedMessage = "user with such a nickname already exists :/\nLog in if this is your account, or create a new one with a different nickname"
+                    )
                 }
             }
         }
@@ -106,6 +143,7 @@ class AuthViewModel: ViewModel() {
     fun clearError(fieldState: ValidationResult){
         when(fieldState){
             registerUiState.nick -> registerUiState = registerUiState.copy(nick = ValidationResult(isError = false))
+            registerUiState.displayName -> registerUiState = registerUiState.copy(displayName = ValidationResult(isError = false))
             registerUiState.email -> registerUiState = registerUiState.copy(email = ValidationResult(isError = false))
             registerUiState.password -> registerUiState = registerUiState.copy(password = ValidationResult(isError = false))
             registerUiState.repeatedPassword -> registerUiState = registerUiState.copy(repeatedPassword = ValidationResult(isError = false))
@@ -123,6 +161,12 @@ class AuthViewModel: ViewModel() {
         val isNickOk = nick.length >= 4
         registerUiState = registerUiState.copy(nick = ValidationResult(isError = !isNickOk, errorMessage = "Nick has to be at least 4 characters"))
         return isNickOk
+    }
+
+    private fun validateDisplayName(displayName:String): Boolean{
+        val isDisplayNameOk = displayName.length >= 4
+        registerUiState = registerUiState.copy(displayName = ValidationResult(isError = !isDisplayNameOk, errorMessage = "Nick has to be at least 4 characters"))
+        return isDisplayNameOk
     }
 
     private fun validateEmail(email:String): Boolean{

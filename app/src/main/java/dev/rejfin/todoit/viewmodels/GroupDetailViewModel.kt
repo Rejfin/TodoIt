@@ -5,21 +5,21 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
-import dev.rejfin.todoit.models.CustomDateFormat
-import dev.rejfin.todoit.models.GroupModel
-import dev.rejfin.todoit.models.TaskModel
+import dev.rejfin.todoit.models.*
 import dev.rejfin.todoit.models.states.GroupDetailUiState
 import dev.rejfin.todoit.utils.CalendarUtility
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
+import java.util.*
 
 class GroupDetailViewModel : ViewModel() {
     var uiState by mutableStateOf(GroupDetailUiState())
@@ -27,7 +27,10 @@ class GroupDetailViewModel : ViewModel() {
 
     private val calendarUtility: CalendarUtility = CalendarUtility()
     private val database = Firebase.database
+    private val auth = FirebaseAuth.getInstance()
     private val dbRef = database.getReference("tasks")
+    private val nicksDbRef = database.getReference("nicks")
+    private val notifyDbRef = database.getReference("notify")
     private var selectedDate = CustomDateFormat()
 
     fun setGroupId(id:String){
@@ -51,10 +54,22 @@ class GroupDetailViewModel : ViewModel() {
 
     }
 
+    fun getUserId():String{
+        return auth.uid.toString()
+    }
+
     fun switchTaskListDay(date: CustomDateFormat){
         val timestamp = calendarUtility.timestampFromDate(date.year, date.month, date.day)
         uiState = uiState.copy(selectedTaskList = uiState.allTaskList[timestamp] ?: emptyList())
         selectedDate = date
+    }
+
+    fun showGroupDetails(){
+        uiState = uiState.copy(showGroupDetails = true)
+    }
+
+    fun closeGroupDetails(){
+        uiState = uiState.copy(showGroupDetails = false)
     }
 
     // download data about selected group
@@ -127,5 +142,23 @@ class GroupDetailViewModel : ViewModel() {
                 }
             }
         )
+    }
+
+    fun sendInvitation(nick: String){
+        nicksDbRef.child(nick).get().addOnCompleteListener {
+            if(it.result.exists()){
+                val userId = it.result.value as Map<*, *>
+                val notifyId = UUID.randomUUID().toString()
+                notifyDbRef.child(userId["userId"].toString()).child(notifyId).setValue(
+                    NotificationModel(
+                        id = notifyId,
+                        NotificationType.INVITATION,
+                        "Invitation to group: \"${uiState.groupData.name}\"",
+                        mapOf("groupId" to uiState.groupData.id)
+                    )
+                )
+            }
+        }
+
     }
 }

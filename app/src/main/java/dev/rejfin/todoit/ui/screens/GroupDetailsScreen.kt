@@ -19,7 +19,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -38,6 +37,7 @@ import dev.rejfin.todoit.R
 import dev.rejfin.todoit.models.TaskModel
 import dev.rejfin.todoit.ui.components.Calendar
 import dev.rejfin.todoit.ui.components.TaskCard
+import dev.rejfin.todoit.ui.dialogs.EditGroupDialog
 import dev.rejfin.todoit.ui.dialogs.ErrorDialog
 import dev.rejfin.todoit.ui.screens.destinations.NewTaskScreenDestination
 import dev.rejfin.todoit.ui.theme.CustomThemeManager
@@ -64,7 +64,9 @@ fun GroupDetailsScreen(navigator: DestinationsNavigator?, groupId: String, viewM
                     .padding(8.dp)
                     .clip(RoundedCornerShape(8.dp))
                     .background(CustomThemeManager.colors.cardBackgroundColor)
-
+                    .clickable {
+                        viewModel.showGroupDetails()
+                    }
             ){
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
@@ -92,7 +94,10 @@ fun GroupDetailsScreen(navigator: DestinationsNavigator?, groupId: String, viewM
                         color = CustomThemeManager.colors.textColorFirst,
                         fontWeight = FontWeight.Bold,
                     )
-                    Row(Modifier.fillMaxWidth().padding(top = 2.dp)){
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(top = 2.dp)){
                         uiState.groupData.membersList.forEach { member->
                             AsyncImage(
                                 model = ImageRequest.Builder(LocalContext.current)
@@ -166,5 +171,17 @@ fun GroupDetailsScreen(navigator: DestinationsNavigator?, groupId: String, viewM
                 tint = CustomThemeManager.colors.textColorOnPrimary
             )
         }
+    }
+    if(uiState.showGroupDetails){
+        EditGroupDialog(
+            uiState.groupData,
+            viewModel.getUserId(),
+            onCreateClick = { _, _, _->},
+            onCancelClick = { /*TODO*/ },
+            sendRequestToUser = {
+                viewModel.sendInvitation(it)
+            },
+            onCloseClick = {viewModel.closeGroupDetails()}
+        )
     }
 }

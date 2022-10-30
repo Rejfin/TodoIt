@@ -47,6 +47,7 @@ import dev.rejfin.todoit.ui.theme.CustomThemeManager
 fun RegisterScreen(navigator: DestinationsNavigator?, viewModel: AuthViewModel = viewModel()) {
     val uiState = viewModel.registerUiState
     var nick by remember { mutableStateOf("") }
+    var displayName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var selectedImage by remember { mutableStateOf(Uri.EMPTY) }
@@ -95,6 +96,17 @@ fun RegisterScreen(navigator: DestinationsNavigator?, viewModel: AuthViewModel =
                     viewModel.clearError(uiState.nick)
                 },
                 uiState.nick,
+                imeAction= ImeAction.Next,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !uiState.isAuthInProgress
+            )
+            InputField(
+                label = stringResource(id = R.string.display_name),
+                onTextChange = {
+                    displayName = it
+                    viewModel.clearError(uiState.displayName)
+                },
+                uiState.displayName,
                 imeAction= ImeAction.Next,
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !uiState.isAuthInProgress
@@ -159,7 +171,7 @@ fun RegisterScreen(navigator: DestinationsNavigator?, viewModel: AuthViewModel =
             }
             Button(
                 onClick = {
-                    viewModel.registerUserWithEmail(nick, email, password, repeatedPassword, selectedImage)
+                    viewModel.registerUserWithEmail(nick, displayName, email, password, repeatedPassword, selectedImage)
                 }, modifier = Modifier
                     .align(Alignment.End)
                     .widthIn(140.dp, 200.dp),

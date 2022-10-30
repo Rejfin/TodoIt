@@ -12,5 +12,6 @@ data class GroupDetailUiState(
     val numberOfAllTasks:Int = 0,
     val calendarDays: MutableList<CalendarDay> = mutableListOf(),
     val selectedTaskList: List<TaskModel> = emptyList(),
-    val allTaskList: MutableMap<Long, MutableList<TaskModel>> = mutableMapOf()
+    val allTaskList: MutableMap<Long, MutableList<TaskModel>> = mutableMapOf(),
+    val showGroupDetails:Boolean = false
 )

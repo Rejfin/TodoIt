@@ -40,7 +40,8 @@ fun InputField(label:String,
                imeAction: ImeAction = ImeAction.None,
                isPasswordField: Boolean = false,
                enabled:Boolean = true,
-               singleLine: Boolean = true){
+               singleLine: Boolean = true,
+               rememberTextInternally: Boolean = true){
 
     val keyboardController = LocalSoftwareKeyboardController.current
     var text by remember { mutableStateOf(placeholder) }
@@ -48,9 +49,11 @@ fun InputField(label:String,
 
     Column{
         OutlinedTextField(
-            value=text,
+            value=if (rememberTextInternally) text else placeholder,
             onValueChange = {
-                text = it
+                if(rememberTextInternally){
+                    text = it
+                }
                 onTextChange(it)
             },
             label = { Text(label) },

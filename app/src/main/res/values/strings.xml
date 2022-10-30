@@ -45,4 +45,15 @@
     <string name="create_group">Create</string>
     <string name="empty_field_error">This field can\'t be empty</string>
     <string name="profile_image">profile image</string>
+    <string name="display_name">Display name</string>
+    <string name="logout">Log out</string>
+    <string name="share_profile">share profile</string>
+    <string name="notification">notification</string>
+    <string name="save">Save</string>
+    <string name="close">Close</string>
+    <string name="edit_group_details">Edit group details</string>
+    <string name="members">Members</string>
+    <string name="group_details">Group details</string>
+    <string name="add_member">Add member</string>
+    <string name="notification_list">Notification list</string>
 </resources>

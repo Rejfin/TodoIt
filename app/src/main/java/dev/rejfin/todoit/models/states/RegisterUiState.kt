@@ -4,6 +4,7 @@ import dev.rejfin.todoit.models.ValidationResult
 
 data class RegisterUiState(
     val nick: ValidationResult = ValidationResult(),
+    val displayName: ValidationResult = ValidationResult(),
     val email: ValidationResult = ValidationResult(),
     val password: ValidationResult = ValidationResult(),
     val repeatedPassword: ValidationResult = ValidationResult(),
