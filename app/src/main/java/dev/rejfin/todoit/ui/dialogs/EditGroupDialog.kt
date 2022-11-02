@@ -132,7 +132,7 @@ fun EditGroupDialog(
                         verticalArrangement = Arrangement.spacedBy(6.dp),
                         modifier = Modifier.fillMaxHeight()
                     ) {
-                        items(items = groupData.membersList,
+                        items(items = groupData.membersList.values.toList(),
                             key = { member -> member.id },
                             contentType = { TaskModel::class.java }
                         )
@@ -278,14 +278,14 @@ fun EditGroupDialog_Preview() {
             "asdasddsf  sdf sd",
             "asdasd",
             "asdsdfsdf",
-            listOf(
-                UserModel("asdasd", "test", null),
-                UserModel("asdasd", "test", null),
-                UserModel("asdasd", "test", null),
-                UserModel("asdasd", "test", null),
-                UserModel("asdasd", "test", null),
-                UserModel("asdasd", "test", null),
-                UserModel("asdasd", "test", null),
+            mapOf(
+                "asdasd" to UserModel("asdasd", "test", null),
+                "asdasd" to UserModel("asdasd", "test", null),
+                "asdasd" to UserModel("asdasd", "test", null),
+                "asdasd" to UserModel("asdasd", "test", null),
+                "asdasd" to UserModel("asdasd", "test", null),
+                "asdasd" to UserModel("asdasd", "test", null),
+                "asdasd" to UserModel("asdasd", "test", null),
             )
         ),
         "asdasd",

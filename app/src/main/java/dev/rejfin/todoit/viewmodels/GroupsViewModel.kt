@@ -18,7 +18,7 @@ import java.util.*
 
 class GroupsViewModel : ViewModel() {
     val groupList = mutableStateListOf<GroupModel>()
-    val userGroupList = mutableListOf<String>()
+    private val userGroupList = mutableMapOf<String, Map<String,String>>()
     val errorState = mutableStateOf<String?>(null)
 
     private val database = Firebase.database
@@ -33,11 +33,11 @@ class GroupsViewModel : ViewModel() {
             object: ValueEventListener{
                 override fun onDataChange(snapshot: DataSnapshot) {
                     for (groupsSnapshot in snapshot.children) {
-                        val groupId = groupsSnapshot.getValue<String>()!!
-                        if(!userGroupList.any { it == groupId }){
-                            userGroupList.add(groupId)
+                        val group = groupsSnapshot.getValue<Map<String, String>>()!!
+                        if(!userGroupList.keys.any { it == group["id"] }){
+                            userGroupList[group.values.first()] = group
                         }
-                        getGroup(groupId)
+                        getGroup(group.values.first())
                     }
                 }
 
@@ -85,11 +85,11 @@ class GroupsViewModel : ViewModel() {
     fun createNewGroup(name:String, description: String, image: Uri){
         val groupId = UUID.randomUUID().toString()
         sendImage(image, groupId){ imageUrl ->
-            dbGroupRef.child(groupId).setValue(GroupModel(groupId, name, description, firebaseAuth.uid!! , imageUrl, listOf(
+            dbGroupRef.child(groupId).setValue(GroupModel(groupId, name, description, firebaseAuth.uid!! , imageUrl, mapOf(firebaseAuth.uid!! to
                 UserModel(id = firebaseAuth.uid!!, displayName = firebaseAuth.currentUser!!.displayName!!, firebaseAuth.currentUser!!.photoUrl.toString())
             )))
             val newGroupList = userGroupList
-            newGroupList.add(groupId)
+            newGroupList[groupId] = mapOf("id" to groupId)
             dbUsersRef.child(firebaseAuth.uid!!).child("groups").setValue(newGroupList)
         }
     }

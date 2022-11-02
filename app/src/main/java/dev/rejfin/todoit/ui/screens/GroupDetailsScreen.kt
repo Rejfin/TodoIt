@@ -39,6 +39,7 @@ import dev.rejfin.todoit.ui.components.Calendar
 import dev.rejfin.todoit.ui.components.TaskCard
 import dev.rejfin.todoit.ui.dialogs.EditGroupDialog
 import dev.rejfin.todoit.ui.dialogs.ErrorDialog
+import dev.rejfin.todoit.ui.dialogs.InfoDialog
 import dev.rejfin.todoit.ui.screens.destinations.NewTaskScreenDestination
 import dev.rejfin.todoit.ui.theme.CustomThemeManager
 
@@ -101,11 +102,11 @@ fun GroupDetailsScreen(navigator: DestinationsNavigator?, groupId: String, viewM
                         uiState.groupData.membersList.forEach { member->
                             AsyncImage(
                                 model = ImageRequest.Builder(LocalContext.current)
-                                    .data(member.imageUrl)
+                                    .data(member.value.imageUrl)
                                     .crossfade(true)
                                     .build(),
                                 placeholder = rememberVectorPainter(Icons.Filled.Person),
-                                contentDescription = member.displayName,
+                                contentDescription = member.value.displayName,
                                 contentScale = ContentScale.Crop,
                                 error = rememberVectorPainter(Icons.Filled.Person),
                                 modifier = Modifier
@@ -145,7 +146,12 @@ fun GroupDetailsScreen(navigator: DestinationsNavigator?, groupId: String, viewM
             }
             if(uiState.errorMessage != null){
                 ErrorDialog(title = stringResource(id = R.string.error), errorText = uiState.errorMessage){
-                    //viewModel.clearError()
+                    viewModel.clearErrorMessages()
+                }
+            }
+            if(uiState.infoMessage != null){
+                InfoDialog(title = "Info", infoText = uiState.infoMessage){
+                    viewModel.clearInfoMessages()
                 }
             }
 //            if(uiState.showDetailsDialog){

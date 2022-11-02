@@ -6,10 +6,14 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class CalendarUtility {
-    private val sdfNumber = SimpleDateFormat("dd", Locale.getDefault())
-    private val sdfName = SimpleDateFormat("EEE", Locale.getDefault())
-    private val sdfDate = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+    private val sdfNumber = SimpleDateFormat("dd", Locale.UK)
+    private val sdfName = SimpleDateFormat("EEE", Locale.UK)
+    private val sdfDate = SimpleDateFormat("dd.MM.yyyy", Locale.UK)
     private val calendarInstance: Calendar = Calendar.getInstance(Locale.UK)
+
+    init {
+        sdfDate.timeZone = TimeZone.getTimeZone("GMT")
+    }
 
     fun getDaysInCurrentWeek(): List<CalendarDay>{
         val cal: Calendar = Calendar.getInstance(Locale.UK)

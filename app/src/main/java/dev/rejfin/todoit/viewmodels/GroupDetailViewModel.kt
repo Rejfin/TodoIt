@@ -157,8 +157,19 @@ class GroupDetailViewModel : ViewModel() {
                         mapOf("groupId" to uiState.groupData.id)
                     )
                 )
+                uiState = uiState.copy(infoMessage = "Invitation has been sent")
+            }else{
+                uiState = uiState.copy(errorMessage = "User does not exist")
             }
         }
 
+    }
+
+    fun clearInfoMessages(){
+        uiState = uiState.copy(infoMessage = null)
+    }
+
+    fun clearErrorMessages(){
+        uiState = uiState.copy(errorMessage = null)
     }
 }

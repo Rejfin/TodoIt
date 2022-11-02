@@ -25,12 +25,12 @@ class ProfileViewModel : ViewModel() {
     private val usersDbRef = database.getReference("users")
 
     init {
-        //uiState = uiState.copy(isUserStillLoggedIn = auth.currentUser != null)
+        uiState = uiState.copy(isUserStillLoggedIn = auth.currentUser != null)
         getNotificationList()
     }
 
     fun logOutUser(){
-        //auth.signOut()
+        auth.signOut()
         uiState = uiState.copy(isUserStillLoggedIn = false)
     }
 
@@ -54,7 +54,7 @@ class ProfileViewModel : ViewModel() {
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
+                    uiState = uiState.copy(showLoadingDialog = false, errorMessage = error.message)
                 }
 
             }
@@ -62,35 +62,32 @@ class ProfileViewModel : ViewModel() {
     }
 
     fun joinGroup(payload: Any){
+        uiState = uiState.copy(showLoadingDialog = true)
         val data = payload as Map<*, *>
         val groupId = data["groupId"]
-        groupsDbRef.child(groupId.toString()).child("membersList").get().addOnCompleteListener { task1 ->
-            if(task1.isSuccessful){
-                val userList = task1.result.getValue<List<UserModel>>()!!.toMutableList()
-                userList.add(
-                    UserModel(auth.uid!!, auth.currentUser!!.displayName!!, auth.currentUser!!.photoUrl.toString())
-                )
-                groupsDbRef.child(groupId.toString()).child("membersList").setValue(userList)
 
-                usersDbRef.child(auth.uid!!).child("groups").get().addOnCompleteListener { task2->
-                    if(task2.isSuccessful){
-                        var groupList = task2.result.getValue<List<String>>()
-                        if(groupList == null){
-                            groupList = listOf(groupId.toString())
-                        }else{
-                            groupList = groupList.toMutableList()
-                            groupList.add(groupId.toString())
-                        }
-                        usersDbRef.child(auth.uid!!).child("groups").setValue(groupList).addOnCompleteListener {
-                            println(it.isSuccessful)
-                        }
+        val user = UserModel(auth.uid!!, auth.currentUser!!.displayName!!, auth.currentUser!!.photoUrl.toString())
+        groupsDbRef.child(groupId.toString()).child("membersList").child(auth.uid!!).setValue(user).addOnCompleteListener { task1 ->
+            if(task1.isSuccessful){
+                val group = mapOf("id" to groupId)
+                usersDbRef.child(auth.uid!!).child("groups").child(groupId.toString()).setValue(group).addOnCompleteListener {task2 ->
+                    uiState = if(task2.isSuccessful){
+                        uiState.copy(showLoadingDialog = false, infoMessage = "you successfully joined group")
                     }else{
-                        println("error 2")
+                        uiState.copy(showLoadingDialog = false, errorMessage = task2.exception?.localizedMessage)
                     }
                 }
             }else{
-                println("error 1")
+                uiState = uiState.copy(showLoadingDialog = false, errorMessage = task1.exception?.localizedMessage)
             }
         }
+    }
+
+    fun clearError(){
+        uiState = uiState.copy(errorMessage = null)
+    }
+
+    fun clearInfo(){
+        uiState = uiState.copy(infoMessage = null)
     }
 }

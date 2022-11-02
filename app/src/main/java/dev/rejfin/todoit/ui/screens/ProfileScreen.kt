@@ -28,6 +28,9 @@ import dev.rejfin.todoit.viewmodels.ProfileViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ramcosta.composedestinations.navigation.popUpTo
 import dev.rejfin.todoit.models.NotificationType
+import dev.rejfin.todoit.ui.dialogs.ErrorDialog
+import dev.rejfin.todoit.ui.dialogs.InfoDialog
+import dev.rejfin.todoit.ui.dialogs.LoadingDialog
 import dev.rejfin.todoit.ui.dialogs.NotificationListDialog
 import dev.rejfin.todoit.ui.screens.destinations.LoginScreenDestination
 import dev.rejfin.todoit.ui.theme.CustomJetpackComposeTheme
@@ -78,10 +81,25 @@ fun ProfileScreen(navigator: DestinationsNavigator?, viewModel: ProfileViewModel
                 if(it.type == NotificationType.INVITATION){
                     viewModel.joinGroup(it.payload!!)
                 }
-                viewModel.hideNotificationList()
             }
         ) {
             viewModel.hideNotificationList()
+        }
+    }
+
+    if(uiState.showLoadingDialog){
+        LoadingDialog()
+    }
+
+    if(uiState.errorMessage != null){
+        ErrorDialog(title = stringResource(id = R.string.error), errorText = uiState.errorMessage){
+            viewModel.clearError()
+        }
+    }
+    
+    if(uiState.infoMessage != null){
+        InfoDialog(title = "Info", infoText = uiState.infoMessage){
+            viewModel.clearInfo()
         }
     }
 
