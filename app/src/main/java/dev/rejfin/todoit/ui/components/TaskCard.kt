@@ -4,11 +4,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.outlined.Circle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -16,19 +19,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dev.rejfin.todoit.R
 import dev.rejfin.todoit.models.CustomDateFormat
 import dev.rejfin.todoit.models.TaskModel
 import dev.rejfin.todoit.models.TaskPartModel
 import dev.rejfin.todoit.ui.theme.CustomThemeManager
 
 @Composable
-fun TaskCard(task: TaskModel, modifier: Modifier = Modifier){
+fun TaskCard(task: TaskModel,
+             modifier: Modifier = Modifier,
+             onRemoveClick: (TaskModel) -> Unit= {},
+             showRemoveButton:Boolean = true){
     Column(modifier = modifier
         .fillMaxWidth()
         .shadow(
@@ -39,45 +47,59 @@ fun TaskCard(task: TaskModel, modifier: Modifier = Modifier){
         .clip(RoundedCornerShape(8.dp))
         .background(Color.White)
     ) {
-        Text(text = task.title,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(8.dp, 8.dp, 8.dp, 0.dp),
-            color = if(task.taskParts.all { it.status } && task.done) CustomThemeManager.colors.textColorSecond else CustomThemeManager.colors.textColorFirst,
-            style = if(task.taskParts.all { it.status } && task.done) TextStyle(textDecoration = TextDecoration.LineThrough) else TextStyle.Default
-        )
-        Text(text = task.description,
-            color= CustomThemeManager.colors.textColorSecond,
-            modifier = Modifier.padding(8.dp),
-            style = if(task.taskParts.all { it.status } && task.done) TextStyle(textDecoration = TextDecoration.LineThrough) else TextStyle.Default
-        )
-        if(task.taskParts.isNotEmpty()){
+        Row(verticalAlignment = Alignment.Top,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()) {
+            Column() {
+                Text(text = task.title,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(8.dp, 8.dp, 8.dp, 0.dp),
+                    color = if(task.taskParts.all { it.status } && task.done) CustomThemeManager.colors.textColorSecond else CustomThemeManager.colors.textColorFirst,
+                    style = if(task.taskParts.all { it.status } && task.done) TextStyle(textDecoration = TextDecoration.LineThrough) else TextStyle.Default
+                )
+                Text(text = task.description,
+                    color= CustomThemeManager.colors.textColorSecond,
+                    modifier = Modifier.padding(8.dp),
+                    style = if(task.taskParts.all { it.status } && task.done) TextStyle(textDecoration = TextDecoration.LineThrough) else TextStyle.Default
+                )
+            }
+            if(showRemoveButton){
+                IconButton(onClick = { onRemoveClick(task) }){
+                    Icon(Icons.Default.Delete, stringResource(id = R.string.remove_task))
+                }
+            }
+        }
+
+        if(task.taskParts.isNotEmpty()) {
             Column(modifier = Modifier.padding(horizontal = 8.dp)) {
-                task.taskParts.forEach{ pair ->
+                task.taskParts.forEach { pair ->
                     Row(modifier = Modifier.fillMaxWidth()) {
-                        if(pair.status){
+                        if (pair.status) {
                             Icon(imageVector = Icons.Filled.CheckCircle,
                                 contentDescription = "task done",
                                 modifier = Modifier.size(20.dp),
-                                tint = if(task.taskParts.all { it.status } && task.done) CustomThemeManager.colors.textColorSecond else CustomThemeManager.colors.doneColor
+                                tint = if (task.taskParts.all { it.status } && task.done) CustomThemeManager.colors.textColorSecond else CustomThemeManager.colors.doneColor
                             )
-                        }else{
-                            Icon(imageVector = Icons.Outlined.Circle,
+                        } else {
+                            Icon(
+                                imageVector = Icons.Outlined.Circle,
                                 contentDescription = "task undone",
                                 modifier = Modifier.size(20.dp),
                                 tint = CustomThemeManager.colors.primaryColor
                             )
                         }
-                        Text(text = pair.desc,
-                            color = if(pair.status) CustomThemeManager.colors.textColorSecond else CustomThemeManager.colors.textColorFirst,
-                            style = if(pair.status) TextStyle(textDecoration = TextDecoration.LineThrough) else TextStyle.Default,
+                        Text(
+                            text = pair.desc,
+                            color = if (pair.status) CustomThemeManager.colors.textColorSecond else CustomThemeManager.colors.textColorFirst,
+                            style = if (pair.status) TextStyle(textDecoration = TextDecoration.LineThrough) else TextStyle.Default,
                             modifier = Modifier.padding(start = 8.dp)
                         )
                     }
                 }
                 LinearProgressIndicator(
-                    progress = task.taskParts.count { it.status } * 1f/task.taskParts.size,
-                    color = if(task.taskParts.all { it.status } && task.done) CustomThemeManager.colors.textColorThird else CustomThemeManager.colors.primaryColor,
+                    progress = task.taskParts.count { it.status } * 1f / task.taskParts.size,
+                    color = if (task.taskParts.all { it.status } && task.done) CustomThemeManager.colors.textColorThird else CustomThemeManager.colors.primaryColor,
                     backgroundColor = CustomThemeManager.colors.textColorThird,
                     modifier = Modifier
                         .padding(top = 8.dp)

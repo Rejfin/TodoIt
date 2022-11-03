@@ -12,6 +12,10 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,6 +36,7 @@ import dev.rejfin.todoit.models.states.HomeUiState
 import dev.rejfin.todoit.ui.components.TaskCard
 import dev.rejfin.todoit.models.TaskModel
 import dev.rejfin.todoit.ui.dialogs.ErrorDialog
+import dev.rejfin.todoit.ui.dialogs.InfoDialog
 import dev.rejfin.todoit.ui.dialogs.TaskDetailsDialog
 import dev.rejfin.todoit.ui.screens.destinations.NewTaskScreenDestination
 
@@ -39,6 +44,9 @@ import dev.rejfin.todoit.ui.screens.destinations.NewTaskScreenDestination
 @Composable
 fun HomeScreen(navigator: DestinationsNavigator?, viewModel: HomeViewModel = viewModel()){
     val uiState: HomeUiState = viewModel.homeUiState
+
+    var confirmationDeleteDialog by remember{ mutableStateOf(false) }
+    var taskToRemove by remember { mutableStateOf<TaskModel?>(null) }
 
     Box(modifier = Modifier.fillMaxSize()){
         Column(horizontalAlignment = Alignment.CenterHorizontally,
@@ -83,8 +91,27 @@ fun HomeScreen(navigator: DestinationsNavigator?, viewModel: HomeViewModel = vie
                 {task ->
                     TaskCard(task = task, modifier = Modifier.clickable {
                         viewModel.showTaskDetails(task)
+                    }, onRemoveClick = {
+                        taskToRemove = it
+                        confirmationDeleteDialog = true
                     })
                 }
+            }
+            if(confirmationDeleteDialog){
+                InfoDialog(
+                    title = stringResource(id = R.string.confirm_task_remove_title),
+                    infoText = stringResource(id = R.string.task_remove_text, taskToRemove!!.title),
+                    isDecisionDialog = true,
+                    onConfirm = {
+                        viewModel.removeTask(taskToRemove!!)
+                        confirmationDeleteDialog = false
+                        taskToRemove = null
+                    },
+                    onCancel = {
+                        confirmationDeleteDialog = false
+                        taskToRemove = null
+                    }
+                )
             }
             if(uiState.errorMessage != null){
                 ErrorDialog(title = stringResource(id = R.string.error), errorText = uiState.errorMessage){

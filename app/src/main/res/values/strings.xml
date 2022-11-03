@@ -56,4 +56,7 @@
     <string name="group_details">Group details</string>
     <string name="add_member">Add member</string>
     <string name="notification_list">Notification list</string>
+    <string name="remove_task">Remove task</string>
+    <string name="confirm_task_remove_title">Are you sure?</string>
+    <string name="task_remove_text">Are you sure you want to delete the task: \"$1%s\"?</string>
 </resources>

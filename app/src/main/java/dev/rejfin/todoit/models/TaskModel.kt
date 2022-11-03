@@ -9,5 +9,8 @@ data class TaskModel(
     val allDay: Boolean = true,
     val startDate: CustomDateFormat = CustomDateFormat(),
     val endDate: CustomDateFormat = CustomDateFormat(),
-    val done: Boolean = false
+    val done: Boolean = false,
+    val ownerId: String = "",
+    val groupId: String? = null,
+    val timestamp: Long = 0L
 )

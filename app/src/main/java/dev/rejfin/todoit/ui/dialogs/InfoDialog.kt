@@ -12,7 +12,11 @@ import androidx.compose.ui.unit.dp
 import dev.rejfin.todoit.R
 
 @Composable
-fun InfoDialog(title:String, infoText: String, onDialogClose: () -> Unit = {}){
+fun InfoDialog(title:String, infoText: String,
+               isDecisionDialog: Boolean = false,
+               onDialogClose: () -> Unit = {},
+               onConfirm: () -> Unit = {},
+               onCancel: () -> Unit = {}){
     AlertDialog(
         onDismissRequest = {
             onDialogClose()
@@ -28,10 +32,23 @@ fun InfoDialog(title:String, infoText: String, onDialogClose: () -> Unit = {}){
                 modifier = Modifier.padding(all = 8.dp),
                 horizontalArrangement = Arrangement.Center
             ) {
+                if(isDecisionDialog){
+                    Button(
+                        modifier = Modifier.weight(1f).padding(4.dp),
+                        onClick = {
+                            onCancel()
+                        }
+                    ) {
+                        Text(stringResource(id = R.string.cancel))
+                    }
+                }
                 Button(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.weight(1f).padding(4.dp),
                     onClick = {
-                        onDialogClose()
+                        onConfirm()
+                        if(!isDecisionDialog){
+                            onDialogClose()
+                        }
                     }
                 ) {
                     Text(stringResource(id = R.string.ok))

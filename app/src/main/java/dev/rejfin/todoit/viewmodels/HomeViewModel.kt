@@ -117,4 +117,12 @@ class HomeViewModel : ViewModel() {
     fun hideTaskDetails(){
         homeUiState = homeUiState.copy(showDetailsDialog = false, taskToShowDetails = null)
     }
+
+    fun removeTask(task: TaskModel){
+        dbRef.child(firebaseAuth.uid!!).child(task.timestamp.toString()).child(task.id).removeValue().addOnCompleteListener {
+            if(!it.isSuccessful){
+                homeUiState = homeUiState.copy(errorMessage = it.exception?.localizedMessage)
+            }
+        }
+    }
 }

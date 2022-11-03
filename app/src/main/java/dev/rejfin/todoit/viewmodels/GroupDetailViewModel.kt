@@ -172,4 +172,12 @@ class GroupDetailViewModel : ViewModel() {
     fun clearErrorMessages(){
         uiState = uiState.copy(errorMessage = null)
     }
+
+    fun removeTask(task: TaskModel){
+        dbRef.child(uiState.groupData.id).child(task.timestamp.toString()).child(task.id).removeValue().addOnCompleteListener {
+            if(!it.isSuccessful){
+                uiState = uiState.copy(errorMessage = it.exception?.localizedMessage)
+            }
+        }
+    }
 }

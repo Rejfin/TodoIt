@@ -135,7 +135,10 @@ class NewTaskViewModel: ViewModel() {
             allDay = taskUiState.isAllDay,
             startDate = taskUiState.startDate,
             endDate = taskUiState.endDate,
-            done = false
+            done = false,
+            ownerId = auth.uid!!,
+            groupId = if(userOrGroupId == auth.uid) null else userOrGroupId,
+            timestamp = timestamp
         )
 
         dbRef.child(userOrGroupId).child(timestamp.toString()).child(taskModel.id).setValue(taskModel).addOnCompleteListener {

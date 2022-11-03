@@ -14,8 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,6 +46,9 @@ import dev.rejfin.todoit.ui.theme.CustomThemeManager
 @Composable
 fun GroupDetailsScreen(navigator: DestinationsNavigator?, groupId: String, viewModel: GroupDetailViewModel = viewModel()){
     val uiState = viewModel.uiState
+
+    var confirmationDeleteDialog by remember{ mutableStateOf(false) }
+    var taskToRemove by remember { mutableStateOf<TaskModel?>(null) }
 
     LaunchedEffect(key1 = Unit){
         viewModel.setGroupId(groupId)
@@ -139,10 +141,31 @@ fun GroupDetailsScreen(navigator: DestinationsNavigator?, groupId: String, viewM
                     contentType = { TaskModel::class.java }
                 )
                 {task ->
-                    TaskCard(task = task, modifier = Modifier.clickable {
-                        //viewModel.showTaskDetails(task)
-                    })
+                    TaskCard(task = task,
+                        showRemoveButton = task.ownerId == viewModel.getUserId() || uiState.groupData.ownerId == viewModel.getUserId(),
+                        modifier = Modifier.clickable {
+                            //viewModel.showTaskDetails(task)
+                        }, onRemoveClick = {
+                            taskToRemove = it
+                            confirmationDeleteDialog = true
+                        })
                 }
+            }
+            if(confirmationDeleteDialog){
+                InfoDialog(
+                    title = stringResource(id = R.string.confirm_task_remove_title),
+                    infoText = stringResource(id = R.string.task_remove_text, taskToRemove!!.title),
+                    isDecisionDialog = true,
+                    onConfirm = {
+                        viewModel.removeTask(taskToRemove!!)
+                        confirmationDeleteDialog = false
+                        taskToRemove = null
+                    },
+                    onCancel = {
+                        confirmationDeleteDialog = false
+                        taskToRemove = null
+                    }
+                )
             }
             if(uiState.errorMessage != null){
                 ErrorDialog(title = stringResource(id = R.string.error), errorText = uiState.errorMessage){
