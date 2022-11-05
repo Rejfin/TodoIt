@@ -43,7 +43,7 @@ import dev.rejfin.todoit.ui.screens.destinations.NewTaskScreenDestination
 @Destination
 @Composable
 fun HomeScreen(navigator: DestinationsNavigator?, viewModel: HomeViewModel = viewModel()){
-    val uiState: HomeUiState = viewModel.homeUiState
+    val uiState: HomeUiState = viewModel.uiState
 
     var confirmationDeleteDialog by remember{ mutableStateOf(false) }
     var taskToRemove by remember { mutableStateOf<TaskModel?>(null) }
@@ -59,7 +59,7 @@ fun HomeScreen(navigator: DestinationsNavigator?, viewModel: HomeViewModel = vie
                 .clip(RoundedCornerShape(8.dp))
                 .background(Color.White)
             ) {
-                Text(text = stringResource(id = R.string.welcome, uiState.loggedUser),
+                Text(text = stringResource(id = R.string.welcome, uiState.loggedUserDisplayName),
                     fontSize = 18.sp,
                     color = CustomThemeManager.colors.textColorFirst,
                     fontWeight = FontWeight.Bold,
@@ -71,7 +71,7 @@ fun HomeScreen(navigator: DestinationsNavigator?, viewModel: HomeViewModel = vie
                 )
             }
             Calendar(
-                viewModel.calendarDays,
+                uiState.calendarDays,
                 onDayClick = {
                     viewModel.switchTaskListDay(it)
                 },
@@ -84,7 +84,7 @@ fun HomeScreen(navigator: DestinationsNavigator?, viewModel: HomeViewModel = vie
                 contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ){
-                items(items = viewModel.taskList,
+                items(items = uiState.selectedTaskList,
                     key = {task -> task.id },
                     contentType = { TaskModel::class.java }
                 )
@@ -114,8 +114,8 @@ fun HomeScreen(navigator: DestinationsNavigator?, viewModel: HomeViewModel = vie
                 )
             }
             if(uiState.errorMessage != null){
-                ErrorDialog(title = stringResource(id = R.string.error), errorText = uiState.errorMessage){
-                    viewModel.clearError()
+                ErrorDialog(title = stringResource(id = R.string.error), errorText = uiState.errorMessage!!){
+                    viewModel.clearErrorMessages()
                 }
             }
             if(uiState.showDetailsDialog){

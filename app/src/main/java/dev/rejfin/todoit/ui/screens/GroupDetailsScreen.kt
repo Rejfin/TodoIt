@@ -39,6 +39,7 @@ import dev.rejfin.todoit.ui.components.TaskCard
 import dev.rejfin.todoit.ui.dialogs.EditGroupDialog
 import dev.rejfin.todoit.ui.dialogs.ErrorDialog
 import dev.rejfin.todoit.ui.dialogs.InfoDialog
+import dev.rejfin.todoit.ui.dialogs.TaskDetailsDialog
 import dev.rejfin.todoit.ui.screens.destinations.NewTaskScreenDestination
 import dev.rejfin.todoit.ui.theme.CustomThemeManager
 
@@ -142,9 +143,9 @@ fun GroupDetailsScreen(navigator: DestinationsNavigator?, groupId: String, viewM
                 )
                 {task ->
                     TaskCard(task = task,
-                        showRemoveButton = task.ownerId == viewModel.getUserId() || uiState.groupData.ownerId == viewModel.getUserId(),
+                        showRemoveButton = task.ownerId == uiState.userId || uiState.groupData.ownerId == uiState.userId,
                         modifier = Modifier.clickable {
-                            //viewModel.showTaskDetails(task)
+                            viewModel.showTaskDetails(task)
                         }, onRemoveClick = {
                             taskToRemove = it
                             confirmationDeleteDialog = true
@@ -168,22 +169,22 @@ fun GroupDetailsScreen(navigator: DestinationsNavigator?, groupId: String, viewM
                 )
             }
             if(uiState.errorMessage != null){
-                ErrorDialog(title = stringResource(id = R.string.error), errorText = uiState.errorMessage){
+                ErrorDialog(title = stringResource(id = R.string.error), errorText = uiState.errorMessage!!){
                     viewModel.clearErrorMessages()
                 }
             }
             if(uiState.infoMessage != null){
-                InfoDialog(title = "Info", infoText = uiState.infoMessage){
+                InfoDialog(title = "Info", infoText = uiState.infoMessage!!){
                     viewModel.clearInfoMessages()
                 }
             }
-//            if(uiState.showDetailsDialog){
-//                TaskDetailsDialog(
-//                    task = uiState.taskToShowDetails!!,
-//                    onClose = {
-//                        viewModel.hideTaskDetails()
-//                    })
-//            }
+            if(uiState.showDetailsDialog){
+                TaskDetailsDialog(
+                    task = uiState.taskToShowDetails!!,
+                    onClose = {
+                        viewModel.hideTaskDetails()
+                    })
+            }
         }
 
         FloatingActionButton(
@@ -204,7 +205,7 @@ fun GroupDetailsScreen(navigator: DestinationsNavigator?, groupId: String, viewM
     if(uiState.showGroupDetails){
         EditGroupDialog(
             uiState.groupData,
-            viewModel.getUserId(),
+            uiState.userId,
             onCreateClick = { _, _, _->},
             onCancelClick = { /*TODO*/ },
             sendRequestToUser = {

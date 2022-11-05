@@ -1,18 +1,14 @@
 package dev.rejfin.todoit.models.states
 
-import dev.rejfin.todoit.models.CalendarDay
-import dev.rejfin.todoit.models.GroupModel
-import dev.rejfin.todoit.models.TaskModel
-import dev.rejfin.todoit.models.UserModel
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import dev.rejfin.todoit.models.*
 
-data class GroupDetailUiState(
-    val groupData: GroupModel = GroupModel(),
-    val errorMessage: String? = null,
-    val numberOfDoneTask:Int = 0,
-    val numberOfAllTasks:Int = 0,
-    val calendarDays: MutableList<CalendarDay> = mutableListOf(),
-    val selectedTaskList: List<TaskModel> = emptyList(),
-    val allTaskList: MutableMap<Long, MutableList<TaskModel>> = mutableMapOf(),
-    val showGroupDetails:Boolean = false,
-    val infoMessage: String? = null
-)
+class GroupDetailUiState(
+    groupData: GroupModel = GroupModel(),
+    showGroupDetails: Boolean = false,
+) : BaseTaskUiState(){
+    var groupData by mutableStateOf(groupData)
+    var showGroupDetails by mutableStateOf(showGroupDetails)
+}

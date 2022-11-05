@@ -66,7 +66,7 @@ fun LoginScreen(navigator: DestinationsNavigator?, viewModel: AuthViewModel = vi
             InputField(
                 label = stringResource(id = R.string.password),
                 onTextChange = {password = it},
-                uiState.password,
+                validationResult = uiState.password,
                 keyboardType = KeyboardType.Password,
                 imeAction= ImeAction.Done,
                 isPasswordField = true,
