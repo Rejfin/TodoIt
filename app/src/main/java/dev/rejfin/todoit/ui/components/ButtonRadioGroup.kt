@@ -21,14 +21,6 @@ import dev.rejfin.todoit.ui.theme.CustomThemeManager
 
 @Composable
 fun ButtonRadioGroup(options: Map<Int, String>, selected: Int, onSelectChanged: (key: Int) -> Unit, modifier: Modifier = Modifier) {
-    var selectedOption by remember {
-        mutableStateOf(selected)
-    }
-
-    val onSelectionChange = { key: Int ->
-        selectedOption = key
-    }
-
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
@@ -45,11 +37,10 @@ fun ButtonRadioGroup(options: Map<Int, String>, selected: Int, onSelectChanged: 
                     modifier = Modifier
                         .clip(shape = RoundedCornerShape(size = 12.dp))
                         .clickable {
-                            onSelectionChange(option.key)
                             onSelectChanged(option.key)
                         }
                         .background(
-                            if (option.key == selectedOption) {
+                            if (option.key == selected) {
                                 CustomThemeManager.colors.primaryColor
                             } else {
                                 CustomThemeManager.colors.textColorThird

@@ -34,6 +34,7 @@ import dev.rejfin.todoit.ui.components.InputField
 import dev.rejfin.todoit.ui.theme.CustomJetpackComposeTheme
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.rejfin.todoit.models.CustomDateFormat
+import dev.rejfin.todoit.models.TaskModel
 import dev.rejfin.todoit.ui.components.ButtonRadioGroup
 import dev.rejfin.todoit.ui.dialogs.ErrorDialog
 import dev.rejfin.todoit.ui.components.StepsProgressBar
@@ -41,7 +42,11 @@ import dev.rejfin.todoit.ui.theme.CustomThemeManager
 
 @Destination
 @Composable
-fun NewTaskScreen(navigator: DestinationsNavigator?, userOrGroupId:String?, viewModel: NewTaskViewModel = viewModel()){
+fun NewTaskScreen(navigator: DestinationsNavigator?,
+                  userOrGroupId:String?,
+                  taskToEdit: TaskModel? = null,
+                  viewModel: NewTaskViewModel = viewModel()
+){
     val uiState = viewModel.taskUiState
     val calendarUtility = viewModel.calendarUtility
 
@@ -49,6 +54,9 @@ fun NewTaskScreen(navigator: DestinationsNavigator?, userOrGroupId:String?, view
 
     LaunchedEffect(key1 = Unit){
         viewModel.setIdToSave(userOrGroupId)
+        if(taskToEdit != null){
+            viewModel.setUiState(taskToEdit)
+        }
     }
 
     Box(modifier = Modifier.fillMaxSize()){
@@ -66,7 +74,9 @@ fun NewTaskScreen(navigator: DestinationsNavigator?, userOrGroupId:String?, view
                 },
                 validationResult = uiState.taskTitleValidation,
                 imeAction = ImeAction.Next,
-                modifier = Modifier.fillMaxWidth(0.9f)
+                modifier = Modifier.fillMaxWidth(0.9f),
+                placeholder = uiState.taskTitle,
+                rememberTextInternally = false
             )
             InputField(
                 label = stringResource(id = R.string.task_description),
@@ -76,6 +86,8 @@ fun NewTaskScreen(navigator: DestinationsNavigator?, userOrGroupId:String?, view
                 validationResult = uiState.taskDescriptionValidation,
                 imeAction = ImeAction.Done,
                 singleLine = false,
+                placeholder = uiState.taskDescription,
+                rememberTextInternally = false,
                 modifier = Modifier
                     .fillMaxWidth(0.9f)
                     .heightIn(min = 110.dp)
@@ -357,7 +369,9 @@ fun NewTaskScreen(navigator: DestinationsNavigator?, userOrGroupId:String?, view
                     )
                 ) {
                     Text(
-                        stringResource(id = R.string.add_task),
+                        if(taskToEdit == null) stringResource(id = R.string.add_task) else stringResource(
+                            id = R.string.save
+                        ),
                         color = CustomThemeManager.colors.textColorOnPrimary
                     )
                 }
@@ -391,7 +405,7 @@ fun NewTaskScreen(navigator: DestinationsNavigator?, userOrGroupId:String?, view
 @Composable
 private fun PreviewNewTaskScreen(){
     CustomJetpackComposeTheme{
-        NewTaskScreen(navigator = null, "")
+        NewTaskScreen(navigator = null, "", TaskModel())
     }
 }
 

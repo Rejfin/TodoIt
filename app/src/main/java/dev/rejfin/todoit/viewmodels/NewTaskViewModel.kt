@@ -24,6 +24,9 @@ class NewTaskViewModel: ViewModel() {
     private val auth = FirebaseAuth.getInstance()
     private lateinit var userOrGroupId: String
 
+    private var taskId: String? = null
+    private var oldTimestamp: Long? = null
+
     fun setIdToSave(id: String?){
         userOrGroupId = id ?: auth.uid!!
     }
@@ -32,6 +35,23 @@ class NewTaskViewModel: ViewModel() {
         calendarUtility = CalendarUtility()
         val currentDate = calendarUtility.getCurrentDate()
         taskUiState = taskUiState.copy(startDate = currentDate, endDate = currentDate.copy(hour = currentDate.hour + 1))
+    }
+
+    fun setUiState(taskModel: TaskModel){
+        taskUiState = taskUiState.copy(
+            taskTitle = taskModel.title,
+            taskDescription = taskModel.description,
+            taskParts = taskModel.taskParts,
+            startDate = taskModel.startDate,
+            endDate = taskModel.endDate,
+            isAllDay = taskModel.allDay,
+            timeConsuming = taskModel.timeConsuming,
+            difficulty = taskModel.difficulty,
+            xpForCompleteTask = taskModel.xpForTask,
+        )
+
+        taskId = taskModel.id
+        oldTimestamp = taskModel.timestamp
     }
 
     fun updateTitle(title:String){
@@ -106,12 +126,14 @@ class NewTaskViewModel: ViewModel() {
         if(!taskUiState.isAllDay){
             if(taskUiState.startDate.hour > taskUiState.endDate.hour){
                 // hour of start is greater than end hour
+                //TODO SHOW user info about that
                 return
             }
 
             if(taskUiState.startDate.hour == taskUiState.endDate.hour){
                 if(taskUiState.startDate.minutes < taskUiState.endDate.minutes){
                     // hour of start is greater than hour of end task
+                    //TODO SHOW user info about that
                     return
                 }
             }
@@ -127,7 +149,7 @@ class NewTaskViewModel: ViewModel() {
         val timestamp = calendarUtility.timestampFromDate(taskUiState.startDate.year, taskUiState.startDate.month, taskUiState.startDate.day)
 
         val taskModel = TaskModel(
-            id = UUID.randomUUID().toString(),
+            id = taskId ?: UUID.randomUUID().toString(),
             title = taskUiState.taskTitle,
             description = taskUiState.taskDescription,
             taskParts = taskList,
@@ -138,8 +160,14 @@ class NewTaskViewModel: ViewModel() {
             done = false,
             ownerId = auth.uid!!,
             groupId = if(userOrGroupId == auth.uid) null else userOrGroupId,
-            timestamp = timestamp
+            timestamp = timestamp,
+            timeConsuming = taskUiState.timeConsuming,
+            difficulty = taskUiState.difficulty
         )
+
+        if(timestamp != oldTimestamp){
+            dbRef.child(userOrGroupId).child(oldTimestamp.toString()).child(taskModel.id).setValue(null)
+        }
 
         dbRef.child(userOrGroupId).child(timestamp.toString()).child(taskModel.id).setValue(taskModel).addOnCompleteListener {
             taskUiState = if(it.isSuccessful){

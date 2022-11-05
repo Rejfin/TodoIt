@@ -1,13 +1,12 @@
 package dev.rejfin.todoit.ui.dialogs
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.Button
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.Circle
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment.Companion.CenterVertically
@@ -28,7 +27,23 @@ import dev.rejfin.todoit.ui.theme.CustomJetpackComposeTheme
 import dev.rejfin.todoit.ui.theme.CustomThemeManager
 
 @Composable
-fun TaskDetailsDialog(task: TaskModel, modifier: Modifier = Modifier, onClose: () -> Unit = {}){
+fun TaskDetailsDialog(task: TaskModel,
+                      modifier: Modifier = Modifier,
+                      onClose: () -> Unit = {},
+                      onEditClick: (TaskModel) -> Unit = {},
+                      onMarkAsDone: (TaskModel) -> Unit = {},
+                      onSave: (TaskModel) -> Unit = {}
+){
+    var editedModel by remember { mutableStateOf(task) }
+    var editedData by remember { mutableStateOf(false) }
+
+    fun updateTaskPart(index:Int){
+        val taskList = editedModel.taskParts.toMutableList()
+        taskList[index] = taskList[index].copy(status = !taskList[index].status)
+        editedModel = editedModel.copy(taskParts = taskList)
+        editedData = task.taskParts != editedModel.taskParts
+    }
+
     AlertDialog(
         properties = DialogProperties(
             dismissOnClickOutside = true,
@@ -38,56 +53,70 @@ fun TaskDetailsDialog(task: TaskModel, modifier: Modifier = Modifier, onClose: (
             onClose()
         },
         title = {
-            Text(text = "Task Details", modifier = Modifier.fillMaxWidth())
         },
         text = {
             Column(modifier = modifier
-                .fillMaxWidth(0.8f)
+                .fillMaxWidth()
                 .background(CustomThemeManager.colors.cardBackgroundColor)
             ) {
+
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ){
+                    Text(text = "Task Details")
+                    IconButton(onClick = {
+                        onEditClick(task)
+                    }) {
+                        Icon(Icons.Default.Edit, stringResource(id = R.string.edit_task))
+                    }
+                }
+
+
                 Text(
                     text = stringResource(id = R.string.task_title),
                     color = CustomThemeManager.colors.textColorSecond,
                     textAlign = TextAlign.Start,
-                    fontSize = 12.sp,
+                    fontSize = 14.sp,
                     modifier = Modifier
-                        .padding(top = 8.dp, start = 8.dp, end = 8.dp)
+                        .padding(top = 8.dp)
                         .fillMaxWidth()
                 )
+
                 Text(
                     text = task.title,
                     color = CustomThemeManager.colors.textColorFirst,
                     fontSize = 17.sp,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 8.dp)
                 )
 
                 Text(
                     text = stringResource(id = R.string.task_description),
                     color = CustomThemeManager.colors.textColorSecond,
                     textAlign = TextAlign.Start,
-                    fontSize = 12.sp,
+                    fontSize = 14.sp,
                     modifier = Modifier
-                        .padding(top = 8.dp, start = 8.dp, end = 8.dp)
+                        .padding(top = 8.dp)
                         .fillMaxWidth()
                 )
+
                 Text(
                     text = task.description,
                     color = CustomThemeManager.colors.textColorFirst,
                     fontSize = 17.sp,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 8.dp)
                 )
 
                 Text(
                     text = stringResource(id = R.string.reward_for_task),
                     color = CustomThemeManager.colors.textColorSecond,
                     textAlign = TextAlign.Start,
-                    fontSize = 12.sp,
+                    fontSize = 14.sp,
                     modifier = Modifier
-                        .padding(top = 8.dp, start = 8.dp, end = 8.dp)
+                        .padding(top = 8.dp)
                         .fillMaxWidth()
                 )
                 Text(
@@ -96,16 +125,15 @@ fun TaskDetailsDialog(task: TaskModel, modifier: Modifier = Modifier, onClose: (
                     fontSize = 17.sp,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 8.dp)
                 )
 
                 Text(
                     text = stringResource(id = R.string.day_of_completion),
                     color = CustomThemeManager.colors.textColorSecond,
                     textAlign = TextAlign.Start,
-                    fontSize = 12.sp,
+                    fontSize = 14.sp,
                     modifier = Modifier
-                        .padding(top = 8.dp, start = 8.dp, end = 8.dp)
+                        .padding(top = 8.dp)
                         .fillMaxWidth()
                 )
                 Text(
@@ -114,7 +142,6 @@ fun TaskDetailsDialog(task: TaskModel, modifier: Modifier = Modifier, onClose: (
                     fontSize = 17.sp,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 8.dp)
                 )
 
                 if(!task.allDay){
@@ -122,16 +149,12 @@ fun TaskDetailsDialog(task: TaskModel, modifier: Modifier = Modifier, onClose: (
                         Text(
                             text = String.format("%02d:%02d - ",task.startDate.hour, task.startDate.minutes),
                             color = CustomThemeManager.colors.textColorFirst,
-                            fontSize = 10.sp,
-                            modifier = Modifier
-                                .padding(start = 8.dp)
+                            fontSize = 11.sp
                         )
                         Text(
                             text = String.format("%02d:%02d",task.endDate.hour, task.endDate.minutes),
                             color = CustomThemeManager.colors.textColorFirst,
-                            fontSize = 10.sp,
-                            modifier = Modifier
-                                .padding(end = 8.dp)
+                            fontSize = 11.sp
                         )
                     }
                 }
@@ -141,35 +164,38 @@ fun TaskDetailsDialog(task: TaskModel, modifier: Modifier = Modifier, onClose: (
                         text = stringResource(id = R.string.task_parts),
                         color = CustomThemeManager.colors.textColorSecond,
                         textAlign = TextAlign.Start,
-                        fontSize = 12.sp,
+                        fontSize = 14.sp,
                         modifier = Modifier
-                            .padding(top = 8.dp, start = 8.dp, end = 8.dp)
+                            .padding(top = 8.dp)
                             .fillMaxWidth()
                     )
                 }
 
-                task.taskParts.forEach {
+                editedModel.taskParts.forEachIndexed {index, it->
                     Row(
                         verticalAlignment = CenterVertically,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 8.dp)
+                            .padding(vertical = 2.dp)
+                            .clickable {
+                                updateTaskPart(index)
+                            }
                     ) {
                         if(it.status){
                             Icon(imageVector = Icons.Filled.CheckCircle,
                                 contentDescription = "task done",
-                                modifier = Modifier.size(12.dp),
+                                modifier = Modifier.size(15.dp),
                                 tint = if(task.taskParts.all { it.status } && task.done) CustomThemeManager.colors.textColorSecond else CustomThemeManager.colors.doneColor
                             )
                         }else{
                             Icon(imageVector = Icons.Outlined.Circle,
                                 contentDescription = "task undone",
-                                modifier = Modifier.size(12.dp),
+                                modifier = Modifier.size(15.dp),
                                 tint = CustomThemeManager.colors.primaryColor
                             )
                         }
                         Text(text = it.desc,
-                            fontSize = 14.sp,
+                            fontSize = 18.sp,
                             color = if(it.status) CustomThemeManager.colors.textColorSecond else CustomThemeManager.colors.textColorFirst,
                             style = if(it.status) TextStyle(textDecoration = TextDecoration.LineThrough) else TextStyle.Default,
                             modifier = Modifier.padding(start = 8.dp)
@@ -183,10 +209,23 @@ fun TaskDetailsDialog(task: TaskModel, modifier: Modifier = Modifier, onClose: (
                 modifier = Modifier.padding(all = 8.dp),
                 horizontalArrangement = Arrangement.Center
             ) {
+                if(task.taskParts.isEmpty() && !task.done){
+                    Button(onClick = {
+                        onMarkAsDone(task)
+                    }, modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 8.dp)) {
+                        Text(text = stringResource(id = R.string.mark_as_done))
+                    }
+                }
                 Button(onClick = {
-                    onClose()
-                }, modifier = Modifier.fillMaxWidth()) {
-                    Text(text = stringResource(id = R.string.ok))
+                    if(editedData){
+                        onSave(editedModel)
+                    }else{
+                        onClose()
+                    }
+                }, modifier = Modifier.weight(1f)) {
+                    Text(text = if(editedData) stringResource(id = R.string.save) else stringResource(id = R.string.ok))
                 }
             }
         }

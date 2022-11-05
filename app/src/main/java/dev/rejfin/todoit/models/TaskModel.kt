@@ -1,5 +1,7 @@
 package dev.rejfin.todoit.models
 
+import java.io.Serializable
+
 data class TaskModel(
     val id: String = "",
     val title: String = "",
@@ -12,5 +14,7 @@ data class TaskModel(
     val done: Boolean = false,
     val ownerId: String = "",
     val groupId: String? = null,
-    val timestamp: Long = 0L
-)
+    val timestamp: Long = 0L,
+    val timeConsuming: Int = 0,
+    val difficulty: Int = 0
+): Serializable

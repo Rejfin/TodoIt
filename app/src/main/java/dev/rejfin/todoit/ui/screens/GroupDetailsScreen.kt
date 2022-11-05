@@ -45,17 +45,21 @@ import dev.rejfin.todoit.ui.theme.CustomThemeManager
 
 @Destination
 @Composable
-fun GroupDetailsScreen(navigator: DestinationsNavigator?, groupId: String, viewModel: GroupDetailViewModel = viewModel()){
+fun GroupDetailsScreen(
+    navigator: DestinationsNavigator?,
+    groupId: String,
+    viewModel: GroupDetailViewModel = viewModel()
+) {
     val uiState = viewModel.uiState
 
-    var confirmationDeleteDialog by remember{ mutableStateOf(false) }
+    var confirmationDeleteDialog by remember { mutableStateOf(false) }
     var taskToRemove by remember { mutableStateOf<TaskModel?>(null) }
 
-    LaunchedEffect(key1 = Unit){
+    LaunchedEffect(key1 = Unit) {
         viewModel.setGroupId(groupId)
     }
 
-    Box(modifier = Modifier.fillMaxSize()){
+    Box(modifier = Modifier.fillMaxSize()) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
@@ -71,7 +75,7 @@ fun GroupDetailsScreen(navigator: DestinationsNavigator?, groupId: String, viewM
                     .clickable {
                         viewModel.showGroupDetails()
                     }
-            ){
+            ) {
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(uiState.groupData.imageUrl)
@@ -86,12 +90,14 @@ fun GroupDetailsScreen(navigator: DestinationsNavigator?, groupId: String, viewM
                         .clip(CircleShape)
                         .size(50.dp, 50.dp)
                 )
-                Column(verticalArrangement = Arrangement.Center,
+                Column(
+                    verticalArrangement = Arrangement.Center,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 8.dp)
                 ) {
-                    Text(text = uiState.groupData.name,
+                    Text(
+                        text = uiState.groupData.name,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         fontSize = 18.sp,
@@ -101,8 +107,9 @@ fun GroupDetailsScreen(navigator: DestinationsNavigator?, groupId: String, viewM
                     Row(
                         Modifier
                             .fillMaxWidth()
-                            .padding(top = 2.dp)){
-                        uiState.groupData.membersList.forEach { member->
+                            .padding(top = 2.dp)
+                    ) {
+                        uiState.groupData.membersList.forEach { member ->
                             AsyncImage(
                                 model = ImageRequest.Builder(LocalContext.current)
                                     .data(member.value.imageUrl)
@@ -124,7 +131,8 @@ fun GroupDetailsScreen(navigator: DestinationsNavigator?, groupId: String, viewM
                 }
             }
 
-            Calendar(uiState.calendarDays,
+            Calendar(
+                uiState.calendarDays,
                 onDayClick = {
                     viewModel.switchTaskListDay(it)
                 },
@@ -136,12 +144,12 @@ fun GroupDetailsScreen(navigator: DestinationsNavigator?, groupId: String, viewM
             LazyColumn(
                 contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(6.dp)
-            ){
+            ) {
                 items(items = uiState.selectedTaskList,
-                    key = {task -> task.id },
+                    key = { task -> task.id },
                     contentType = { TaskModel::class.java }
                 )
-                {task ->
+                { task ->
                     TaskCard(task = task,
                         showRemoveButton = task.ownerId == uiState.userId || uiState.groupData.ownerId == uiState.userId,
                         modifier = Modifier.clickable {
@@ -152,7 +160,7 @@ fun GroupDetailsScreen(navigator: DestinationsNavigator?, groupId: String, viewM
                         })
                 }
             }
-            if(confirmationDeleteDialog){
+            if (confirmationDeleteDialog) {
                 InfoDialog(
                     title = stringResource(id = R.string.confirm_task_remove_title),
                     infoText = stringResource(id = R.string.task_remove_text, taskToRemove!!.title),
@@ -168,21 +176,33 @@ fun GroupDetailsScreen(navigator: DestinationsNavigator?, groupId: String, viewM
                     }
                 )
             }
-            if(uiState.errorMessage != null){
-                ErrorDialog(title = stringResource(id = R.string.error), errorText = uiState.errorMessage!!){
+            if (uiState.errorMessage != null) {
+                ErrorDialog(
+                    title = stringResource(id = R.string.error),
+                    errorText = uiState.errorMessage!!
+                ) {
                     viewModel.clearErrorMessages()
                 }
             }
-            if(uiState.infoMessage != null){
-                InfoDialog(title = "Info", infoText = uiState.infoMessage!!){
+            if (uiState.infoMessage != null) {
+                InfoDialog(title = "Info", infoText = uiState.infoMessage!!) {
                     viewModel.clearInfoMessages()
                 }
             }
-            if(uiState.showDetailsDialog){
+            if (uiState.showDetailsDialog) {
                 TaskDetailsDialog(
                     task = uiState.taskToShowDetails!!,
                     onClose = {
                         viewModel.hideTaskDetails()
+                    },
+                    onSave = {
+                        //TODO
+                    },
+                    onMarkAsDone = {
+                        //TODO
+                    },
+                    onEditClick = {
+                        //TODO
                     })
             }
         }
@@ -194,7 +214,8 @@ fun GroupDetailsScreen(navigator: DestinationsNavigator?, groupId: String, viewM
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(end = 24.dp, bottom = 24.dp),
-            backgroundColor = CustomThemeManager.colors.secondaryColor){
+            backgroundColor = CustomThemeManager.colors.secondaryColor
+        ) {
             Icon(
                 imageVector = Icons.Default.Add,
                 contentDescription = stringResource(id = R.string.new_task),
@@ -202,16 +223,16 @@ fun GroupDetailsScreen(navigator: DestinationsNavigator?, groupId: String, viewM
             )
         }
     }
-    if(uiState.showGroupDetails){
+    if (uiState.showGroupDetails) {
         EditGroupDialog(
             uiState.groupData,
             uiState.userId,
-            onCreateClick = { _, _, _->},
+            onCreateClick = { _, _, _ -> },
             onCancelClick = { /*TODO*/ },
             sendRequestToUser = {
                 viewModel.sendInvitation(it)
             },
-            onCloseClick = {viewModel.closeGroupDetails()}
+            onCloseClick = { viewModel.closeGroupDetails() }
         )
     }
 }

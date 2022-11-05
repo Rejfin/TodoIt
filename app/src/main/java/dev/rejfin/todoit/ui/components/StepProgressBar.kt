@@ -17,16 +17,16 @@ import kotlin.math.roundToInt
 
 @Composable
 fun StepsProgressBar(modifier: Modifier = Modifier, numberOfSteps: Int, currentStep: Int, onSelectionChanged: (step: Int)-> Unit) {
-    var selection by remember{ mutableStateOf(currentStep) }
+    //var selection by remember{ mutableStateOf(currentStep) }
 
     Box(contentAlignment = Alignment.Center, modifier = modifier.fillMaxWidth()) {
         Slider(
             modifier = Modifier.fillMaxWidth(),
             onValueChange = {
-                selection = it.roundToInt()
-                onSelectionChanged(selection)
+                //currentStep = it.roundToInt()
+                onSelectionChanged(it.roundToInt())
             },
-            value = selection*1f,
+            value = currentStep*1f,
             colors = SliderDefaults.colors(
                 inactiveTrackColor = CustomThemeManager.colors.textColorThird,
                 activeTrackColor = CustomThemeManager.colors.primaryColor,
@@ -37,7 +37,7 @@ fun StepsProgressBar(modifier: Modifier = Modifier, numberOfSteps: Int, currentS
             steps = 5,
             valueRange = 1f..5f,
         )
-        Steps(numberOfSteps, selection)
+        Steps(numberOfSteps, currentStep)
     }
 }
 
