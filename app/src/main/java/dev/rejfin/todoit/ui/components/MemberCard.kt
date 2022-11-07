@@ -6,7 +6,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -21,12 +20,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import dev.rejfin.todoit.models.UserModel
+import dev.rejfin.todoit.models.SmallUserModel
 import dev.rejfin.todoit.ui.theme.CustomJetpackComposeTheme
 import dev.rejfin.todoit.ui.theme.CustomThemeManager
 
 @Composable
-fun MemberCard(memberData: UserModel, modifier: Modifier = Modifier, isOwner: Boolean = false){
+fun MemberCard(memberData: SmallUserModel, modifier: Modifier = Modifier, isOwner: Boolean = false){
     Row(verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .fillMaxWidth()
@@ -75,7 +74,7 @@ fun MemberCard(memberData: UserModel, modifier: Modifier = Modifier, isOwner: Bo
 fun MemberCard_Preview(){
     CustomJetpackComposeTheme {
         MemberCard(
-            UserModel(
+            SmallUserModel(
             id = "Asdasd",
             displayName = "Jan Kowalski",
             imageUrl = null

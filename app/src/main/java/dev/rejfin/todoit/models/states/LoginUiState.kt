@@ -1,11 +1,8 @@
 package dev.rejfin.todoit.models.states
 
-import dev.rejfin.todoit.models.ValidationResult
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 
-data class LoginUiState(
-    val email: ValidationResult = ValidationResult(),
-    val password: ValidationResult = ValidationResult(),
-    val isAuthInProgress: Boolean = false,
-    val authFailedMessage:String? = null,
-    val isUserLoggedIn: Boolean = false
-)
+class LoginUiState(
+    val isUserLoggedIn: MutableState<Boolean> = mutableStateOf(false)
+): BaseAuthUiState()

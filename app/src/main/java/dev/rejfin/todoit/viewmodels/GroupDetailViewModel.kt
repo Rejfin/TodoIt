@@ -22,15 +22,18 @@ class GroupDetailViewModel : BaseTaskManagerViewModel() {
         return _uiState
     }
 
+    /** set group id and download initial data for group screen */
     fun setGroupId(id:String){
         _uiState.groupId = id
         _uiState.groupData = GroupModel(id = id)
 
-        viewModelScope.launch {
-            val initTask = launch { getInitialData() }
-            val groupInfoTask = launch { getInfoAboutGroup() }
-            initTask.join()
-            groupInfoTask.join()
+        if(_uiState.calendarDays.isEmpty()){
+            viewModelScope.launch {
+                val initTask = launch { getInitialData() }
+                val groupInfoTask = launch { getInfoAboutGroup() }
+                initTask.join()
+                groupInfoTask.join()
+            }
         }
     }
 
@@ -55,7 +58,6 @@ class GroupDetailViewModel : BaseTaskManagerViewModel() {
                 override fun onCancelled(error: DatabaseError) {
                     _uiState.errorMessage = error.message
                 }
-
             }
         )
     }

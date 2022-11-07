@@ -9,7 +9,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -46,15 +45,10 @@ import dev.rejfin.todoit.ui.theme.CustomThemeManager
 @Composable
 fun RegisterScreen(navigator: DestinationsNavigator?, viewModel: AuthViewModel = viewModel()) {
     val uiState = viewModel.registerUiState
-    var nick by remember { mutableStateOf("") }
-    var displayName by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var selectedImage by remember { mutableStateOf(Uri.EMPTY) }
-    var repeatedPassword by remember { mutableStateOf("") }
+
     val galleryLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-            selectedImage = uri
+            uiState.selectedImage.value = uri ?: Uri.EMPTY
         }
 
     Column(
@@ -73,7 +67,7 @@ fun RegisterScreen(navigator: DestinationsNavigator?, viewModel: AuthViewModel =
                 .align(CenterHorizontally))
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(selectedImage)
+                    .data(uiState.selectedImage.value)
                     .crossfade(true)
                     .build(),
                 placeholder = rememberVectorPainter(Icons.Filled.Person),
@@ -92,62 +86,62 @@ fun RegisterScreen(navigator: DestinationsNavigator?, viewModel: AuthViewModel =
             InputField(
                 label = stringResource(id = R.string.nick),
                 onTextChange = {
-                    nick = it
-                    viewModel.clearError(uiState.nick)
+                    uiState.nick.value = it
+                    viewModel.clearError(uiState.nickValidation.value)
                 },
-                uiState.nick,
+                uiState.nickValidation.value,
                 imeAction= ImeAction.Next,
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !uiState.isAuthInProgress
+                enabled = !uiState.isAuthInProgress.value
             )
             InputField(
                 label = stringResource(id = R.string.display_name),
                 onTextChange = {
-                    displayName = it
-                    viewModel.clearError(uiState.displayName)
+                    uiState.displayName.value = it
+                    viewModel.clearError(uiState.displayNameValidation.value)
                 },
-                uiState.displayName,
+                uiState.displayNameValidation.value,
                 imeAction= ImeAction.Next,
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !uiState.isAuthInProgress
+                enabled = !uiState.isAuthInProgress.value
             )
             InputField(
                 label = stringResource(id = R.string.email),
                 onTextChange = {
-                    email = it
-                    viewModel.clearError(uiState.email)
+                    uiState.email.value = it
+                    viewModel.clearError(uiState.emailValidation.value)
                 },
-                uiState.email,
+                uiState.emailValidation.value,
                 keyboardType = KeyboardType.Email,
                 imeAction= ImeAction.Next,
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !uiState.isAuthInProgress
+                enabled = !uiState.isAuthInProgress.value
             )
             InputField(
                 label = stringResource(id = R.string.password),
                 onTextChange = {
-                    password = it
-                    viewModel.clearError(uiState.password)
+                    uiState.password.value = it
+                    viewModel.clearError(uiState.passwordValidation.value)
                 },
-                uiState.password,
+                uiState.passwordValidation.value,
                 keyboardType = KeyboardType.Password,
                 imeAction= ImeAction.Next,
                 isPasswordField = true,
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !uiState.isAuthInProgress
+                enabled = !uiState.isAuthInProgress.value
             )
             InputField(
                 label = stringResource(id = R.string.repeat_password),
                 onTextChange = {
-                    repeatedPassword = it
-                    viewModel.clearError(uiState.repeatedPassword)
+                    uiState.repeatedPassword.value = it
+                    viewModel.clearError(uiState.repeatedPasswordValidation.value)
                 },
-                uiState.repeatedPassword,
+                uiState.repeatedPasswordValidation.value,
                 keyboardType = KeyboardType.Password,
                 imeAction= ImeAction.Done,
                 isPasswordField = true,
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !uiState.isAuthInProgress
+                enabled = !uiState.isAuthInProgress.value
             )
             Row(modifier = Modifier
                 .padding(vertical = 15.dp)
@@ -160,7 +154,7 @@ fun RegisterScreen(navigator: DestinationsNavigator?, viewModel: AuthViewModel =
                     stringResource(id = R.string.log_in_now),
                     color = CustomThemeManager.colors.primaryColor,
                     fontSize = 15.sp,
-                    modifier = Modifier.clickable(enabled = !uiState.isAuthInProgress){
+                    modifier = Modifier.clickable(enabled = !uiState.isAuthInProgress.value){
                     navigator?.navigate(LoginScreenDestination) {
                         popUpTo(RegisterScreenDestination) {
                             inclusive = true
@@ -171,11 +165,11 @@ fun RegisterScreen(navigator: DestinationsNavigator?, viewModel: AuthViewModel =
             }
             Button(
                 onClick = {
-                    viewModel.registerUserWithEmail(nick, displayName, email, password, repeatedPassword, selectedImage)
+                    viewModel.registerUserWithEmail()
                 }, modifier = Modifier
                     .align(Alignment.End)
                     .widthIn(140.dp, 200.dp),
-                enabled = !uiState.isAuthInProgress,
+                enabled = !uiState.isAuthInProgress.value,
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(backgroundColor = CustomThemeManager.colors.primaryColor)
             ) {
@@ -184,15 +178,15 @@ fun RegisterScreen(navigator: DestinationsNavigator?, viewModel: AuthViewModel =
                     color = CustomThemeManager.colors.textColorOnPrimary
                 )
             }
-            if(uiState.isAuthInProgress){
+            if(uiState.isAuthInProgress.value){
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
-            if(uiState.authFailedMessage != null){
-                ErrorDialog(title = stringResource(id = R.string.register_error), errorText = uiState.authFailedMessage, onDialogClose = {
+            if(uiState.authFailedMessage.value != null){
+                ErrorDialog(title = stringResource(id = R.string.register_error), errorText = uiState.authFailedMessage.value!!, onDialogClose = {
                     viewModel.dismissAuthError()
                 })
             }
-            if(uiState.registerSuccess){
+            if(uiState.registerSuccess.value){
                 InfoDialog(
                     title = stringResource(id = R.string.register_success),
                     infoText = stringResource(id = R.string.register_success_message),
@@ -212,7 +206,7 @@ fun RegisterScreen(navigator: DestinationsNavigator?, viewModel: AuthViewModel =
 @Preview(showBackground = true)
 @Composable
 private fun RegisterPreview() {
-    CustomJetpackComposeTheme() {
+    CustomJetpackComposeTheme {
         RegisterScreen(null)
     }
 }

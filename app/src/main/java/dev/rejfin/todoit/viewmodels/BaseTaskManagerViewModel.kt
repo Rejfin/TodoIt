@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ServerValue
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.database.ktx.getValue
@@ -128,12 +129,19 @@ abstract class BaseTaskManagerViewModel: ViewModel() {
     }
 
     /**
-     * remove task from database if something goes wrong (ex. bad task id, permission error, etc.)
-     * set an error message to let the user know what went wrong
+     * remove task from database (only if timestamp of task is not too old)
+     * if something goes wrong (ex. bad task id, permission error, etc.) set an error message
+     * to let the user know what went wrong
      */
     fun removeTask(task: TaskModel){
         val id = getBaseUiState().groupId ?: getBaseUiState().userId
-        tasksDbRef.child(id).child(task.timestamp.toString()).child(task.id).removeValue().addOnCompleteListener {
+
+        val childToUpdate = mutableMapOf(
+            "/tasks/$id/${task.timestamp}/${task.id}" to null,
+            "/users/${auth.uid}/allTask" to ServerValue.increment(-1),
+        )
+
+        database.reference.updateChildren(childToUpdate).addOnCompleteListener {
             if(!it.isSuccessful){
                 getBaseUiState().errorMessage = it.exception?.localizedMessage
             }
@@ -148,5 +156,45 @@ abstract class BaseTaskManagerViewModel: ViewModel() {
     fun hideTaskDetails(){
         getBaseUiState().taskToShowDetails = null
         getBaseUiState().showDetailsDialog = false
+    }
+
+    fun markTaskAsDone(task: TaskModel){
+        val parts = task.taskParts.map { it.copy(status = true) }
+        val mTask = task.copy(done = true, taskParts = parts)
+        val id = getBaseUiState().groupId ?: getBaseUiState().userId
+
+        val childToUpdate = mutableMapOf(
+            "/tasks/$id/${task.timestamp}/${task.id}" to mTask,
+            "/users/${auth.uid}/taskDone" to ServerValue.increment(1),
+            "/users/${auth.uid}/xp" to ServerValue.increment(task.xpForTask.toLong())
+        )
+
+        if(task.groupId != null){
+            childToUpdate["/users/${auth.uid!!}/allTask"] = ServerValue.increment(1)
+        }
+
+        database.reference.updateChildren(childToUpdate).addOnCompleteListener {
+            if(!it.isSuccessful){
+                getBaseUiState().errorMessage = it.exception?.localizedMessage
+            }
+        }
+    }
+
+    fun taskPartsUpdate(task: TaskModel){
+        if(task.done){
+            return
+        }
+        val id = getBaseUiState().groupId ?: getBaseUiState().userId
+
+        val childToUpdate = mutableMapOf<String, Any>(
+            "/tasks/$id/${task.timestamp}/${task.id}/taskParts" to task.taskParts,
+        )
+
+        if(task.taskParts.all { it.status }){
+            childToUpdate["/tasks/$id/${task.timestamp}/${task.id}/done"] = true
+            childToUpdate["/users/${auth.uid}/xp"] = ServerValue.increment(task.xpForTask.toLong())
+        }
+
+        database.reference.updateChildren(childToUpdate)
     }
 }

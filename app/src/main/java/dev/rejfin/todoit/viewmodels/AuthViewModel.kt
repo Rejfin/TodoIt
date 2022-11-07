@@ -8,13 +8,13 @@ import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.auth.ktx.userProfileChangeRequest
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
+import dev.rejfin.todoit.models.UserModel
 import dev.rejfin.todoit.models.states.LoginUiState
 import dev.rejfin.todoit.models.states.RegisterUiState
 import dev.rejfin.todoit.models.ValidationResult
@@ -22,171 +22,216 @@ import kotlinx.coroutines.launch
 import java.lang.Exception
 
 class AuthViewModel: ViewModel() {
+    /** ui state for register screen */
     var registerUiState by mutableStateOf(RegisterUiState())
         private set
 
+    /** ui state for log in screen */
     var loginUiState by mutableStateOf(LoginUiState())
         private set
 
     private var auth: FirebaseAuth = Firebase.auth
-    private val usersDbRef = Firebase.database.getReference("users")
-    private val nicksDbRef = Firebase.database.getReference("nicks")
+    private val database = Firebase.database
+    private val nicksDbRef = database.getReference("nicks")
     private val storage = FirebaseStorage.getInstance()
     private val storageRef = storage.getReference("users")
 
-    fun registerUserWithEmail(nick: String, displayName:String, email:String, password:String, repeatedPassword: String, imageUri: Uri){
-        registerUiState = registerUiState.copy(isAuthInProgress = true)
+    /** Register the user after checking the validity of the entered data in the first place */
+    fun registerUserWithEmail(){
+        registerUiState.isAuthInProgress.value = true
 
-        validateNick(nick)
-        validateDisplayName(displayName)
-        validateEmail(email)
-        validatePassword(password)
-        validateRepeatedPassword(password, repeatedPassword)
+        /** validate every input field in registration form */
+        validateNick(registerUiState.nick.value)
+        validateDisplayName(registerUiState.displayName.value)
+        validateEmail(registerUiState.email.value)
+        validatePassword(registerUiState.password.value)
+        validateRepeatedPassword(registerUiState.password.value, registerUiState.repeatedPassword.value)
 
-        if(registerUiState.nick.isError || registerUiState.email.isError || registerUiState.password.isError || registerUiState.repeatedPassword.isError || registerUiState.displayName.isError){
-            registerUiState = registerUiState.copy(isAuthInProgress = false)
+        if(registerUiState.nickValidation.value.isError || registerUiState.emailValidation.value.isError || registerUiState.passwordValidation.value.isError || registerUiState.repeatedPasswordValidation.value.isError || registerUiState.displayNameValidation.value.isError){
+            registerUiState.isAuthInProgress.value = false
         }else{
-            nicksDbRef.child(nick).get().addOnSuccessListener { dbNick ->
+            /**
+             * first check if entered nick not exist in database
+             * nick must be unique for every user, so if it exist show error
+             */
+            nicksDbRef.child(registerUiState.nick.value).get().addOnSuccessListener { dbNick ->
                 if(!dbNick.exists()){
-                    auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener {
+                    /**
+                     * create user with given email and password, then set url to profile picture
+                     * and create entry for user in database
+                     */
+                    auth.createUserWithEmailAndPassword(registerUiState.email.value, registerUiState.password.value).addOnCompleteListener {
                         if(it.isSuccessful){
                             val user = Firebase.auth.currentUser
 
-                            nicksDbRef.child(nick).setValue(mapOf(
-                                "userId" to user!!.uid
-                            ))
+                            sendImage(registerUiState.selectedImage.value, user!!.uid){ link ->
 
-                            var imageUrl: String? = null
-                            sendImage(imageUri, user.uid){ link ->
-                                imageUrl = link
-                            }
+                                /** created user model will be sent to firebase database */
+                                val userEntry = UserModel(
+                                    id = user.uid,
+                                    nick = registerUiState.nick.value,
+                                    displayName = registerUiState.displayName.value,
+                                    imageUrl = link,
+                                )
 
-                            val profileUpdate = userProfileChangeRequest {
-                                this.displayName = displayName
-                                photoUri = imageUrl?.toUri()
-                            }
+                                /** set paths to update data in several places at once */
+                                val childToUpdate = mutableMapOf(
+                                    "/nicks/${registerUiState.nick.value}" to mapOf("userId" to user.uid),
+                                    "/users/${user.uid}" to userEntry,
+                                )
 
-                            viewModelScope.launch {
-                                val updateProfile = launch {user.updateProfile(profileUpdate)}
-                                val createEntryInDatabase = launch{usersDbRef.child(user.uid).setValue(mapOf(
-                                    "nick" to nick,
-                                    "displayName" to displayName,
-                                    "uid" to user.uid,
-                                    "imageUrl" to imageUrl,
-                                    "taskDone" to 0,
-                                    "allTask" to 0,
-                                    "xp" to 0,
-                                    "level" to 1,
-                                ))}
+                                /** update user profile picture and his display name */
+                                val profileUpdate = userProfileChangeRequest {
+                                    this.displayName = registerUiState.displayName.value
+                                    photoUri = link?.toUri()
+                                }
 
-                                updateProfile.join()
-                                createEntryInDatabase.join()
+                                /** sending data to firebase is run in coroutine to speed up the process */
+                                viewModelScope.launch {
+                                    val updateProfile = launch { user.updateProfile(profileUpdate) }
+                                    val createEntryInDatabase = launch {
+                                        database.reference.updateChildren(childToUpdate)
+                                    }
 
-                                registerUiState = registerUiState.copy(isAuthInProgress = false, registerSuccess = true)
-                                auth.signOut()
+                                    updateProfile.join()
+                                    createEntryInDatabase.join()
+
+                                    registerUiState.apply {
+                                        isAuthInProgress.value = false
+                                        registerSuccess.value = true
+                                    }
+                                    auth.signOut()
+                                }
                             }
                         }else{
+                            /**
+                             * if something went wrong during registration,
+                             * we throw out the received error and compare it with the errors
+                             * created in the firebase library
+                             * and display the appropriate error to the user
+                             */
                             try{
                                 throw it.exception!!
                             }catch (e: FirebaseAuthUserCollisionException){
-                                registerUiState = registerUiState.copy(
-                                    isAuthInProgress = false,
-                                    authFailedMessage = it.exception?.localizedMessage,
-                                    registerSuccess = false,
-                                    email = ValidationResult(
+                                registerUiState.apply {
+                                    isAuthInProgress.value = false
+                                    registerSuccess.value = false
+                                    authFailedMessage.value = it.exception?.localizedMessage
+                                    emailValidation.value = ValidationResult(
                                         isError = true,
                                         errorMessage = "user with this email already exist"
                                     )
-                                )
+                                }
                             }catch (e: Exception){
-                                registerUiState = registerUiState.copy(
-                                    isAuthInProgress = false,
-                                    authFailedMessage = it.exception?.localizedMessage,
-                                    registerSuccess = false
-                                )
+                                registerUiState.apply {
+                                    isAuthInProgress.value = false
+                                    authFailedMessage.value = it.exception?.localizedMessage
+                                    registerSuccess.value = false
+                                }
                             }
                         }
                     }
                 }else{
-                    registerUiState = registerUiState.copy(nick = ValidationResult(
-                        isError = true,
-                        errorMessage = "user with such a nickname already exists",),
-                        isAuthInProgress = false,
-                        authFailedMessage = "user with such a nickname already exists :/\nLog in if this is your account, or create a new one with a different nickname"
-                    )
+                    /** user with such nick exist so we show user error and ask him to change it*/
+                    registerUiState.apply {
+                        nickValidation.value = ValidationResult(
+                            isError = true,
+                            errorMessage = "user with such a nickname already exists")
+                        isAuthInProgress.value = false
+                        authFailedMessage.value = "user with such a nickname already exists :/\nLog in if this is your account, or create a new one with a different nickname"
+                    }
                 }
             }
         }
     }
 
-    fun loginUserWithEmail(email:String, password: String){
-        loginUiState = loginUiState.copy(isAuthInProgress = true)
-        if(email.isEmpty() || password.isEmpty()){
-            loginUiState = loginUiState.copy(isAuthInProgress = false)
+    /** Try to log in user using data entered by him */
+    fun loginUserWithEmail(){
+        loginUiState.isAuthInProgress.value = true
+        if(loginUiState.email.value.isEmpty() || loginUiState.password.value.isEmpty()){
+            loginUiState.isAuthInProgress.value = false
+            loginUiState.emailValidation.value = ValidationResult(isError = loginUiState.email.value.isEmpty(), "field can't be empty")
+            loginUiState.passwordValidation.value = ValidationResult(isError = loginUiState.password.value.isEmpty(), "field can't be empty")
         }else{
-            auth.signInWithEmailAndPassword(email, password).addOnCompleteListener {
+            auth.signInWithEmailAndPassword(loginUiState.email.value, loginUiState.password.value).addOnCompleteListener {
                 loginUiState = if(it.isSuccessful){
-                    loginUiState.copy(isAuthInProgress = false, isUserLoggedIn = true)
+                    loginUiState.apply {
+                        isAuthInProgress.value = false
+                        isUserLoggedIn.value = true
+                    }
                 }else{
-                    loginUiState.copy(isAuthInProgress = false, authFailedMessage = it.exception?.localizedMessage)
+                    loginUiState.apply {
+                        isAuthInProgress.value = false
+                        authFailedMessage.value = it.exception?.localizedMessage
+                    }
                 }
             }
         }
     }
 
+    /**
+     * check if user is already logged in, and if it is set uiState to user data
+     * next navigate user to home screen
+     */
     fun isUserAlreadyLoggedIn(): Boolean{
         val isUserLoggedIn = auth.currentUser != null
-        loginUiState = loginUiState.copy(isUserLoggedIn = isUserLoggedIn)
+        loginUiState.isUserLoggedIn.value = isUserLoggedIn
         return isUserLoggedIn
     }
 
+    /** Function clears error for selected InputField in register and login form */
     fun clearError(fieldState: ValidationResult){
         when(fieldState){
-            registerUiState.nick -> registerUiState = registerUiState.copy(nick = ValidationResult(isError = false))
-            registerUiState.displayName -> registerUiState = registerUiState.copy(displayName = ValidationResult(isError = false))
-            registerUiState.email -> registerUiState = registerUiState.copy(email = ValidationResult(isError = false))
-            registerUiState.password -> registerUiState = registerUiState.copy(password = ValidationResult(isError = false))
-            registerUiState.repeatedPassword -> registerUiState = registerUiState.copy(repeatedPassword = ValidationResult(isError = false))
-            loginUiState.email -> loginUiState = loginUiState.copy(email = ValidationResult(isError = false))
-            loginUiState.password -> loginUiState = loginUiState.copy(password = ValidationResult(isError = false))
+            registerUiState.nickValidation.value -> registerUiState.nickValidation.value = ValidationResult(isError = false)
+            registerUiState.displayNameValidation.value -> registerUiState.displayNameValidation.value = ValidationResult(isError = false)
+            registerUiState.emailValidation.value -> registerUiState.emailValidation.value = ValidationResult(isError = false)
+            registerUiState.passwordValidation.value -> registerUiState.passwordValidation.value = ValidationResult(isError = false)
+            registerUiState.repeatedPasswordValidation.value -> registerUiState.repeatedPasswordValidation.value = ValidationResult(isError = false)
+            loginUiState.emailValidation.value -> loginUiState.emailValidation.value = ValidationResult(isError = false)
+            loginUiState.passwordValidation.value -> loginUiState.passwordValidation.value = ValidationResult(isError = false)
         }
     }
 
     fun dismissAuthError(){
-        loginUiState = loginUiState.copy(authFailedMessage = null)
-        registerUiState = registerUiState.copy(authFailedMessage = null)
+        loginUiState.authFailedMessage.value = null
+        registerUiState.authFailedMessage.value = null
     }
 
     private fun validateNick(nick:String): Boolean{
         val isNickOk = nick.length >= 4
-        registerUiState = registerUiState.copy(nick = ValidationResult(isError = !isNickOk, errorMessage = "Nick has to be at least 4 characters"))
+        registerUiState.nickValidation.value = ValidationResult(isError = !isNickOk, errorMessage = "Nick has to be at least 4 characters")
         return isNickOk
     }
 
     private fun validateDisplayName(displayName:String): Boolean{
         val isDisplayNameOk = displayName.length >= 4
-        registerUiState = registerUiState.copy(displayName = ValidationResult(isError = !isDisplayNameOk, errorMessage = "Nick has to be at least 4 characters"))
+        registerUiState.displayNameValidation.value = ValidationResult(isError = !isDisplayNameOk, errorMessage = "Nick has to be at least 4 characters")
         return isDisplayNameOk
     }
 
     private fun validateEmail(email:String): Boolean{
         val isEmailOk = email.contains("@")
-        registerUiState = registerUiState.copy(email = ValidationResult(isError = !isEmailOk, errorMessage = "bad email format"))
+        registerUiState.emailValidation.value = ValidationResult(isError = !isEmailOk, errorMessage = "bad email format")
         return isEmailOk
     }
 
     private fun validatePassword(password: String): Boolean{
         val isPasswordOk = password.length >= 8 && password.any { it.isDigit()} && password.any{it.isLetter()}
-        registerUiState = registerUiState.copy(password = ValidationResult(isError = (!isPasswordOk), errorMessage = "your password must:\n- be at least 8 characters long\n- have at least one letter and one number"))
+        registerUiState.passwordValidation.value = ValidationResult(isError = (!isPasswordOk), errorMessage = "your password must:\n- be at least 8 characters long\n- have at least one letter and one number")
         return isPasswordOk
     }
 
     private fun validateRepeatedPassword(password: String, repeatedPassword: String): Boolean{
         val isRepeatedPasswordOk = password == repeatedPassword
-        registerUiState = registerUiState.copy(repeatedPassword = ValidationResult(isError = !isRepeatedPasswordOk, errorMessage = "Your passwords doesn't match"))
+        registerUiState.repeatedPasswordValidation.value = ValidationResult(isError = !isRepeatedPasswordOk, errorMessage = "Your passwords doesn't match")
         return isRepeatedPasswordOk
     }
 
+    /**
+     * Function used to send user profile picture to firebase storage
+     * if the operation is successful, the callback argument will return valid image url
+     * if the operation is not successful, the callback argument will return null
+     */
     private fun sendImage(image: Uri, userId: String, callback: (imageUrl:String?) -> Unit){
         val ref = storageRef.child(userId)
         val uploadTask = ref.putFile(image)

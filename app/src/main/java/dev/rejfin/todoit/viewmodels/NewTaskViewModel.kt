@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.ServerValue
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import dev.rejfin.todoit.models.*
@@ -20,7 +21,6 @@ class NewTaskViewModel: ViewModel() {
         private set
 
     private val database = Firebase.database
-    private val dbRef = database.getReference("tasks")
     private val auth = FirebaseAuth.getInstance()
     private lateinit var userOrGroupId: String
 
@@ -117,6 +117,7 @@ class NewTaskViewModel: ViewModel() {
                 isError = taskUiState.taskTitle.isEmpty(),
                 errorMessage = "Field can't be empty")
         )
+
         taskUiState = taskUiState.copy(
             taskDescriptionValidation = ValidationResult(
                 isError = taskUiState.taskDescription.isEmpty(),
@@ -165,11 +166,19 @@ class NewTaskViewModel: ViewModel() {
             difficulty = taskUiState.difficulty
         )
 
-        if(timestamp != oldTimestamp){
-            dbRef.child(userOrGroupId).child(oldTimestamp.toString()).child(taskModel.id).setValue(null)
+        val childToUpdate = mutableMapOf<String, Any?>(
+            "/tasks/$userOrGroupId/${taskModel.timestamp}/${taskModel.id}" to taskModel,
+        )
+
+        if(userOrGroupId == auth.uid){
+            childToUpdate["/users/${auth.uid}/allTask"] = ServerValue.increment(1)
         }
 
-        dbRef.child(userOrGroupId).child(timestamp.toString()).child(taskModel.id).setValue(taskModel).addOnCompleteListener {
+        if(timestamp != oldTimestamp){
+            childToUpdate["/tasks/$userOrGroupId/$oldTimestamp/${taskModel.id}"] = null
+        }
+
+        database.reference.updateChildren(childToUpdate).addOnCompleteListener {
             taskUiState = if(it.isSuccessful){
                 taskUiState.copy(isDataSending = false, isDateSent = true)
             }else{

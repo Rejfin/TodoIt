@@ -1,14 +1,17 @@
 package dev.rejfin.todoit.models.states
 
+import android.net.Uri
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import dev.rejfin.todoit.models.ValidationResult
 
-data class RegisterUiState(
-    val nick: ValidationResult = ValidationResult(),
-    val displayName: ValidationResult = ValidationResult(),
-    val email: ValidationResult = ValidationResult(),
-    val password: ValidationResult = ValidationResult(),
-    val repeatedPassword: ValidationResult = ValidationResult(),
-    val isAuthInProgress: Boolean = false,
-    val authFailedMessage:String? = null,
-    val registerSuccess:Boolean = false
-)
+class RegisterUiState(
+    var nick: MutableState<String> = mutableStateOf(""),
+    var displayName: MutableState<String> = mutableStateOf(""),
+    var repeatedPassword: MutableState<String> = mutableStateOf(""),
+    val nickValidation: MutableState<ValidationResult> = mutableStateOf(ValidationResult()),
+    val displayNameValidation: MutableState<ValidationResult> = mutableStateOf(ValidationResult()),
+    val repeatedPasswordValidation: MutableState<ValidationResult> = mutableStateOf(ValidationResult()),
+    val registerSuccess: MutableState<Boolean> = mutableStateOf(false),
+    var selectedImage: MutableState<Uri> = mutableStateOf(Uri.EMPTY)
+): BaseAuthUiState()

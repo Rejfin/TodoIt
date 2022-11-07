@@ -34,10 +34,8 @@ import dev.rejfin.todoit.ui.theme.CustomThemeManager
 @Composable
 fun LoginScreen(navigator: DestinationsNavigator?, viewModel: AuthViewModel = viewModel()){
     val uiState = viewModel.loginUiState
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
 
-    LaunchedEffect("login"){
+    LaunchedEffect(Unit){
         if(viewModel.isUserAlreadyLoggedIn()){
             navigator?.navigate(HomeScreenDestination){
                 popUpTo(LoginScreenDestination) {
@@ -56,22 +54,22 @@ fun LoginScreen(navigator: DestinationsNavigator?, viewModel: AuthViewModel = vi
                 .align(Alignment.CenterHorizontally))
             InputField(
                 label = stringResource(id = R.string.email),
-                onTextChange = { email = it },
-                uiState.email,
+                onTextChange = { uiState.email.value = it },
+                validationResult = uiState.emailValidation.value,
                 keyboardType = KeyboardType.Email,
                 imeAction= ImeAction.Next,
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !uiState.isAuthInProgress
+                enabled = !uiState.isAuthInProgress.value
             )
             InputField(
                 label = stringResource(id = R.string.password),
-                onTextChange = {password = it},
-                validationResult = uiState.password,
+                onTextChange = {uiState.password.value = it},
+                validationResult = uiState.passwordValidation.value,
                 keyboardType = KeyboardType.Password,
                 imeAction= ImeAction.Done,
                 isPasswordField = true,
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !uiState.isAuthInProgress
+                enabled = !uiState.isAuthInProgress.value
             )
             Row(modifier = Modifier
                 .padding(vertical = 15.dp)
@@ -84,7 +82,7 @@ fun LoginScreen(navigator: DestinationsNavigator?, viewModel: AuthViewModel = vi
                     stringResource(id = R.string.create_now),
                     color = CustomThemeManager.colors.primaryColor,
                     fontSize = 15.sp,
-                    modifier = Modifier.clickable(enabled = !uiState.isAuthInProgress) {
+                    modifier = Modifier.clickable(enabled = !uiState.isAuthInProgress.value) {
                         navigator?.navigate(RegisterScreenDestination){
                             popUpTo(LoginScreenDestination) {
                                 inclusive = true
@@ -94,11 +92,11 @@ fun LoginScreen(navigator: DestinationsNavigator?, viewModel: AuthViewModel = vi
                 )
             }
             Button(onClick = {
-                viewModel.loginUserWithEmail(email, password)
+                viewModel.loginUserWithEmail()
             }, modifier = Modifier
                 .align(Alignment.End)
                 .widthIn(140.dp, 200.dp),
-                enabled = !uiState.isAuthInProgress,
+                enabled = !uiState.isAuthInProgress.value,
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(backgroundColor = CustomThemeManager.colors.primaryColor)
             ) {
@@ -106,18 +104,18 @@ fun LoginScreen(navigator: DestinationsNavigator?, viewModel: AuthViewModel = vi
                     color = CustomThemeManager.colors.textColorOnPrimary
                 )
             }
-            if(uiState.isAuthInProgress){
+            if(uiState.isAuthInProgress.value){
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
-            if(uiState.authFailedMessage != null){
+            if(uiState.authFailedMessage.value != null){
                 ErrorDialog(
                     title = stringResource(id = R.string.log_in_error),
-                    errorText = uiState.authFailedMessage,
+                    errorText = uiState.authFailedMessage.value!!,
                     onDialogClose = {
                     viewModel.dismissAuthError()
                 })
             }
-            if(uiState.isUserLoggedIn){
+            if(uiState.isUserLoggedIn.value){
                 navigator?.navigate(HomeScreenDestination){
                     popUpTo(LoginScreenDestination) {
                         inclusive = true

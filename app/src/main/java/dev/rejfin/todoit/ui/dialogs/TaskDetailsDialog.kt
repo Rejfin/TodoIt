@@ -28,6 +28,7 @@ import dev.rejfin.todoit.ui.theme.CustomThemeManager
 
 @Composable
 fun TaskDetailsDialog(task: TaskModel,
+                      userId: String,
                       modifier: Modifier = Modifier,
                       onClose: () -> Unit = {},
                       onEditClick: (TaskModel) -> Unit = {},
@@ -66,10 +67,13 @@ fun TaskDetailsDialog(task: TaskModel,
                     modifier = Modifier.fillMaxWidth()
                 ){
                     Text(text = "Task Details")
-                    IconButton(onClick = {
-                        onEditClick(task)
-                    }) {
-                        Icon(Icons.Default.Edit, stringResource(id = R.string.edit_task))
+
+                    if(!task.done && task.ownerId == userId){
+                        IconButton(onClick = {
+                            onEditClick(task)
+                        }) {
+                            Icon(Icons.Default.Edit, stringResource(id = R.string.edit_task))
+                        }
                     }
                 }
 
@@ -178,7 +182,9 @@ fun TaskDetailsDialog(task: TaskModel,
                             .fillMaxWidth()
                             .padding(vertical = 2.dp)
                             .clickable {
-                                updateTaskPart(index)
+                                if(!task.done){
+                                    updateTaskPart(index)
+                                }
                             }
                     ) {
                         if(it.status){
@@ -252,6 +258,6 @@ fun TaskDetails_Preview(){
             startDate = CustomDateFormat(2022, 12 , 12, 12, 33),
             endDate = CustomDateFormat(2022, 12 ,12, 15, 33),
             done = false
-        ))
+        ), "asdasd")
     }
 }

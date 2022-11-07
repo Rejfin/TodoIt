@@ -98,12 +98,14 @@ fun HomeScreen(navigator: DestinationsNavigator?, viewModel: HomeViewModel = vie
                     contentType = { TaskModel::class.java }
                 )
                 { task ->
-                    TaskCard(task = task, modifier = Modifier.clickable {
+                    TaskCard(
+                        task = task, modifier = Modifier.clickable {
                         viewModel.showTaskDetails(task)
                     }, onRemoveClick = {
                         taskToRemove = it
                         confirmationDeleteDialog = true
-                    })
+                    },
+                    showRemoveButton = !task.done)
                 }
             }
             if (confirmationDeleteDialog) {
@@ -140,11 +142,13 @@ fun HomeScreen(navigator: DestinationsNavigator?, viewModel: HomeViewModel = vie
                         navigator?.navigate(NewTaskScreenDestination(null, it))
                     },
                     onMarkAsDone = {
-                        //TODO
+                        viewModel.markTaskAsDone(it)
+                        viewModel.hideTaskDetails()
                     },
                     onSave = {
-                        //TODO
-                    })
+                        viewModel.taskPartsUpdate(it)
+                        viewModel.hideTaskDetails()
+                    }, userId = uiState.userId)
             }
         }
 

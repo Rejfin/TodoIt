@@ -6,5 +6,5 @@ data class GroupModel(
     val desc: String = "",
     val ownerId: String = "",
     val imageUrl: String? = null,
-    val membersList: Map<String, UserModel> = emptyMap()
+    val membersList: Map<String, SmallUserModel> = emptyMap()
 )

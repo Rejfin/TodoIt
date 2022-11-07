@@ -19,7 +19,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -32,11 +31,10 @@ import coil.request.ImageRequest
 import dev.rejfin.todoit.R
 import dev.rejfin.todoit.models.GroupModel
 import dev.rejfin.todoit.models.TaskModel
-import dev.rejfin.todoit.models.UserModel
+import dev.rejfin.todoit.models.SmallUserModel
 import dev.rejfin.todoit.models.ValidationResult
 import dev.rejfin.todoit.ui.components.InputField
 import dev.rejfin.todoit.ui.components.MemberCard
-import dev.rejfin.todoit.ui.components.TaskCard
 import dev.rejfin.todoit.ui.theme.CustomThemeManager
 
 @Composable
@@ -279,13 +277,13 @@ fun EditGroupDialog_Preview() {
             "asdasd",
             "asdsdfsdf",
             mapOf(
-                "asdasd" to UserModel("asdasd", "test", null),
-                "asdasd" to UserModel("asdasd", "test", null),
-                "asdasd" to UserModel("asdasd", "test", null),
-                "asdasd" to UserModel("asdasd", "test", null),
-                "asdasd" to UserModel("asdasd", "test", null),
-                "asdasd" to UserModel("asdasd", "test", null),
-                "asdasd" to UserModel("asdasd", "test", null),
+                "asdasd" to SmallUserModel("asdasd", "test", null),
+                "asdasd" to SmallUserModel("asdasd", "test", null),
+                "asdasd" to SmallUserModel("asdasd", "test", null),
+                "asdasd" to SmallUserModel("asdasd", "test", null),
+                "asdasd" to SmallUserModel("asdasd", "test", null),
+                "asdasd" to SmallUserModel("asdasd", "test", null),
+                "asdasd" to SmallUserModel("asdasd", "test", null),
             )
         ),
         "asdasd",

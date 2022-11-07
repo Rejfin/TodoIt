@@ -11,7 +11,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.getValue
 import dev.rejfin.todoit.models.NotificationModel
-import dev.rejfin.todoit.models.UserModel
+import dev.rejfin.todoit.models.SmallUserModel
 import dev.rejfin.todoit.models.states.ProfileUiState
 
 class ProfileViewModel : ViewModel() {
@@ -66,7 +66,7 @@ class ProfileViewModel : ViewModel() {
         val data = payload as Map<*, *>
         val groupId = data["groupId"]
 
-        val user = UserModel(auth.uid!!, auth.currentUser!!.displayName!!, auth.currentUser!!.photoUrl.toString())
+        val user = SmallUserModel(auth.uid!!, auth.currentUser!!.displayName!!, auth.currentUser!!.photoUrl.toString())
         groupsDbRef.child(groupId.toString()).child("membersList").child(auth.uid!!).setValue(user).addOnCompleteListener { task1 ->
             if(task1.isSuccessful){
                 val group = mapOf("id" to groupId)
