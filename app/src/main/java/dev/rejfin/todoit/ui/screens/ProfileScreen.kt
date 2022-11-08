@@ -98,9 +98,7 @@ fun ProfileScreen(navigator: DestinationsNavigator?, viewModel: ProfileViewModel
     }
     
     if(uiState.infoMessage != null){
-        InfoDialog(title = "Info", infoText = uiState.infoMessage){
-            viewModel.clearInfo()
-        }
+        InfoDialog(title = "Info", infoText = uiState.infoMessage, onDialogClose = {viewModel.clearInfo()})
     }
 
     if(!uiState.isUserStillLoggedIn){

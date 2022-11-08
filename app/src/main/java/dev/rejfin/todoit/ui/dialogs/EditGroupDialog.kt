@@ -41,21 +41,27 @@ import dev.rejfin.todoit.ui.theme.CustomThemeManager
 fun EditGroupDialog(
     groupData: GroupModel,
     userId: String,
-    onCreateClick: (name: String, description: String, image: Uri) -> Unit,
-    onCancelClick: () -> Unit,
+    onSaveClick: (name: String, description: String, image: Uri) -> Unit,
     onCloseClick: () -> Unit,
-    sendRequestToUser: (nick: String) -> Unit = {}
+    sendRequestToUser: (nick: String) -> Unit = {},
+    onUserLeaveGroup: (SmallUserModel) -> Unit = {}
 ) {
     var editMode by remember { mutableStateOf(false) }
     var membersView by remember { mutableStateOf(false) }
     var groupName by remember { mutableStateOf(groupData.name) }
+    var editedGroupName by remember { mutableStateOf(groupData.name) }
     var groupDesc by remember { mutableStateOf(groupData.desc) }
+    var editedGroupDesc by remember { mutableStateOf(groupData.desc) }
     var nameValidation by remember { mutableStateOf(ValidationResult()) }
     var descValidation by remember { mutableStateOf(ValidationResult()) }
     val isOwner by remember { mutableStateOf(userId == groupData.ownerId) }
-    var showInputDialog by remember{ mutableStateOf(false)}
+    var showInputDialog by remember{ mutableStateOf(false) }
+    var groupImage by remember { mutableStateOf<Any?>(groupData.imageUrl) }
+    var confirmLeaveDialog by remember { mutableStateOf(false) }
+    var confirmRemoveUserDialog by remember { mutableStateOf(false) }
+    var userToRemoveFromGroup by remember { mutableStateOf<SmallUserModel?>(null) }
 
-    var selectedImage by remember { mutableStateOf(Uri.EMPTY) }
+    var selectedImage by remember { mutableStateOf<Any?>(Uri.EMPTY) }
     val galleryLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             selectedImage = uri
@@ -63,9 +69,41 @@ fun EditGroupDialog(
 
     fun editModeChange() {
         editMode = !editMode
-        if (!editMode) {
-            groupName = groupData.name
-            groupDesc = groupData.desc
+        nameValidation = nameValidation.copy(isError = false)
+        descValidation = descValidation.copy(isError = false)
+
+        selectedImage = groupImage
+        editedGroupName = groupName
+        editedGroupDesc = groupDesc
+    }
+
+    fun saveChanges(){
+        nameValidation = if (editedGroupName.isEmpty()) {
+            nameValidation.copy(
+                isError = true,
+                errorMessage = "This field can\'t be empty"
+            )
+        } else {
+            nameValidation.copy(isError = false, errorMessage = "")
+        }
+
+        descValidation = if (editedGroupDesc.isEmpty()) {
+            descValidation.copy(
+                isError = true,
+                errorMessage = "This field can't be empty"
+            )
+        } else {
+            descValidation.copy(isError = false, errorMessage = "")
+        }
+
+        if (!nameValidation.isError && !descValidation.isError) {
+            if(selectedImage != null){
+                groupImage = selectedImage
+            }
+            groupName = editedGroupName
+            groupDesc = editedGroupDesc
+            onSaveClick(editedGroupName, editedGroupDesc, selectedImage as Uri)
+            editModeChange()
         }
     }
 
@@ -75,7 +113,7 @@ fun EditGroupDialog(
             dismissOnBackPress = false,
         ),
         onDismissRequest = {
-            onCancelClick()
+            onCloseClick()
         },
         title = {
         },
@@ -126,22 +164,35 @@ fun EditGroupDialog(
 
                 if (membersView) {
                     LazyColumn(
-                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
+                        contentPadding = PaddingValues(vertical = 8.dp),
                         verticalArrangement = Arrangement.spacedBy(6.dp),
-                        modifier = Modifier.fillMaxHeight()
+                        modifier = Modifier.fillMaxSize()
                     ) {
                         items(items = groupData.membersList.values.toList(),
                             key = { member -> member.id },
                             contentType = { TaskModel::class.java }
                         )
                         { member ->
-                            MemberCard(memberData = member, isOwner = member.id == userId)
+                            MemberCard(
+                                memberData = member,
+                                currentUserId = userId,
+                                groupOwnerId = groupData.ownerId,
+                                groupMemberCount = groupData.membersList.size,
+                                onLeaveGroup = {
+                                    userToRemoveFromGroup = it
+                                    confirmLeaveDialog = true
+                                },
+                                onRemoveUser = {
+                                    userToRemoveFromGroup = it
+                                    confirmRemoveUserDialog = true
+                                }
+                            )
                         }
                     }
                 } else {
                     AsyncImage(
                         model = ImageRequest.Builder(LocalContext.current)
-                            .data(groupData.imageUrl)
+                            .data(if(editMode) selectedImage else groupImage)
                             .crossfade(true)
                             .build(),
                         contentDescription = "group Image",
@@ -153,27 +204,29 @@ fun EditGroupDialog(
                             .size(80.dp, 80.dp)
                             .background(CustomThemeManager.colors.appBackground)
                             .clickable {
-                                galleryLauncher.launch("image/*")
+                                if (editMode) {
+                                    galleryLauncher.launch("image/*")
+                                }
                             }
                     )
                     InputField(
                         label = stringResource(id = R.string.group_name),
                         onTextChange = {
-                            groupName = it
+                            editedGroupName = it
                         },
                         validationResult = nameValidation,
                         enabled = editMode,
-                        placeholder = groupName,
+                        placeholder = if(editMode) editedGroupName else groupName,
                         rememberTextInternally = false
                     )
                     InputField(
                         label = stringResource(id = R.string.group_description),
                         onTextChange = {
-                            groupDesc = it
+                            editedGroupDesc = it
                         },
                         validationResult = descValidation,
                         enabled = editMode,
-                        placeholder = groupDesc,
+                        placeholder = if(editMode) editedGroupDesc else groupDesc,
                         rememberTextInternally = false
                     )
                 }
@@ -207,27 +260,7 @@ fun EditGroupDialog(
                             backgroundColor = CustomThemeManager.colors.primaryColor
                         ),
                         onClick = {
-                            nameValidation = if (groupName.isEmpty()) {
-                                nameValidation.copy(
-                                    isError = true,
-                                    errorMessage = "This field can\'t be empty"
-                                )
-                            } else {
-                                nameValidation.copy(isError = false, errorMessage = "")
-                            }
-
-                            descValidation = if (groupDesc.isEmpty()) {
-                                descValidation.copy(
-                                    isError = true,
-                                    errorMessage = "This field can't be empty"
-                                )
-                            } else {
-                                descValidation.copy(isError = false, errorMessage = "")
-                            }
-
-                            if (!nameValidation.isError && !descValidation.isError) {
-                                onCreateClick(groupName, groupDesc, selectedImage)
-                            }
+                            saveChanges()
                         }
                     ) {
                         Text(
@@ -263,6 +296,40 @@ fun EditGroupDialog(
             },
         onCancelButtonClick = {showInputDialog = !showInputDialog})
     }
+
+    if(confirmLeaveDialog){
+        InfoDialog(
+            title = stringResource(id = R.string.leave_group),
+            infoText = if(groupData.membersList.size == 1) stringResource(id = R.string.leave_group_text_last, groupData.name) else stringResource(id = R.string.leave_group_text, groupData.name),
+            isDecisionDialog = true,
+            onConfirm = {
+                onUserLeaveGroup(userToRemoveFromGroup!!)
+                userToRemoveFromGroup = null
+                confirmLeaveDialog = false
+            },
+            onCancel = {
+                userToRemoveFromGroup = null
+                confirmLeaveDialog = false
+            }
+        )
+    }
+
+    if(confirmRemoveUserDialog){
+        InfoDialog(
+            title = stringResource(id = R.string.remove_from_group),
+            infoText = stringResource(id = R.string.remove_from_group_text, userToRemoveFromGroup!!.displayName, groupData.name),
+            isDecisionDialog = true,
+            onConfirm = {
+                onUserLeaveGroup(userToRemoveFromGroup!!)
+                userToRemoveFromGroup = null
+                confirmRemoveUserDialog = false
+            },
+            onCancel = {
+                userToRemoveFromGroup = null
+                confirmRemoveUserDialog = false
+            }
+        )
+    }
 }
 
 
@@ -287,8 +354,7 @@ fun EditGroupDialog_Preview() {
             )
         ),
         "asdasd",
-        onCreateClick = { name, desc, img -> },
-        onCancelClick = {},
+        onSaveClick = { _, _, _ -> },
         onCloseClick = {}
     )
 }

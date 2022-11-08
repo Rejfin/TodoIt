@@ -61,4 +61,10 @@
     <string name="task_remove_text">Are you sure you want to delete the task: \"%1$s\"?</string>
     <string name="mark_as_done">Mark as done</string>
     <string name="edit_task">Edit task</string>
+    <string name="remove_member">Remove member</string>
+    <string name="leave_group">Leave group</string>
+    <string name="leave_group_text">Are you sure you want to leave the group \"%1$s\"?</string>
+    <string name="leave_group_text_last">You are the only member of the \"%1$s\" group, and this means that when you leave, this group will be deleted along with all the tasks assigned to it.\n\nAre you sure you want to leave this group?\n</string>
+    <string name="remove_from_group">Remove the user from the group</string>
+    <string name="remove_from_group_text">Are you sure you want to remove the user \"%1$s\" from the group \"%2$s\"?</string>
 </resources>

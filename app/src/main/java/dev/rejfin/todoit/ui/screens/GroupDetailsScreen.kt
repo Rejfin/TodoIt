@@ -32,6 +32,7 @@ import dev.rejfin.todoit.viewmodels.GroupDetailViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.ramcosta.composedestinations.navigation.popUpTo
 import dev.rejfin.todoit.R
 import dev.rejfin.todoit.models.TaskModel
 import dev.rejfin.todoit.ui.components.Calendar
@@ -40,6 +41,7 @@ import dev.rejfin.todoit.ui.dialogs.EditGroupDialog
 import dev.rejfin.todoit.ui.dialogs.ErrorDialog
 import dev.rejfin.todoit.ui.dialogs.InfoDialog
 import dev.rejfin.todoit.ui.dialogs.TaskDetailsDialog
+import dev.rejfin.todoit.ui.screens.destinations.HomeScreenDestination
 import dev.rejfin.todoit.ui.screens.destinations.NewTaskScreenDestination
 import dev.rejfin.todoit.ui.theme.CustomThemeManager
 
@@ -185,9 +187,7 @@ fun GroupDetailsScreen(
                 }
             }
             if (uiState.infoMessage != null) {
-                InfoDialog(title = "Info", infoText = uiState.infoMessage!!) {
-                    viewModel.clearInfoMessages()
-                }
+                InfoDialog(title = "Info", infoText = uiState.infoMessage!!, onDialogClose = {viewModel.clearInfoMessages()})
             }
             if (uiState.showDetailsDialog) {
                 TaskDetailsDialog(
@@ -229,12 +229,28 @@ fun GroupDetailsScreen(
         EditGroupDialog(
             uiState.groupData,
             uiState.userId,
-            onCreateClick = { _, _, _ -> },
-            onCancelClick = { /*TODO*/ },
+            onSaveClick = { name, description, imageUri ->
+                viewModel.updateGroupInfo(name, description, imageUri, uiState.groupData)
+            },
             sendRequestToUser = {
                 viewModel.sendInvitation(it)
             },
-            onCloseClick = { viewModel.closeGroupDetails() }
+            onCloseClick = { viewModel.closeGroupDetails() },
+            onUserLeaveGroup = {
+                viewModel.removeUserFromGroup(it)
+            }
         )
+    }
+    if(uiState.endedGroupRemovingUser && uiState.userRemovedFromGroup != null){
+        if(uiState.userId == uiState.userRemovedFromGroup!!.id || uiState.groupData.membersList.isEmpty()){
+            navigator?.navigate(HomeScreenDestination()){
+                popUpTo(NavGraphs.root) {
+                    inclusive = true
+                }
+            }
+        }else{
+            uiState.userRemovedFromGroup = null
+            uiState.endedGroupRemovingUser = false
+        }
     }
 }

@@ -19,7 +19,7 @@ import kotlinx.coroutines.*
 abstract class BaseTaskManagerViewModel: ViewModel() {
     protected val calendarUtility: CalendarUtility = CalendarUtility()
     protected val auth = FirebaseAuth.getInstance()
-    private val database = Firebase.database
+    protected val database = Firebase.database
     private val tasksDbRef = database.getReference("tasks")
     protected val nicksDbRef = database.getReference("nicks")
     protected val notifyDbRef = database.getReference("notify")
