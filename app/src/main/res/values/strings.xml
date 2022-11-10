@@ -67,4 +67,6 @@
     <string name="leave_group_text_last">You are the only member of the \"%1$s\" group, and this means that when you leave, this group will be deleted along with all the tasks assigned to it.\n\nAre you sure you want to leave this group?\n</string>
     <string name="remove_from_group">Remove the user from the group</string>
     <string name="remove_from_group_text">Are you sure you want to remove the user \"%1$s\" from the group \"%2$s\"?</string>
+    <string name="achievement_list">Achievement list</string>
+    <string name="user_nick_dialog_text">Your nick is: %1$s\n\nWhen one of the users wants to invite you to the group you have to give him this unique nickname</string>
 </resources>

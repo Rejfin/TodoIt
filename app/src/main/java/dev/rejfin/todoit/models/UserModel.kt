@@ -7,5 +7,6 @@ data class UserModel(
     val imageUrl: String? = null,
     val taskDone: Int = 0,
     val allTask: Int = 0,
-    val xp: Long = 0L
+    val xp: Long = 0L,
+    val groups: Map<String, Map<String, String>> = emptyMap()
 )
