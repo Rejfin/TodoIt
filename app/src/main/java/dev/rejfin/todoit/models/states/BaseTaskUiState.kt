@@ -29,6 +29,7 @@ open class BaseTaskUiState(
     var selectedDate by mutableStateOf(selectedDate)
     var numberOfAllTasks by mutableStateOf(numberOfAllTasks)
     var numberOfDoneTask by mutableStateOf(numberOfDoneTask)
+    var isDataLoading by mutableStateOf(false)
 
     init {
         this.calendarDays.addAll(calendarDays)

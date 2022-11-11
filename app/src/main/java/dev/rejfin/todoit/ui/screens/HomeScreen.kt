@@ -8,20 +8,19 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -89,25 +88,43 @@ fun HomeScreen(navigator: DestinationsNavigator?, viewModel: HomeViewModel = vie
                     .background(CustomThemeManager.colors.cardBackgroundColor)
                     .padding(horizontal = 8.dp, vertical = 14.dp)
             )
-            LazyColumn(
-                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                items(items = uiState.selectedTaskList,
-                    key = { task -> task.id },
-                    contentType = { TaskModel::class.java }
-                )
-                { task ->
-                    TaskCard(
-                        task = task, modifier = Modifier.clickable {
-                        viewModel.showTaskDetails(task)
-                    }, onRemoveClick = {
-                        taskToRemove = it
-                        confirmationDeleteDialog = true
-                    },
-                    showRemoveButton = !task.done)
+            
+            if(uiState.selectedTaskList.isEmpty()){
+                if(uiState.isDataLoading){
+                    LinearProgressIndicator(modifier = Modifier.padding(50.dp))
+                }else{
+                    Text(
+                        text = stringResource(id = R.string.none_task_today),
+                        color = CustomThemeManager.colors.textColorSecond,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .align(CenterHorizontally)
+                            .padding(50.dp)
+                    )
+                }
+            }else{
+                LazyColumn(
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    items(items = uiState.selectedTaskList,
+                        key = { task -> task.id },
+                        contentType = { TaskModel::class.java }
+                    )
+                    { task ->
+                        TaskCard(
+                            task = task, modifier = Modifier.clickable {
+                                viewModel.showTaskDetails(task)
+                            }, onRemoveClick = {
+                                taskToRemove = it
+                                confirmationDeleteDialog = true
+                            },
+                            showRemoveButton = !task.done)
+                    }
                 }
             }
+            
             if (confirmationDeleteDialog) {
                 InfoDialog(
                     title = stringResource(id = R.string.confirm_task_remove_title),

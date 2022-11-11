@@ -36,26 +36,30 @@ fun NotificationListDialog(notificationList: List<NotificationModel>, onNotifica
             Text(text = stringResource(id = R.string.notification_list), modifier = Modifier.fillMaxWidth())
         },
         text = {
-            LazyColumn(
-                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp),
-                modifier = Modifier.fillMaxWidth()
-            ){
-                items(items = notificationList,
-                    key = {notification -> notification.id },
-                    contentType = { TaskModel::class.java }
-                )
-                {notification ->
-                    Text(
-                        text = notification.text,
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(CustomThemeManager.colors.cardBackgroundColor)
-                            .clickable {
-                                onNotificationClick(notification)
-                            }
+            if(notificationList.isEmpty()){
+                Text(text = stringResource(id = R.string.none_notification))
+            }else{
+                LazyColumn(
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ){
+                    items(items = notificationList,
+                        key = {notification -> notification.id },
+                        contentType = { TaskModel::class.java }
                     )
+                    {notification ->
+                        Text(
+                            text = notification.text,
+                            modifier = Modifier
+                                .padding(8.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(CustomThemeManager.colors.cardBackgroundColor)
+                                .clickable {
+                                    onNotificationClick(notification)
+                                }
+                        )
+                    }
                 }
             }
         },

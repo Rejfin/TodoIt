@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -23,6 +24,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -143,25 +145,43 @@ fun GroupDetailsScreen(
                     .background(CustomThemeManager.colors.cardBackgroundColor)
                     .padding(horizontal = 8.dp, vertical = 14.dp)
             )
-            LazyColumn(
-                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                items(items = uiState.selectedTaskList,
-                    key = { task -> task.id },
-                    contentType = { TaskModel::class.java }
-                )
-                { task ->
-                    TaskCard(task = task,
-                        showRemoveButton = (task.ownerId == uiState.userId || uiState.groupData.ownerId == uiState.userId) && !task.done,
-                        modifier = Modifier.clickable {
-                            viewModel.showTaskDetails(task)
-                        }, onRemoveClick = {
-                            taskToRemove = it
-                            confirmationDeleteDialog = true
-                        })
+
+            if(uiState.selectedTaskList.isEmpty()){
+                if(uiState.isDataLoading){
+                    LinearProgressIndicator(modifier = Modifier.padding(50.dp))
+                }else{
+                    Text(
+                        text = stringResource(id = R.string.none_task_today),
+                        color = CustomThemeManager.colors.textColorSecond,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .align(Alignment.CenterHorizontally)
+                            .padding(50.dp)
+                    )
+                }
+            }else{
+                LazyColumn(
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    items(items = uiState.selectedTaskList,
+                        key = { task -> task.id },
+                        contentType = { TaskModel::class.java }
+                    )
+                    { task ->
+                        TaskCard(task = task,
+                            showRemoveButton = (task.ownerId == uiState.userId || uiState.groupData.ownerId == uiState.userId) && !task.done,
+                            modifier = Modifier.clickable {
+                                viewModel.showTaskDetails(task)
+                            }, onRemoveClick = {
+                                taskToRemove = it
+                                confirmationDeleteDialog = true
+                            })
+                    }
                 }
             }
+
             if (confirmationDeleteDialog) {
                 InfoDialog(
                     title = stringResource(id = R.string.confirm_task_remove_title),

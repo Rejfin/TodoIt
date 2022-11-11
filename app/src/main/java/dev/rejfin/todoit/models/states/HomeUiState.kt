@@ -5,9 +5,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 
 class HomeUiState(
-    loggedUserDisplayName: String = "",
-    isDataLoading: Boolean = false
+    loggedUserDisplayName: String = ""
 ): BaseTaskUiState(){
-    var isDataLoading by mutableStateOf(isDataLoading)
     var loggedUserDisplayName by mutableStateOf(loggedUserDisplayName)
 }

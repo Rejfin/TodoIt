@@ -35,10 +35,12 @@ class GroupDetailViewModel : BaseTaskManagerViewModel() {
 
         if(_uiState.calendarDays.isEmpty()){
             viewModelScope.launch {
-                val initTask = launch { getInitialData() }
-                val groupInfoTask = launch { getInfoAboutGroup() }
-                initTask.join()
-                groupInfoTask.join()
+                _uiState.isDataLoading = true
+                getInfoAboutGroup()
+
+                getInitialData{
+                    _uiState.isDataLoading = false
+                }
             }
         }
     }

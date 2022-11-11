@@ -35,16 +35,18 @@ abstract class BaseTaskManagerViewModel: ViewModel() {
      * Get initial data for view i.e., list of tasks per day and
      * populate days to calendar days list (used by calendar component) in uiState
      */
-    suspend fun getInitialData() = coroutineScope{
+    suspend fun getInitialData(callback: () -> Unit = {}) = coroutineScope{
         getBaseUiState().userId = auth.uid!!
-        val taskList = mutableListOf<Job>()
         CalendarUtility().getDaysInCurrentWeek().forEach {
             getBaseUiState().calendarDays.add(it)
-            val task = launch { getTaskFromDay(it.date) }
-            taskList.add(task)
+
+            getTaskFromDay(it.date){
+                callback()
+            }
         }
-        taskList.joinAll()
+
         getBaseUiState().selectedDate = calendarUtility.getCurrentDate()
+
     }
 
     /**
@@ -58,9 +60,9 @@ abstract class BaseTaskManagerViewModel: ViewModel() {
     }
 
     /**
-     * Download data about task for given day
+     * Download data about task for given day and listen for changes
      */
-    private fun getTaskFromDay(date: CustomDateFormat){
+    private fun getTaskFromDay(date: CustomDateFormat, callback: () -> Unit = {}){
         val timestamp = calendarUtility.timestampFromDate(date.year, date.month, date.day)
 
         val id = getBaseUiState().groupId ?: getBaseUiState().userId
@@ -105,10 +107,12 @@ abstract class BaseTaskManagerViewModel: ViewModel() {
                         }
                     }
                     switchTaskListDay(getBaseUiState().selectedDate)
+                    callback()
                 }
 
                 override fun onCancelled(error: DatabaseError) {
                     getBaseUiState().errorMessage = error.message
+                    callback()
                 }
             }
         )

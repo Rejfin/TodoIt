@@ -1,6 +1,8 @@
 package dev.rejfin.todoit.viewmodels
 
 import android.net.Uri
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -19,7 +21,8 @@ import java.util.*
 class GroupsViewModel : ViewModel() {
     val groupList = mutableStateListOf<GroupModel>()
     private val userGroupList = mutableMapOf<String, Map<String,String>>()
-    val errorState = mutableStateOf<String?>(null)
+    var errorState by mutableStateOf<String?>(null)
+    var isLoadingData by mutableStateOf(false)
 
     private val database = Firebase.database
     private val storage = FirebaseStorage.getInstance()
@@ -29,9 +32,13 @@ class GroupsViewModel : ViewModel() {
     private val storageRef = storage.getReference("groups")
 
     init {
+        isLoadingData = true
         dbUsersRef.child(firebaseAuth.uid!!).child("groups").addValueEventListener(
             object: ValueEventListener{
                 override fun onDataChange(snapshot: DataSnapshot) {
+                    if(snapshot.children.count() == 0){
+                        isLoadingData = false
+                    }
                     for (groupsSnapshot in snapshot.children) {
                         val group = groupsSnapshot.getValue<Map<String, String>>()!!
                         if(!userGroupList.keys.any { it == group["id"] }){
@@ -42,6 +49,8 @@ class GroupsViewModel : ViewModel() {
                 }
 
                 override fun onCancelled(error: DatabaseError) {
+                    errorState = error.message
+                    isLoadingData = false
                 }
             }
         )
@@ -55,10 +64,13 @@ class GroupsViewModel : ViewModel() {
                         if(!groupList.any { it.id == model.id }){
                             groupList.add(model)
                         }
+                        isLoadingData = false
                     }
                 }
 
                 override fun onCancelled(error: DatabaseError) {
+                    errorState = error.message
+                    isLoadingData = false
                 }
             }
         )
@@ -95,6 +107,6 @@ class GroupsViewModel : ViewModel() {
     }
 
     fun clearError(){
-        errorState.value = null
+        errorState = null
     }
 }
