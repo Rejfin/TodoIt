@@ -171,7 +171,7 @@ fun GroupDetailsScreen(
                     )
                     { task ->
                         TaskCard(task = task,
-                            showRemoveButton = (task.ownerId == uiState.userId || uiState.groupData.ownerId == uiState.userId) && !task.done,
+                            showRemoveButton = (task.ownerId == uiState.userId || uiState.groupData.ownerId == uiState.userId) && !task.done && task.endTimestamp > viewModel.calendarUtility.getCurrentTimestamp(),
                             modifier = Modifier.clickable {
                                 viewModel.showTaskDetails(task)
                             }, onRemoveClick = {
@@ -225,7 +225,10 @@ fun GroupDetailsScreen(
                     },
                     onEditClick = {
                         navigator?.navigate(NewTaskScreenDestination(groupId, it))
-                    }, userId = uiState.userId)
+                    },
+                    userId = uiState.userId,
+                    currentTimestamp = viewModel.calendarUtility.getCurrentTimestamp()
+                )
             }
         }
 

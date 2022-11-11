@@ -29,6 +29,7 @@ import dev.rejfin.todoit.ui.theme.CustomThemeManager
 @Composable
 fun TaskDetailsDialog(task: TaskModel,
                       userId: String,
+                      currentTimestamp: Long,
                       modifier: Modifier = Modifier,
                       onClose: () -> Unit = {},
                       onEditClick: (TaskModel) -> Unit = {},
@@ -68,7 +69,7 @@ fun TaskDetailsDialog(task: TaskModel,
                 ){
                     Text(text = "Task Details")
 
-                    if(!task.done && task.ownerId == userId){
+                    if(!task.done && task.ownerId == userId && task.endTimestamp > currentTimestamp){
                         IconButton(onClick = {
                             onEditClick(task)
                         }) {
@@ -215,7 +216,7 @@ fun TaskDetailsDialog(task: TaskModel,
                 modifier = Modifier.padding(all = 8.dp),
                 horizontalArrangement = Arrangement.Center
             ) {
-                if(task.taskParts.isEmpty() && !task.done){
+                if(task.taskParts.isEmpty() && !task.done && task.endTimestamp > currentTimestamp){
                     Button(onClick = {
                         onMarkAsDone(task)
                     }, modifier = Modifier
@@ -258,6 +259,6 @@ fun TaskDetails_Preview(){
             startDate = CustomDateFormat(2022, 12 , 12, 12, 33),
             endDate = CustomDateFormat(2022, 12 ,12, 15, 33),
             done = false
-        ), "asdasd")
+        ), "asdasd", 0L)
     }
 }

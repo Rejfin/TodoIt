@@ -104,7 +104,10 @@ class NewTaskViewModel: ViewModel() {
     }
 
     fun updateDayOfTask(date: CustomDateFormat){
-        taskUiState = taskUiState.copy(startDate = taskUiState.startDate.copy(year = date.year, month = date.month, day = date.day))
+        taskUiState = taskUiState.copy(
+            startDate = taskUiState.startDate.copy(year = date.year, month = date.month + 1, day = date.day),
+            endDate = taskUiState.endDate.copy(year = date.year, month = date.month + 1, day = date.day)
+        )
     }
 
     fun clearError(){
@@ -124,30 +127,45 @@ class NewTaskViewModel: ViewModel() {
                 errorMessage = "Field can't be empty")
         )
 
+        if(taskUiState.taskTitleValidation.isError || taskUiState.taskDescriptionValidation.isError){
+            return
+        }
+
         if(!taskUiState.isAllDay){
             if(taskUiState.startDate.hour > taskUiState.endDate.hour){
                 // hour of start is greater than end hour
-                //TODO SHOW user info about that
+                taskUiState = taskUiState.copy(taskErrorMessage = "The set date of the task is not correct, make sure the set date and time has not passed")
                 return
             }
 
             if(taskUiState.startDate.hour == taskUiState.endDate.hour){
-                if(taskUiState.startDate.minutes < taskUiState.endDate.minutes){
-                    // hour of start is greater than hour of end task
-                    //TODO SHOW user info about that
+                if(taskUiState.startDate.minutes >= taskUiState.endDate.minutes){
+                    // hour of start is greater than hour of end task or is equal
+                    taskUiState = taskUiState.copy(taskErrorMessage = "The set date of the task is not correct, make sure the set date and time has not passed")
                     return
                 }
             }
-        }
-
-        if(taskUiState.taskTitleValidation.isError || taskUiState.taskDescriptionValidation.isError){
-            return
         }
 
         //save only task parts with text inside
         val taskList = taskUiState.taskParts.filter { it.desc.isNotEmpty() }
 
         val timestamp = calendarUtility.timestampFromDate(taskUiState.startDate.year, taskUiState.startDate.month, taskUiState.startDate.day)
+
+        val startTimestamp: Long
+        val endTimestamp: Long
+        if(taskUiState.isAllDay){
+            startTimestamp = calendarUtility.timestampFromDate(taskUiState.startDate.copy(hour = 0, minutes = 0))
+            endTimestamp = calendarUtility.timestampFromDate(taskUiState.endDate.copy(hour = 23, minutes = 59))
+        }else{
+            startTimestamp = calendarUtility.timestampFromDate(taskUiState.startDate)
+            endTimestamp = calendarUtility.timestampFromDate(taskUiState.endDate)
+        }
+
+        if(endTimestamp < calendarUtility.getCurrentTimestamp()){
+            taskUiState = taskUiState.copy(taskErrorMessage = "The set date of the task is not correct, make sure the set date and time has not passed")
+            return
+        }
 
         val taskModel = TaskModel(
             id = taskId ?: UUID.randomUUID().toString(),
@@ -163,7 +181,9 @@ class NewTaskViewModel: ViewModel() {
             groupId = if(userOrGroupId == auth.uid) null else userOrGroupId,
             timestamp = timestamp,
             timeConsuming = taskUiState.timeConsuming,
-            difficulty = taskUiState.difficulty
+            difficulty = taskUiState.difficulty,
+            endTimestamp = endTimestamp,
+            startTimestamp = startTimestamp,
         )
 
         val childToUpdate = mutableMapOf<String, Any?>(

@@ -420,7 +420,7 @@ private fun showTimePicker(context: Context,
         },
         initTime.hour,
         initTime.minutes,
-        false
+        true
     )
     mTimePickerDialog.show()
 }
@@ -431,7 +431,7 @@ private fun showDatePicker(context: Context, selectedDate: CustomDateFormat, onD
         { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
             onDateChanged(CustomDateFormat(year = mYear, month = mMonth, day = mDayOfMonth))
         }, selectedDate.year,
-        selectedDate.month,
+        selectedDate.month - 1,
         selectedDate.day,
     )
 

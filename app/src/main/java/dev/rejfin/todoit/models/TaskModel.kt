@@ -15,6 +15,8 @@ data class TaskModel(
     val ownerId: String = "",
     val groupId: String? = null,
     val timestamp: Long = 0L,
+    val endTimestamp: Long = 0L,
+    val startTimestamp: Long = 0L,
     val timeConsuming: Int = 0,
     val difficulty: Int = 0
 ): Serializable

@@ -17,7 +17,7 @@ import dev.rejfin.todoit.utils.CalendarUtility
 import kotlinx.coroutines.*
 
 abstract class BaseTaskManagerViewModel: ViewModel() {
-    protected val calendarUtility: CalendarUtility = CalendarUtility()
+    val calendarUtility: CalendarUtility = CalendarUtility()
     protected val auth = FirebaseAuth.getInstance()
     protected val database = Firebase.database
     private val tasksDbRef = database.getReference("tasks")
@@ -133,7 +133,7 @@ abstract class BaseTaskManagerViewModel: ViewModel() {
     }
 
     /**
-     * remove task from database (only if timestamp of task is not too old)
+     * remove task from database (only if timestamp of task is not too old (firebase rules))
      * if something goes wrong (ex. bad task id, permission error, etc.) set an error message
      * to let the user know what went wrong
      */

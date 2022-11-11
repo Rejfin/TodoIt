@@ -6,9 +6,9 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class CalendarUtility {
-    private val sdfNumber = SimpleDateFormat("dd", Locale.UK)
     private val sdfName = SimpleDateFormat("EEE", Locale.UK)
     private val sdfDate = SimpleDateFormat("dd.MM.yyyy", Locale.UK)
+    private val sdf2Date = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.UK)
     private val calendarInstance: Calendar = Calendar.getInstance(Locale.UK)
 
     init {
@@ -22,19 +22,14 @@ class CalendarUtility {
         val listOfDays = mutableListOf<CalendarDay>()
         for (i in 0..6) {
             val date = getDateFromTimeStamp(cal.time.time)
-            listOfDays.add(CalendarDay(date, 0, timestampToDayName(cal.time.time)))
+            listOfDays.add(CalendarDay(date.copy(month = date.month + 1), 0, timestampToDayName(cal.time.time)))
             cal.add(Calendar.DAY_OF_WEEK, 1)
         }
         return listOfDays
     }
 
-    fun getCurrentTimeStamp():Long{
+    fun getCurrentTimestamp():Long{
         return calendarInstance.timeInMillis
-    }
-
-    fun timestampToDayNumber(timestamp:Long?):String{
-        if(timestamp == null) return "-"
-        return sdfNumber.format(timestamp)
     }
 
     private fun timestampToDayName(timestamp:Long?):String{
@@ -45,9 +40,9 @@ class CalendarUtility {
     fun getCurrentDate():CustomDateFormat{
         return CustomDateFormat(
             year = calendarInstance[Calendar.YEAR],
-            month = calendarInstance[Calendar.MONTH],
+            month = calendarInstance[Calendar.MONTH] + 1,
             day = calendarInstance[Calendar.DAY_OF_MONTH],
-            hour = calendarInstance[Calendar.HOUR],
+            hour = calendarInstance[Calendar.HOUR_OF_DAY],
             minutes = calendarInstance[Calendar.MINUTE]
         )
     }
@@ -65,6 +60,11 @@ class CalendarUtility {
     fun timestampFromDate(year: Int, month: Int, day: Int): Long{
         val date: Date = sdfDate.parse("$day.$month.$year") as Date
         return date.time
+    }
+
+    fun timestampFromDate(date: CustomDateFormat): Long{
+        val mDate: Date = sdf2Date.parse("${date.day}.${date.month}.${date.year} ${date.hour}:${date.minutes}") as Date
+        return mDate.time
     }
 
     fun areDateSame(date: CustomDateFormat, date2: CustomDateFormat):Boolean{

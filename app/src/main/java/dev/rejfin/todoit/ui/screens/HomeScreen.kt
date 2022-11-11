@@ -49,7 +49,7 @@ fun HomeScreen(navigator: DestinationsNavigator?, viewModel: HomeViewModel = vie
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
                 .background(CustomThemeManager.colors.appBackground)
@@ -120,7 +120,7 @@ fun HomeScreen(navigator: DestinationsNavigator?, viewModel: HomeViewModel = vie
                                 taskToRemove = it
                                 confirmationDeleteDialog = true
                             },
-                            showRemoveButton = !task.done)
+                            showRemoveButton = !task.done && task.endTimestamp > viewModel.calendarUtility.getCurrentTimestamp())
                     }
                 }
             }
@@ -165,7 +165,10 @@ fun HomeScreen(navigator: DestinationsNavigator?, viewModel: HomeViewModel = vie
                     onSave = {
                         viewModel.taskPartsUpdate(it)
                         viewModel.hideTaskDetails()
-                    }, userId = uiState.userId)
+                    },
+                    userId = uiState.userId,
+                    currentTimestamp = viewModel.calendarUtility.getCurrentTimestamp()
+                )
             }
         }
 
