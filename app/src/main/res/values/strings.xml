@@ -72,4 +72,8 @@
     <string name="none_notification">You dont have any notification</string>
     <string name="none_task_today">No tasks for today</string>
     <string name="none_group">No groups of which you are a member :(</string>
+    <string name="choose_dark_mode">Select dark mode settings</string>
+    <string name="dark_mode">Dark mode</string>
+    <string name="light_mode">Light mode</string>
+    <string name="use_system_settings">Use system settings</string>
 </resources>
