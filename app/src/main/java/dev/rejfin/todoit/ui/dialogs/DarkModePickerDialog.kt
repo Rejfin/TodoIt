@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import dev.rejfin.todoit.R
 import dev.rejfin.todoit.models.states.DarkModeSettings
+import dev.rejfin.todoit.ui.theme.CustomThemeManager
 
 @Composable
 fun DarkModePickerDialog(initSelectedMode: DarkModeSettings,
@@ -57,6 +58,7 @@ fun DarkModePickerDialog(initSelectedMode: DarkModeSettings,
             dismissOnClickOutside = false,
             dismissOnBackPress = false,
         ),
+        backgroundColor = CustomThemeManager.colors.cardBackgroundColor,
         onDismissRequest = {
         },
         title = {

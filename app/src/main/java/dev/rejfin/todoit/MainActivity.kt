@@ -1,32 +1,31 @@
 package dev.rejfin.todoit
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.FloatingActionButton
-import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.navigation.compose.rememberNavController
 import com.ramcosta.composedestinations.DestinationsNavHost
-import com.ramcosta.composedestinations.navigation.navigate
 import dev.rejfin.todoit.ui.components.BottomBar
 import dev.rejfin.todoit.ui.screens.NavGraphs
 import dev.rejfin.todoit.ui.screens.appCurrentDestinationAsState
 import dev.rejfin.todoit.ui.screens.destinations.*
 import dev.rejfin.todoit.ui.theme.CustomJetpackComposeTheme
+import dev.rejfin.todoit.ui.theme.CustomTheme
 import dev.rejfin.todoit.ui.theme.CustomThemeManager
+
 
 class MainActivity : ComponentActivity() {
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        loadTheme(this)
         setContent {
             CustomJetpackComposeTheme {
 
@@ -54,6 +53,33 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
+        }
+    }
+
+    private fun loadTheme(context: Context){
+        val pref = applicationContext.getSharedPreferences("TodoItPref", MODE_PRIVATE)
+        val nightModeFlags: Int = context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+        if(pref.contains("dark_mode")) {
+            if (pref.getString("dark_mode", "") == "Light") {
+                CustomThemeManager.customTheme = CustomTheme.LIGHT
+                return
+            } else if (pref.getString("dark_mode", "") == "Dark") {
+                CustomThemeManager.customTheme = CustomTheme.DARK
+                return
+            }else{
+                when (nightModeFlags) {
+                    Configuration.UI_MODE_NIGHT_YES -> CustomThemeManager.customTheme = CustomTheme.DARK
+                    Configuration.UI_MODE_NIGHT_NO -> CustomThemeManager.customTheme = CustomTheme.LIGHT
+                    Configuration.UI_MODE_NIGHT_UNDEFINED -> CustomThemeManager.customTheme = CustomTheme.LIGHT
+                }
+                return
+            }
+        }
+
+        when (nightModeFlags) {
+            Configuration.UI_MODE_NIGHT_YES -> CustomThemeManager.customTheme = CustomTheme.DARK
+            Configuration.UI_MODE_NIGHT_NO -> CustomThemeManager.customTheme = CustomTheme.LIGHT
+            Configuration.UI_MODE_NIGHT_UNDEFINED -> CustomThemeManager.customTheme = CustomTheme.LIGHT
         }
     }
 }

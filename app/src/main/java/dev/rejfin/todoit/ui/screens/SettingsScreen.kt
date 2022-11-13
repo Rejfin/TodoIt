@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.ModeNight
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -20,7 +21,10 @@ import dev.rejfin.todoit.ui.components.SettingEntry
 import dev.rejfin.todoit.ui.theme.CustomThemeManager
 import dev.rejfin.todoit.viewmodels.SettingsViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import dev.rejfin.todoit.BuildConfig
+import dev.rejfin.todoit.R
 import dev.rejfin.todoit.ui.dialogs.DarkModePickerDialog
+import dev.rejfin.todoit.ui.dialogs.DelaySetterDialog
 
 @Destination
 @Composable
@@ -50,8 +54,11 @@ fun SettingsScreen(navigator: DestinationsNavigator?, viewModel: SettingsViewMod
             .background(CustomThemeManager.colors.textColorSecond))
         SettingEntry(
             title = "Notification reminder",
-            desc = "Set how much before the start of the task you want the notification to be displayed",
+            desc = stringResource(id = R.string.notification_settings_desc),
             icon = Icons.Default.Schedule,
+            modifier = Modifier.clickable {
+                viewModel.showNotificationReminderTimeDialog()
+            }
         )
         Spacer(modifier = Modifier
             .height(2.dp)
@@ -65,19 +72,34 @@ fun SettingsScreen(navigator: DestinationsNavigator?, viewModel: SettingsViewMod
         )
         SettingEntry(
             title = "Version",
-            desc = "TodoIt v0.1",
+            desc = "TodoIt v${BuildConfig.VERSION_NAME}",
             icon = Icons.Default.Info,
         )
         SettingEntry(
             title = "Send feedback",
             desc = "Report technical issues or suggest new feature",
             icon = Icons.Default.Email,
+            modifier = Modifier.clickable {
+                viewModel.sendFeedback()
+            }
         )
 
         if(uiState.showOptionsPickerDialog){
             DarkModePickerDialog(initSelectedMode = uiState.darkMode, onConfirm = {mode, desc ->
                 viewModel.changeDarkMode(mode, desc)
             })
+        }
+
+        if(uiState.showNotificationReminderTimeDialog){
+            DelaySetterDialog(
+                initTime = uiState.notificationReminderTimeInMinutes.toString(),
+                onDialogClose = {
+                    viewModel.changeNotificationTime(null)
+                },
+                onTimeSet = {
+                    viewModel.changeNotificationTime(it)
+                }
+            )
         }
     }
 }

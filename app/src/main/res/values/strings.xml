@@ -69,11 +69,15 @@
     <string name="remove_from_group_text">Are you sure you want to remove the user \"%1$s\" from the group \"%2$s\"?</string>
     <string name="achievement_list">Achievement list</string>
     <string name="user_nick_dialog_text">Your nick is: %1$s\n\nWhen one of the users wants to invite you to the group you have to give him this unique nickname</string>
-    <string name="none_notification">You dont have any notification</string>
+    <string name="none_notification">You don\'t have any notification</string>
     <string name="none_task_today">No tasks for today</string>
     <string name="none_group">No groups of which you are a member :(</string>
     <string name="choose_dark_mode">Select dark mode settings</string>
     <string name="dark_mode">Dark mode</string>
     <string name="light_mode">Light mode</string>
     <string name="use_system_settings">Use system settings</string>
+    <string name="notification_time">Notification time</string>
+    <string name="notification_time_text">Set how many minutes before the task the notification should be showed</string>
+    <string name="only_numbers">This field can contains only numbers</string>
+    <string name="notification_settings_desc">Set how many minutes before the start of the task you want the notification to be displayed</string>
 </resources>
