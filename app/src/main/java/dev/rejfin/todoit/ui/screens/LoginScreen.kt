@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -23,6 +24,7 @@ import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.popUpTo
 import dev.rejfin.todoit.ui.dialogs.ErrorDialog
+import dev.rejfin.todoit.ui.screens.destinations.ForgottenPasswordScreenDestination
 import dev.rejfin.todoit.ui.screens.destinations.HomeScreenDestination
 import dev.rejfin.todoit.ui.screens.destinations.LoginScreenDestination
 import dev.rejfin.todoit.ui.screens.destinations.RegisterScreenDestination
@@ -45,85 +47,106 @@ fun LoginScreen(navigator: DestinationsNavigator?, viewModel: AuthViewModel = vi
         }
     }
 
-    Column(Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center) {
-        Column(Modifier.fillMaxWidth(0.7f)){
-            AppLogo(modifier = Modifier
-                .padding(0.dp, 0.dp, 0.dp, 45.dp)
-                .align(Alignment.CenterHorizontally))
-            InputField(
-                label = stringResource(id = R.string.email),
-                onTextChange = { uiState.email.value = it },
-                validationResult = uiState.emailValidation.value,
-                keyboardType = KeyboardType.Email,
-                imeAction= ImeAction.Next,
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !uiState.isAuthInProgress.value
-            )
-            InputField(
-                label = stringResource(id = R.string.password),
-                onTextChange = {uiState.password.value = it},
-                validationResult = uiState.passwordValidation.value,
-                keyboardType = KeyboardType.Password,
-                imeAction= ImeAction.Done,
-                isPasswordField = true,
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !uiState.isAuthInProgress.value
-            )
-            Row(modifier = Modifier
-                .padding(vertical = 15.dp)
-                .align(Alignment.CenterHorizontally)){
-                Text(stringResource(id = R.string.dont_have_acc),
-                    color = CustomThemeManager.colors.textColorSecond,
-                    fontSize = 15.sp
+    Box(modifier = Modifier.fillMaxSize()){
+        Column(Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center) {
+            Column(Modifier.fillMaxWidth(0.7f)){
+                AppLogo(modifier = Modifier
+                    .padding(0.dp, 0.dp, 0.dp, 45.dp)
+                    .align(Alignment.CenterHorizontally))
+                InputField(
+                    label = stringResource(id = R.string.email),
+                    onTextChange = { uiState.email.value = it },
+                    validationResult = uiState.emailValidation.value,
+                    keyboardType = KeyboardType.Email,
+                    imeAction= ImeAction.Next,
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !uiState.isAuthInProgress.value
+                )
+                InputField(
+                    label = stringResource(id = R.string.password),
+                    onTextChange = {uiState.password.value = it},
+                    validationResult = uiState.passwordValidation.value,
+                    keyboardType = KeyboardType.Password,
+                    imeAction= ImeAction.Done,
+                    isPasswordField = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !uiState.isAuthInProgress.value,
+                    placeholder = uiState.password.value,
+                    rememberTextInternally = false
                 )
                 Text(
-                    stringResource(id = R.string.create_now),
+                    text = stringResource(id = R.string.forgotten_password),
                     color = CustomThemeManager.colors.primaryColor,
+                    textAlign = TextAlign.Center,
                     fontSize = 15.sp,
-                    modifier = Modifier.clickable(enabled = !uiState.isAuthInProgress.value) {
-                        navigator?.navigate(RegisterScreenDestination){
-                            popUpTo(LoginScreenDestination) {
-                                inclusive = true
-                            }
+                    modifier = Modifier
+                        .padding(bottom = 15.dp, top = 8.dp)
+                        .fillMaxWidth()
+                        .clickable(enabled = !uiState.isAuthInProgress.value) {
+                            navigator?.navigate(ForgottenPasswordScreenDestination())
                         }
-                    }
                 )
-            }
-            Button(onClick = {
-                viewModel.loginUserWithEmail()
-            }, modifier = Modifier
-                .align(Alignment.End)
-                .widthIn(140.dp, 200.dp),
-                enabled = !uiState.isAuthInProgress.value,
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(backgroundColor = CustomThemeManager.colors.primaryColor)
-            ) {
-                Text(text = stringResource(id = R.string.log_in),
-                    color = CustomThemeManager.colors.textColorOnPrimary
-                )
-            }
-            if(uiState.isAuthInProgress.value){
-                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-            }
-            if(uiState.authFailedMessage.value != null){
-                ErrorDialog(
-                    title = stringResource(id = R.string.log_in_error),
-                    errorText = uiState.authFailedMessage.value!!,
-                    onDialogClose = {
-                    viewModel.dismissAuthError()
-                })
-            }
-            if(uiState.isUserLoggedIn.value){
-                navigator?.navigate(HomeScreenDestination){
-                    popUpTo(LoginScreenDestination) {
-                        inclusive = true
+
+                Button(onClick = {
+                    viewModel.loginUserWithEmail()
+                }, modifier = Modifier
+                    .align(Alignment.End)
+                    .widthIn(140.dp, 200.dp),
+                    enabled = !uiState.isAuthInProgress.value,
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(backgroundColor = CustomThemeManager.colors.primaryColor)
+                ) {
+                    Text(text = stringResource(id = R.string.log_in),
+                        color = CustomThemeManager.colors.textColorOnPrimary
+                    )
+                }
+
+                if(uiState.isAuthInProgress.value){
+                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                }
+                if(uiState.authFailedMessage.value != null){
+                    ErrorDialog(
+                        title = stringResource(id = R.string.log_in_error),
+                        errorText = uiState.authFailedMessage.value!!,
+                        onDialogClose = {
+                            viewModel.dismissAuthError()
+                        })
+                }
+                if(uiState.isUserLoggedIn.value){
+                    navigator?.navigate(HomeScreenDestination){
+                        popUpTo(LoginScreenDestination) {
+                            inclusive = true
+                        }
                     }
                 }
             }
         }
+
+        Row(verticalAlignment = Alignment.Bottom,
+            modifier = Modifier
+                .padding(bottom = 100.dp, top = 600.dp)
+                .align(Alignment.BottomCenter)){
+            Text(stringResource(id = R.string.dont_have_acc),
+                color = CustomThemeManager.colors.textColorSecond,
+                fontSize = 15.sp
+            )
+            Text(
+                stringResource(id = R.string.create_now),
+                color = CustomThemeManager.colors.primaryColor,
+                fontSize = 15.sp,
+                modifier = Modifier.clickable(enabled = !uiState.isAuthInProgress.value) {
+                    navigator?.navigate(RegisterScreenDestination){
+                        popUpTo(LoginScreenDestination) {
+                            inclusive = true
+                        }
+                    }
+                }
+            )
+        }
     }
+
 }
 
 @Preview(showBackground = true)

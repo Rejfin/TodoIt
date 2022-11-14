@@ -162,6 +162,7 @@ class AuthViewModel: ViewModel() {
                 }else{
                     loginUiState.apply {
                         isAuthInProgress.value = false
+                        password.value = ""
                         authFailedMessage.value = it.exception?.localizedMessage
                     }
                 }
@@ -198,14 +199,14 @@ class AuthViewModel: ViewModel() {
     }
 
     private fun validateNick(nick:String): Boolean{
-        val isNickOk = nick.length >= 4
-        registerUiState.nickValidation.value = ValidationResult(isError = !isNickOk, errorMessage = "Nick has to be at least 4 characters")
+        val isNickOk = nick.length >= 4 && !nick.contains(" ")
+        registerUiState.nickValidation.value = ValidationResult(isError = !isNickOk, errorMessage = "Nick has to be at least 4 characters, and cant contains spaces")
         return isNickOk
     }
 
     private fun validateDisplayName(displayName:String): Boolean{
         val isDisplayNameOk = displayName.length >= 4
-        registerUiState.displayNameValidation.value = ValidationResult(isError = !isDisplayNameOk, errorMessage = "Nick has to be at least 4 characters")
+        registerUiState.displayNameValidation.value = ValidationResult(isError = !isDisplayNameOk, errorMessage = "Display name has to be at least 4 characters")
         return isDisplayNameOk
     }
 
@@ -248,5 +249,10 @@ class AuthViewModel: ViewModel() {
                 callback(null)
             }
         }
+    }
+
+    /** function used to send reset password email to user */
+    fun remindPassword(email: String){
+        auth.sendPasswordResetEmail(email)
     }
 }

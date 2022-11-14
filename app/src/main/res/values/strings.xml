@@ -80,4 +80,8 @@
     <string name="notification_time_text">Set how many minutes before the task the notification should be showed</string>
     <string name="only_numbers">This field can contains only numbers</string>
     <string name="notification_settings_desc">Set how many minutes before the start of the task you want the notification to be displayed</string>
+    <string name="enter_email_forgotten_pass">Enter the email that was used to create the account</string>
+    <string name="bad_email_format">Email address is badly formatted</string>
+    <string name="reset_password_email_sent">If the email address you provided was used when you created your account, an email will arrive in your inbox allowing you to reset your password</string>
+    <string name="forgotten_password">I forgot my password</string>
 </resources>
