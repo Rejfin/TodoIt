@@ -114,7 +114,9 @@ fun HomeScreen(navigator: DestinationsNavigator?, viewModel: HomeViewModel = vie
                     )
                     { task ->
                         TaskCard(
-                            task = task, modifier = Modifier.clickable {
+                            task = task,
+                            userId = uiState.userId,
+                            modifier = Modifier.clickable {
                                 viewModel.showTaskDetails(task)
                             }, onRemoveClick = {
                                 taskToRemove = it

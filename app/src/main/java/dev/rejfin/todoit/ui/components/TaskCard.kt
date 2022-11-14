@@ -8,10 +8,7 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Circle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -34,6 +31,7 @@ import dev.rejfin.todoit.ui.theme.CustomThemeManager
 
 @Composable
 fun TaskCard(task: TaskModel,
+             userId: String,
              modifier: Modifier = Modifier,
              onRemoveClick: (TaskModel) -> Unit= {},
              showRemoveButton:Boolean = true){
@@ -64,9 +62,19 @@ fun TaskCard(task: TaskModel,
                     style = if(task.taskParts.all { it.status } && task.done) TextStyle(textDecoration = TextDecoration.LineThrough) else TextStyle.Default
                 )
             }
-            if(showRemoveButton){
-                IconButton(onClick = { onRemoveClick(task) }){
-                    Icon(Icons.Default.Delete, stringResource(id = R.string.remove_task))
+            Row(){
+                if(task.lockedByUserId != null && task.lockedByUserId != userId){
+                    Icon(
+                        imageVector = Icons.Default.Lock,
+                        contentDescription = "task locked",
+                        tint = CustomThemeManager.colors.textColorThird,
+                        modifier = Modifier.padding(top = 11.dp)
+                    )
+                }
+                if(showRemoveButton){
+                    IconButton(onClick = { onRemoveClick(task) }){
+                        Icon(Icons.Default.Delete, stringResource(id = R.string.remove_task))
+                    }
                 }
             }
         }
@@ -156,5 +164,5 @@ private fun TaskCardPreview(){
             TaskPartModel(true, "fgjfn")
         )
     )
-    TaskCard(task)
+    TaskCard(task, "asdad")
 }

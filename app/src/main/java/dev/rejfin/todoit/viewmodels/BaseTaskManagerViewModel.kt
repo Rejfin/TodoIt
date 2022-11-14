@@ -185,14 +185,20 @@ abstract class BaseTaskManagerViewModel: ViewModel() {
     }
 
     fun taskPartsUpdate(task: TaskModel){
-        if(task.done){
+        if(task.done || (task.lockedByUserId != null && task.lockedByUserId != getBaseUiState().userId)){
             return
         }
         val id = getBaseUiState().groupId ?: getBaseUiState().userId
 
-        val childToUpdate = mutableMapOf<String, Any>(
+        val childToUpdate = mutableMapOf<String, Any?>(
             "/tasks/$id/${task.timestamp}/${task.id}/taskParts" to task.taskParts,
         )
+
+        if(task.taskParts.any { it.status } && getBaseUiState().groupId != null){
+            childToUpdate["tasks/$id/${task.timestamp}/${task.id}/lockedByUserId"] = getBaseUiState().userId
+        }else{
+            childToUpdate["tasks/$id/${task.timestamp}/${task.id}/lockedByUserId"] = null
+        }
 
         if(task.taskParts.all { it.status }){
             childToUpdate["/tasks/$id/${task.timestamp}/${task.id}/done"] = true

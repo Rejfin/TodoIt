@@ -171,6 +171,7 @@ fun GroupDetailsScreen(
                     )
                     { task ->
                         TaskCard(task = task,
+                            userId = uiState.userId,
                             showRemoveButton = (task.ownerId == uiState.userId || uiState.groupData.ownerId == uiState.userId) && !task.done && task.endTimestamp > viewModel.calendarUtility.getCurrentTimestamp(),
                             modifier = Modifier.clickable {
                                 viewModel.showTaskDetails(task)

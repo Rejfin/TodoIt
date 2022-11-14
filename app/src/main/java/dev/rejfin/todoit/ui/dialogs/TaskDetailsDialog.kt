@@ -7,6 +7,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.outlined.Circle
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment.Companion.CenterVertically
@@ -69,12 +70,16 @@ fun TaskDetailsDialog(task: TaskModel,
                 ){
                     Text(text = "Task Details")
 
-                    if(!task.done && task.ownerId == userId && task.endTimestamp > currentTimestamp){
+                    if(!task.done && task.ownerId == userId && task.endTimestamp > currentTimestamp && task.lockedByUserId == null){
                         IconButton(onClick = {
                             onEditClick(task)
                         }) {
                             Icon(Icons.Default.Edit, stringResource(id = R.string.edit_task))
                         }
+                    }
+                    
+                    if(task.lockedByUserId != null && task.lockedByUserId != userId){
+                        Icon(imageVector = Icons.Default.Lock, contentDescription = "task locked")
                     }
                 }
 
@@ -183,7 +188,7 @@ fun TaskDetailsDialog(task: TaskModel,
                             .fillMaxWidth()
                             .padding(vertical = 2.dp)
                             .clickable {
-                                if(!task.done){
+                                if (!task.done && (task.lockedByUserId == null || task.lockedByUserId == userId)) {
                                     updateTaskPart(index)
                                 }
                             }
@@ -246,7 +251,7 @@ fun TaskDetailsDialog(task: TaskModel,
 fun TaskDetails_Preview(){
     CustomJetpackComposeTheme {
         TaskDetailsDialog(task = TaskModel(
-            id = "asdasd",
+            id = "asdasdasd",
             title = "asdasdasd",
             description = "asdhgfhds bhbf sdhbf jsdhbf sdhbf",
             taskParts = listOf(
@@ -258,7 +263,10 @@ fun TaskDetails_Preview(){
             false,
             startDate = CustomDateFormat(2022, 12 , 12, 12, 33),
             endDate = CustomDateFormat(2022, 12 ,12, 15, 33),
-            done = false
-        ), "asdasd", 0L)
+            endTimestamp = 1678419104L,
+            lockedByUserId = null,
+            done = false,
+            ownerId = "asdasd",
+        ), "asdasd", 1668419104L)
     }
 }
