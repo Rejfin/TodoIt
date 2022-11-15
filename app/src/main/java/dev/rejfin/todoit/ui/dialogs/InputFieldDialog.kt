@@ -31,6 +31,7 @@ fun InputFieldDialog(text:String, onOkButtonClick: (String)->Unit, onCancelButto
                 Text(text = text)
                 InputField(
                     label = "",
+                    text = inputText,
                     onTextChange = {inputText = it},
                     validationResult = ValidationResult()
                 )

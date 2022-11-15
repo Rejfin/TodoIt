@@ -85,63 +85,72 @@ fun RegisterScreen(navigator: DestinationsNavigator?, viewModel: AuthViewModel =
             )
             InputField(
                 label = stringResource(id = R.string.nick),
+                text = uiState.nick.value,
                 onTextChange = {
                     uiState.nick.value = it
                     viewModel.clearError(uiState.nickValidation.value)
                 },
-                uiState.nickValidation.value,
+                validationResult = uiState.nickValidation.value,
                 imeAction= ImeAction.Next,
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !uiState.isAuthInProgress.value
+                enabled = !uiState.isAuthInProgress.value,
+                allowedRegex = Regex("[^\\s]*")
             )
             InputField(
                 label = stringResource(id = R.string.display_name),
+                text = uiState.displayName.value,
                 onTextChange = {
                     uiState.displayName.value = it
                     viewModel.clearError(uiState.displayNameValidation.value)
                 },
-                uiState.displayNameValidation.value,
+                validationResult = uiState.displayNameValidation.value,
                 imeAction= ImeAction.Next,
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !uiState.isAuthInProgress.value
             )
             InputField(
                 label = stringResource(id = R.string.email),
+                text = uiState.email.value,
                 onTextChange = {
                     uiState.email.value = it
                     viewModel.clearError(uiState.emailValidation.value)
                 },
-                uiState.emailValidation.value,
+                validationResult = uiState.emailValidation.value,
                 keyboardType = KeyboardType.Email,
                 imeAction= ImeAction.Next,
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !uiState.isAuthInProgress.value
+                enabled = !uiState.isAuthInProgress.value,
+                allowedRegex = Regex("[^\\s]*")
             )
             InputField(
                 label = stringResource(id = R.string.password),
+                text = uiState.password.value,
                 onTextChange = {
                     uiState.password.value = it
                     viewModel.clearError(uiState.passwordValidation.value)
                 },
-                uiState.passwordValidation.value,
+                validationResult = uiState.passwordValidation.value,
                 keyboardType = KeyboardType.Password,
                 imeAction= ImeAction.Next,
                 isPasswordField = true,
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !uiState.isAuthInProgress.value
+                enabled = !uiState.isAuthInProgress.value,
+                allowedRegex = Regex("[^\\s]*")
             )
             InputField(
                 label = stringResource(id = R.string.repeat_password),
+                text = uiState.repeatedPassword.value,
                 onTextChange = {
                     uiState.repeatedPassword.value = it
                     viewModel.clearError(uiState.repeatedPasswordValidation.value)
                 },
-                uiState.repeatedPasswordValidation.value,
+                validationResult = uiState.repeatedPasswordValidation.value,
                 keyboardType = KeyboardType.Password,
                 imeAction= ImeAction.Done,
                 isPasswordField = true,
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !uiState.isAuthInProgress.value
+                enabled = !uiState.isAuthInProgress.value,
+                allowedRegex = Regex("[^\\s]*")
             )
             Row(modifier = Modifier
                 .padding(vertical = 15.dp)

@@ -216,8 +216,7 @@ fun EditGroupDialog(
                         },
                         validationResult = nameValidation,
                         enabled = editMode,
-                        placeholder = if(editMode) editedGroupName else groupName,
-                        rememberTextInternally = false
+                        text = if(editMode) editedGroupName else groupName,
                     )
                     InputField(
                         label = stringResource(id = R.string.group_description),
@@ -226,8 +225,7 @@ fun EditGroupDialog(
                         },
                         validationResult = descValidation,
                         enabled = editMode,
-                        placeholder = if(editMode) editedGroupDesc else groupDesc,
-                        rememberTextInternally = false
+                        text = if(editMode) editedGroupDesc else groupDesc,
                     )
                 }
             }

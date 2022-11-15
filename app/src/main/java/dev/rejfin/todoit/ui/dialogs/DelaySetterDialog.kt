@@ -12,6 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -60,11 +61,10 @@ fun DelaySetterDialog(initTime: String, onDialogClose: () -> Unit, onTimeSet: (t
                     },
                     validationResult = timeStringValidation,
                     modifier = Modifier.widthIn(max = 70.dp),
-                    rememberTextInternally = false,
-                    placeholder = timeInString,
+                    text = timeInString,
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Done,
-                    textAlignment = TextAlign.Center
+                    textStyle = TextStyle(textAlign = TextAlign.Center)
                 )
             }
         },

@@ -75,8 +75,7 @@ fun NewTaskScreen(navigator: DestinationsNavigator?,
                 validationResult = uiState.taskTitleValidation,
                 imeAction = ImeAction.Next,
                 modifier = Modifier.fillMaxWidth(0.9f),
-                placeholder = uiState.taskTitle,
-                rememberTextInternally = false
+                text = uiState.taskTitle
             )
             InputField(
                 label = stringResource(id = R.string.task_description),
@@ -86,8 +85,7 @@ fun NewTaskScreen(navigator: DestinationsNavigator?,
                 validationResult = uiState.taskDescriptionValidation,
                 imeAction = ImeAction.Done,
                 singleLine = false,
-                placeholder = uiState.taskDescription,
-                rememberTextInternally = false,
+                text = uiState.taskDescription,
                 modifier = Modifier
                     .fillMaxWidth(0.9f)
                     .heightIn(min = 110.dp)

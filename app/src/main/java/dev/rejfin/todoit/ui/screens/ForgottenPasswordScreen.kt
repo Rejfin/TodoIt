@@ -1,6 +1,5 @@
 package dev.rejfin.todoit.ui.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.Text
@@ -57,10 +56,9 @@ fun ForgottenPasswordScreen(navigator: DestinationsNavigator?, viewModel: AuthVi
                 email = it
                 checkEmail(it)
             },
-            placeholder = email,
+            text = email,
             validationResult = emailValidation,
             modifier = Modifier.fillMaxWidth(0.7f),
-            rememberTextInternally = false
         )
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,

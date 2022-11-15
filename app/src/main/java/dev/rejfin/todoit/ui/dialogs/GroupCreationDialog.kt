@@ -89,16 +89,16 @@ fun GroupCreationDialog(onCreateClick: (name:String, description:String, image:U
 
                 InputField(
                     label = stringResource(id = R.string.group_name),
+                    text = groupName,
                     onTextChange = {
                         groupName = it
                     },
                     validationResult = nameValidation
                 )
 
-
-
                 InputField(
                     label = stringResource(id = R.string.group_description),
+                    text = groupDesc,
                     onTextChange = {
                         groupDesc = it
                     },

@@ -7,8 +7,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.runtime.Composable
@@ -36,31 +34,35 @@ import dev.rejfin.todoit.ui.theme.CustomThemeManager
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun InputField(label:String,
+fun InputField(
+               text: String,
                onTextChange: (String) -> Unit,
-               validationResult: ValidationResult,
                modifier: Modifier = Modifier,
-               placeholder: String = "",
+               label:String = "",
+               validationResult: ValidationResult = ValidationResult(),
                keyboardType: KeyboardType = KeyboardType.Text,
                imeAction: ImeAction = ImeAction.None,
                isPasswordField: Boolean = false,
                enabled:Boolean = true,
                singleLine: Boolean = true,
-               rememberTextInternally: Boolean = true,
-               textAlignment: TextAlign = TextAlign.Start){
-
+               textStyle: TextStyle = TextStyle(textAlign = TextAlign.Start),
+               allowedRegex: Regex? = null
+){
     val keyboardController = LocalSoftwareKeyboardController.current
-    var text by remember { mutableStateOf(placeholder) }
     var passwordVisibility by remember { mutableStateOf(false) }
 
-    Column(horizontalAlignment = Alignment.CenterHorizontally){
+    Column(horizontalAlignment = Alignment.Start){
         OutlinedTextField(
-            value=if (rememberTextInternally) text else placeholder,
+            value = text,
             onValueChange = {
-                if(rememberTextInternally){
-                    text = it
+                if(allowedRegex != null){
+                    if(allowedRegex.matches(it)){
+                        onTextChange(it)
+                    }
+                }else{
+                    onTextChange(it)
                 }
-                onTextChange(it)
+
             },
             label = { Text(label) },
             modifier = modifier,
@@ -93,10 +95,15 @@ fun InputField(label:String,
                 onDone = {keyboardController?.hide()}
             ),
             enabled = enabled,
-            textStyle = TextStyle(textAlign = textAlignment)
+            textStyle = textStyle
         )
         if(validationResult.isError){
-            Text(text = validationResult.errorMessage!!, color = MaterialTheme.colors.error, fontSize = 13.sp, modifier = Modifier.padding(horizontal = 8.dp))
+            Text(
+                text = validationResult.errorMessage!!,
+                color = MaterialTheme.colors.error,
+                fontSize = 13.sp,
+                modifier = Modifier.padding(horizontal = 8.dp)
+            )
         }
     }
 
@@ -106,5 +113,5 @@ fun InputField(label:String,
 @Composable()
 private fun InputPreview(){
     val validRes = ValidationResult(isError = true, errorMessage = "some error")
-    InputField(label = "test", onTextChange = { }, validationResult = validRes)
+    InputField(label = "test", text= "", onTextChange = { }, validationResult = validRes)
 }

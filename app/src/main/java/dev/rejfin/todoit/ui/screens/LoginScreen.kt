@@ -57,15 +57,18 @@ fun LoginScreen(navigator: DestinationsNavigator?, viewModel: AuthViewModel = vi
                     .align(Alignment.CenterHorizontally))
                 InputField(
                     label = stringResource(id = R.string.email),
+                    text = uiState.email.value,
                     onTextChange = { uiState.email.value = it },
                     validationResult = uiState.emailValidation.value,
                     keyboardType = KeyboardType.Email,
                     imeAction= ImeAction.Next,
                     modifier = Modifier.fillMaxWidth(),
-                    enabled = !uiState.isAuthInProgress.value
+                    enabled = !uiState.isAuthInProgress.value,
+                    allowedRegex = Regex("[^\\s]*")
                 )
                 InputField(
                     label = stringResource(id = R.string.password),
+                    text = uiState.password.value,
                     onTextChange = {uiState.password.value = it},
                     validationResult = uiState.passwordValidation.value,
                     keyboardType = KeyboardType.Password,
@@ -73,8 +76,7 @@ fun LoginScreen(navigator: DestinationsNavigator?, viewModel: AuthViewModel = vi
                     isPasswordField = true,
                     modifier = Modifier.fillMaxWidth(),
                     enabled = !uiState.isAuthInProgress.value,
-                    placeholder = uiState.password.value,
-                    rememberTextInternally = false
+                    allowedRegex = Regex("[^\\s]*")
                 )
                 Text(
                     text = stringResource(id = R.string.forgotten_password),
