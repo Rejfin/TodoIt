@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -46,6 +47,8 @@ fun HomeScreen(navigator: DestinationsNavigator?, viewModel: HomeViewModel = vie
 
     var confirmationDeleteDialog by remember { mutableStateOf(false) }
     var taskToRemove by remember { mutableStateOf<TaskModel?>(null) }
+
+    val mContext = LocalContext.current
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -122,7 +125,11 @@ fun HomeScreen(navigator: DestinationsNavigator?, viewModel: HomeViewModel = vie
                                 taskToRemove = it
                                 confirmationDeleteDialog = true
                             },
-                            showRemoveButton = !task.done && task.endTimestamp > viewModel.calendarUtility.getCurrentTimestamp())
+                            showRemoveButton = !task.done && task.endTimestamp > viewModel.calendarUtility.getCurrentTimestamp(),
+                            onBellClick = {
+                                viewModel.setNotification(mContext, task)
+                            }
+                        )
                     }
                 }
             }

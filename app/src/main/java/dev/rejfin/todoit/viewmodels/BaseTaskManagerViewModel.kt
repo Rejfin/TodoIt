@@ -1,5 +1,7 @@
 package dev.rejfin.todoit.viewmodels
 
+import android.content.Context
+import androidx.activity.ComponentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
@@ -14,6 +16,7 @@ import dev.rejfin.todoit.models.CustomDateFormat
 import dev.rejfin.todoit.models.TaskModel
 import dev.rejfin.todoit.models.states.BaseTaskUiState
 import dev.rejfin.todoit.utils.CalendarUtility
+import dev.rejfin.todoit.utils.TaskNotificationManager
 import kotlinx.coroutines.*
 
 abstract class BaseTaskManagerViewModel: ViewModel() {
@@ -24,6 +27,7 @@ abstract class BaseTaskManagerViewModel: ViewModel() {
     protected val nicksDbRef = database.getReference("nicks")
     protected val notifyDbRef = database.getReference("notify")
     protected val groupsDbRef = database.getReference("groups")
+    private val taskNotificationManager = TaskNotificationManager()
 
     /**
      * abstract function that will be implemented in viewModel who is inherited from this class
@@ -206,5 +210,14 @@ abstract class BaseTaskManagerViewModel: ViewModel() {
         }
 
         database.reference.updateChildren(childToUpdate)
+    }
+
+    fun setNotification(context: Context, task: TaskModel){
+        //val pref = context.getSharedPreferences("TodoItPref", ComponentActivity.MODE_PRIVATE)
+        if(taskNotificationManager.isAlarmExisting(context, task)){
+            taskNotificationManager.removeAlarm(context, task)
+        }else{
+            taskNotificationManager.setAlarm(context, task)
+        }
     }
 }

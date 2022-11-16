@@ -1,5 +1,7 @@
 package dev.rejfin.todoit.viewmodels
 
+import android.content.Context
+import androidx.activity.ComponentActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -11,6 +13,7 @@ import com.google.firebase.ktx.Firebase
 import dev.rejfin.todoit.models.*
 import dev.rejfin.todoit.models.states.TaskUiState
 import dev.rejfin.todoit.utils.CalendarUtility
+import dev.rejfin.todoit.utils.TaskNotificationManager
 import java.util.*
 
 class NewTaskViewModel: ViewModel() {
@@ -114,7 +117,7 @@ class NewTaskViewModel: ViewModel() {
         taskUiState = taskUiState.copy(taskErrorMessage = null)
     }
 
-    fun createTask(){
+    fun createTask(context: Context){
         taskUiState = taskUiState.copy(
             taskTitleValidation = ValidationResult(
                 isError = taskUiState.taskTitle.isEmpty(),
@@ -194,8 +197,15 @@ class NewTaskViewModel: ViewModel() {
             childToUpdate["/users/${auth.uid}/allTask"] = ServerValue.increment(1)
         }
 
+        val taskNotificationManager = TaskNotificationManager()
+
         if(timestamp != oldTimestamp){
             childToUpdate["/tasks/$userOrGroupId/$oldTimestamp/${taskModel.id}"] = null
+            taskNotificationManager.removeAlarm(context = context, taskModel)
+        }
+
+        if(userOrGroupId == auth.uid && !taskModel.allDay){
+            taskNotificationManager.setAlarm(context = context, taskModel)
         }
 
         database.reference.updateChildren(childToUpdate).addOnCompleteListener {

@@ -4,11 +4,7 @@ import androidx.compose.runtime.*
 import androidx.lifecycle.viewModelScope
 import dev.rejfin.todoit.models.states.BaseTaskUiState
 import dev.rejfin.todoit.models.states.HomeUiState
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
-import okhttp3.internal.wait
 
 class HomeViewModel : BaseTaskManagerViewModel() {
     private val _uiState by mutableStateOf(HomeUiState())

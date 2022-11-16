@@ -1,6 +1,8 @@
 package dev.rejfin.todoit.ui.components
 
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
@@ -11,11 +13,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Circle
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -28,13 +35,22 @@ import dev.rejfin.todoit.models.CustomDateFormat
 import dev.rejfin.todoit.models.TaskModel
 import dev.rejfin.todoit.models.TaskPartModel
 import dev.rejfin.todoit.ui.theme.CustomThemeManager
+import dev.rejfin.todoit.utils.CalendarUtility
 
 @Composable
 fun TaskCard(task: TaskModel,
              userId: String,
              modifier: Modifier = Modifier,
              onRemoveClick: (TaskModel) -> Unit= {},
-             showRemoveButton:Boolean = true){
+             showRemoveButton:Boolean = true,
+             onBellClick: (TaskModel) -> Unit = {}
+){
+
+    val pref = LocalContext.current.getSharedPreferences("TodoItPref", ComponentActivity.MODE_PRIVATE)
+    val beforeTime = pref.getInt("notification_time", 15)
+    var bellClicked by remember { mutableStateOf(pref.contains(task.id) && !task.done && task.startTimestamp - (beforeTime*60*1000) > CalendarUtility().getCurrentTimestamp())}
+    val bellTint = if(bellClicked) CustomThemeManager.colors.secondaryColor else CustomThemeManager.colors.textColorThird
+
     Column(modifier = modifier
         .fillMaxWidth()
         .shadow(
@@ -125,11 +141,19 @@ fun TaskCard(task: TaskModel,
             horizontalArrangement = Arrangement.SpaceBetween,
         ){
             if(!task.allDay){
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.clickable {
+                        if(!task.done && task.startTimestamp - (beforeTime*60*1000) > CalendarUtility().getCurrentTimestamp()){
+                            onBellClick(task)
+                            bellClicked = !bellClicked
+                        }
+                    }
+                ) {
                     Icon(
                         imageVector = Icons.Filled.Notifications,
                         contentDescription = "task time",
-                        tint = CustomThemeManager.colors.textColorThird,
+                        tint = bellTint,
                     )
                     Text(text = "${String.format("%02d",task.startDate.hour)}:${String.format("%02d",task.startDate.minutes)} - ${String.format("%02d",task.endDate.hour)}:${String.format("%02d",task.endDate.minutes)}",
                         color = CustomThemeManager.colors.textColorSecond,

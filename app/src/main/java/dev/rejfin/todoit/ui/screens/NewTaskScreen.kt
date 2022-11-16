@@ -357,7 +357,7 @@ fun NewTaskScreen(navigator: DestinationsNavigator?,
                 }
                 Button(
                     onClick = {
-                        viewModel.createTask()
+                        viewModel.createTask(mContext)
                     },
                     modifier = Modifier
                         .weight(1f)
