@@ -36,17 +36,41 @@ fun SettingEntry(title:String, desc: String, modifier: Modifier = Modifier, icon
             )
         }
         Column(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp).fillMaxWidth(0.9f)
+            modifier = Modifier
+                .padding(horizontal = 12.dp, vertical = 8.dp)
+                .fillMaxWidth(0.9f)
         ) {
-            Text(text = title, fontSize = 18.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            Text(text = desc, fontSize = 12.sp, color = CustomThemeManager.colors.textColorSecond, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(
+                text = title,
+                fontSize = 18.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                color = CustomThemeManager.colors.textColorFirst
+            )
+            Text(
+                text = desc,
+                fontSize = 12.sp,
+                color = CustomThemeManager.colors.textColorSecond,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
         }
-        Spacer(modifier.weight(1f))
+        Spacer(modifier = modifier.weight(1f))
         if(onCheckChange != null){
             if(useCheckbox){
-                Checkbox(checked = isChecked, onCheckedChange = onCheckChange, modifier = Modifier.padding(end = 16.dp))
+                Checkbox(
+                    checked = isChecked,
+                    onCheckedChange = onCheckChange,
+                    modifier = Modifier
+                        .padding(end = 16.dp)
+                )
             }else{
-                Switch(checked = isChecked, onCheckedChange = onCheckChange, modifier = Modifier.padding(end = 16.dp))
+                Switch(
+                    checked = isChecked,
+                    onCheckedChange = onCheckChange,
+                    modifier = Modifier
+                        .padding(end = 16.dp)
+                )
             }
         }
     }

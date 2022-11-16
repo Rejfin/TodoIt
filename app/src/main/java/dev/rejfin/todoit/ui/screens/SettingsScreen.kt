@@ -16,7 +16,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.rejfin.todoit.ui.components.SettingEntry
 import dev.rejfin.todoit.ui.theme.CustomThemeManager
 import dev.rejfin.todoit.viewmodels.SettingsViewModel
@@ -28,56 +27,58 @@ import dev.rejfin.todoit.ui.dialogs.DelaySetterDialog
 
 @Destination
 @Composable
-fun SettingsScreen(navigator: DestinationsNavigator?, viewModel: SettingsViewModel = viewModel()){
+fun SettingsScreen(viewModel: SettingsViewModel = viewModel()){
     val uiState = viewModel.uiState
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(CustomThemeManager.colors.appBackground)
     ) {
-        Text("App Settings",
+        Text(
+            stringResource(id = R.string.app_settings),
             fontSize = 16.sp,
             color = CustomThemeManager.colors.primaryColor,
             modifier = Modifier
                 .padding(start = 8.dp, top = 16.dp, bottom = 8.dp)
         )
         SettingEntry(
-            title = "Dark mode",
+            title = stringResource(id = R.string.dark_mode),
             desc = uiState.darkModeDescription,
             icon = Icons.Default.ModeNight,
             modifier = Modifier.clickable {
-                viewModel.showDarkModeDialog()
+                uiState.showOptionsPickerDialog = true
             }
         )
         Spacer(modifier = Modifier
             .height(2.dp)
             .background(CustomThemeManager.colors.textColorSecond))
         SettingEntry(
-            title = "Notification reminder",
+            title = stringResource(id = R.string.notification_reminder),
             desc = stringResource(id = R.string.notification_settings_desc),
             icon = Icons.Default.Schedule,
             modifier = Modifier.clickable {
-                viewModel.showNotificationReminderTimeDialog()
+                uiState.showNotificationReminderTimeDialog = true
             }
         )
         Spacer(modifier = Modifier
             .height(2.dp)
             .background(CustomThemeManager.colors.textColorSecond))
 
-        Text("About",
+        Text(
+            stringResource(id = R.string.about),
             fontSize = 16.sp,
             color = CustomThemeManager.colors.primaryColor,
             modifier = Modifier
                 .padding(start = 8.dp, top = 16.dp, bottom = 8.dp)
         )
         SettingEntry(
-            title = "Version",
+            title = stringResource(id = R.string.version),
             desc = "TodoIt v${BuildConfig.VERSION_NAME}",
             icon = Icons.Default.Info,
         )
         SettingEntry(
-            title = "Send feedback",
-            desc = "Report technical issues or suggest new feature",
+            title = stringResource(id = R.string.send_feedback),
+            desc = stringResource(id = R.string.feedback_settings_desc),
             icon = Icons.Default.Email,
             modifier = Modifier.clickable {
                 viewModel.sendFeedback()
@@ -107,5 +108,5 @@ fun SettingsScreen(navigator: DestinationsNavigator?, viewModel: SettingsViewMod
 @Composable
 @Preview
 fun SettingsScreenPreview(){
-    SettingsScreen(navigator = null)
+    SettingsScreen()
 }

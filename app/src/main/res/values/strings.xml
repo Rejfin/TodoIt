@@ -84,4 +84,10 @@
     <string name="bad_email_format">Email address is badly formatted</string>
     <string name="reset_password_email_sent">If the email address you provided was used when you created your account, an email will arrive in your inbox allowing you to reset your password</string>
     <string name="forgotten_password">I forgot my password</string>
+    <string name="app_settings">Application settings</string>
+    <string name="notification_reminder">Notification reminder</string>
+    <string name="about">About</string>
+    <string name="version">Version</string>
+    <string name="send_feedback">Send feedback</string>
+    <string name="feedback_settings_desc">Report technical issues or suggest new feature</string>
 </resources>
