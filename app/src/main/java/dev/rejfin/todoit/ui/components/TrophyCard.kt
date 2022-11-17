@@ -8,21 +8,15 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EmojiEvents
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import dev.rejfin.todoit.models.TrophyModel
 import dev.rejfin.todoit.ui.theme.CustomJetpackComposeTheme
 import dev.rejfin.todoit.ui.theme.CustomThemeManager
@@ -44,7 +38,7 @@ fun TrophyCard(trophyModel: TrophyModel, modifier: Modifier = Modifier){
             .clip(CircleShape)
             .size(50.dp, 50.dp))
 
-        Column() {
+        Column{
             Text(
                 text = trophyModel.title,
                 fontSize = 18.sp,
@@ -64,15 +58,13 @@ fun TrophyCard(trophyModel: TrophyModel, modifier: Modifier = Modifier){
                     .fillMaxWidth()
             )
         }
-
-
     }
 }
 
 @Preview
 @Composable
 fun TrophyCardPreview(){
-    CustomJetpackComposeTheme() {
+    CustomJetpackComposeTheme{
         TrophyCard(TrophyModel())
     }
 }

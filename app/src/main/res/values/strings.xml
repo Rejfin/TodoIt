@@ -90,4 +90,5 @@
     <string name="version">Version</string>
     <string name="send_feedback">Send feedback</string>
     <string name="feedback_settings_desc">Report technical issues or suggest new feature</string>
+    <string name="edit_photo">Edit photo</string>
 </resources>

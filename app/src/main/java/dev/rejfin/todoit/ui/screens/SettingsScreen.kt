@@ -76,6 +76,9 @@ fun SettingsScreen(viewModel: SettingsViewModel = viewModel()){
             desc = "TodoIt v${BuildConfig.VERSION_NAME}",
             icon = Icons.Default.Info,
         )
+        Spacer(modifier = Modifier
+            .height(2.dp)
+            .background(CustomThemeManager.colors.textColorSecond))
         SettingEntry(
             title = stringResource(id = R.string.send_feedback),
             desc = stringResource(id = R.string.feedback_settings_desc),
