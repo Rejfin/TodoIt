@@ -1,7 +1,6 @@
 package dev.rejfin.todoit.viewmodels
 
 import android.content.Context
-import androidx.activity.ComponentActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -30,6 +29,10 @@ class NewTaskViewModel: ViewModel() {
     private var taskId: String? = null
     private var oldTimestamp: Long? = null
 
+    /**
+     * same ui is using in homeView ang groupView to create tasks
+     * so we need function to set id for account to save in firebase
+     */
     fun setIdToSave(id: String?){
         userOrGroupId = id ?: auth.uid!!
     }
@@ -37,124 +40,135 @@ class NewTaskViewModel: ViewModel() {
     init {
         calendarUtility = CalendarUtility()
         val currentDate = calendarUtility.getCurrentDate()
-        taskUiState = taskUiState.copy(startDate = currentDate, endDate = currentDate.copy(hour = currentDate.hour + 1))
+        taskUiState.apply {
+            startDate = currentDate
+            endDate = currentDate.copy(hour = currentDate.hour + 1, minutes = 0)
+        }
     }
 
+    /** function used if user wants to edit existing task */
     fun setUiState(taskModel: TaskModel){
-        taskUiState = taskUiState.copy(
-            taskTitle = taskModel.title,
-            taskDescription = taskModel.description,
-            taskParts = taskModel.taskParts,
-            startDate = taskModel.startDate,
-            endDate = taskModel.endDate,
-            isAllDay = taskModel.allDay,
-            timeConsuming = taskModel.timeConsuming,
-            difficulty = taskModel.difficulty,
-            xpForCompleteTask = taskModel.xpForTask,
-        )
+        taskUiState.apply{
+            taskTitle = taskModel.title
+            taskDescription = taskModel.description
+            taskParts.addAll(taskModel.taskParts)
+            startDate = taskModel.startDate
+            endDate = taskModel.endDate
+            isAllDay = taskModel.allDay
+            timeConsuming = taskModel.timeConsuming
+            difficulty = taskModel.difficulty
+            xpForCompleteTask = taskModel.xpForTask
+        }
 
         taskId = taskModel.id
         oldTimestamp = taskModel.timestamp
     }
 
-    fun updateTitle(title:String){
-        taskUiState = taskUiState.copy(taskTitle = title)
-    }
-
-    fun updateDescription(description:String){
-        taskUiState = taskUiState.copy(taskDescription = description)
-    }
-
-    fun addTaskPart(text: String){
-        val newList = mutableListOf<TaskPartModel>()
-        newList.addAll(taskUiState.taskParts)
-        newList.add(TaskPartModel(false, text))
-        taskUiState = taskUiState.copy(taskParts = newList)
+    fun addTaskPart(){
+        taskUiState.taskParts.add(TaskPartModel(false, ""))
     }
 
     fun updateTaskPart(index:Int, text: String){
-        val taskList = taskUiState.taskParts.toMutableList()
-        taskList[index] = taskList[index].copy(desc = text)
-        taskUiState = taskUiState.copy(taskParts = taskList)
+        taskUiState.taskParts[index] = taskUiState.taskParts[index].copy(desc = text)
     }
 
     fun removeTaskPart(index:Int){
-        val taskList = taskUiState.taskParts.toMutableList()
-        taskList.removeAt(index)
-        taskUiState = taskUiState.copy(taskParts = taskList)
+        taskUiState.taskParts.removeAt(index)
     }
 
+    /** this method will update difficulty of task and xp for completion */
     fun updateDifficulty(level: Int){
         val xp = taskUiState.timeConsuming * 5 + taskUiState.difficulty * 5
-        taskUiState = taskUiState.copy(difficulty = level, xpForCompleteTask = xp)
+        taskUiState.apply {
+            difficulty = level
+            xpForCompleteTask = xp
+        }
     }
 
+    /** this method will update timeConsuming variable of task and xp for completion */
     fun updateTimeConsuming(level: Int){
         val xp = taskUiState.timeConsuming * 5 + taskUiState.difficulty * 5
-        taskUiState = taskUiState.copy(timeConsuming = level, xpForCompleteTask = xp)
-    }
-
-    fun updateIsAllDay(isAllDay: Boolean){
-        taskUiState = taskUiState.copy(isAllDay = isAllDay)
+        taskUiState.apply {
+            timeConsuming = level
+            xpForCompleteTask = xp
+        }
     }
 
     fun updateStartHour(date: CustomDateFormat){
-        taskUiState = taskUiState.copy(startDate = taskUiState.startDate.copy(hour = date.hour, minutes = date.minutes))
+        taskUiState.startDate = taskUiState.startDate.copy(hour = date.hour, minutes = date.minutes)
     }
 
     fun updateEndHour(date: CustomDateFormat){
-        taskUiState = taskUiState.copy(endDate = taskUiState.endDate.copy(hour = date.hour, minutes = date.minutes))
+        taskUiState.endDate = taskUiState.endDate.copy(hour = date.hour, minutes = date.minutes)
     }
 
+    /**
+     * In order for the month to be displayed to the user correctly we need to add 1 to it
+     * This is because the java library called Calendar, which I use to retrieve
+     * the time and days, starts counting down the months from 0
+     */
     fun updateDayOfTask(date: CustomDateFormat){
-        taskUiState = taskUiState.copy(
-            startDate = taskUiState.startDate.copy(year = date.year, month = date.month + 1, day = date.day),
+        taskUiState.apply {
+            startDate = taskUiState.startDate.copy(year = date.year, month = date.month + 1, day = date.day)
             endDate = taskUiState.endDate.copy(year = date.year, month = date.month + 1, day = date.day)
-        )
+        }
     }
 
-    fun clearError(){
-        taskUiState = taskUiState.copy(taskErrorMessage = null)
-    }
-
+    /**
+     * The function, after checking the correctness of the data entered by the user,
+     * will create in the firebase database a new task appropriately assigned to the group
+     * or the logged-in user
+     * while if the function encounters any problem it will return the appropriate information to the user
+     */
     fun createTask(context: Context){
-        taskUiState = taskUiState.copy(
-            taskTitleValidation = ValidationResult(
-                isError = taskUiState.taskTitle.isEmpty(),
-                errorMessage = "Field can't be empty")
+        taskUiState.taskTitleValidation = ValidationResult(
+            isError = taskUiState.taskTitle.isEmpty(),
+            errorMessage = "Field can't be empty"
         )
 
-        taskUiState = taskUiState.copy(
-            taskDescriptionValidation = ValidationResult(
+        taskUiState.taskDescriptionValidation = ValidationResult(
                 isError = taskUiState.taskDescription.isEmpty(),
                 errorMessage = "Field can't be empty")
-        )
 
+        /** checking if title and description are not empty */
         if(taskUiState.taskTitleValidation.isError || taskUiState.taskDescriptionValidation.isError){
             return
         }
 
+        /** if task is not all day, we must check if end time is not earlier than start time */
         if(!taskUiState.isAllDay){
             if(taskUiState.startDate.hour > taskUiState.endDate.hour){
                 // hour of start is greater than end hour
-                taskUiState = taskUiState.copy(taskErrorMessage = "The set date of the task is not correct, make sure the set date and time has not passed")
+                taskUiState.taskErrorMessage = "The set date of the task is not correct, make sure the set date and time has not passed"
                 return
             }
 
             if(taskUiState.startDate.hour == taskUiState.endDate.hour){
                 if(taskUiState.startDate.minutes >= taskUiState.endDate.minutes){
                     // hour of start is greater than hour of end task or is equal
-                    taskUiState = taskUiState.copy(taskErrorMessage = "The set date of the task is not correct, make sure the set date and time has not passed")
+                    taskUiState.taskErrorMessage = "The set date of the task is not correct, make sure the set date and time has not passed"
                     return
                 }
             }
         }
 
-        //save only task parts with text inside
+        /**
+         * before sending the task to the database,
+         * we filter out from the task the parts that do not contain any description
+         */
         val taskList = taskUiState.taskParts.filter { it.desc.isNotEmpty() }
 
-        val timestamp = calendarUtility.timestampFromDate(taskUiState.startDate.year, taskUiState.startDate.month, taskUiState.startDate.day)
+        /** we create general task timestamp used to determine the specific day of the task */
+        val timestamp = calendarUtility.timestampFromDate(
+            taskUiState.startDate.year,
+            taskUiState.startDate.month,
+            taskUiState.startDate.day
+        )
 
+        /**
+         * With the start timestamp value, I determine when the notification should be triggered (if set),
+         * while endTimestamp is used to determine if the task can still be mark as done or deleted
+         */
         val startTimestamp: Long
         val endTimestamp: Long
         if(taskUiState.isAllDay){
@@ -165,8 +179,12 @@ class NewTaskViewModel: ViewModel() {
             endTimestamp = calendarUtility.timestampFromDate(taskUiState.endDate)
         }
 
+        /**
+         * check if endTimestamp value is lower
+         * than current timestamp (user cant add task that already passed)
+         */
         if(endTimestamp < calendarUtility.getCurrentTimestamp()){
-            taskUiState = taskUiState.copy(taskErrorMessage = "The set date of the task is not correct, make sure the set date and time has not passed")
+            taskUiState.taskErrorMessage = "The set date of the task is not correct, make sure the set date and time has not passed"
             return
         }
 
@@ -199,20 +217,37 @@ class NewTaskViewModel: ViewModel() {
 
         val taskNotificationManager = TaskNotificationManager()
 
+        /**
+         * during update task old timestamp and new one can be different
+         * if they are not same we must remove old task and add new with new timestamp,
+         * remove also notification if exist
+         */
         if(timestamp != oldTimestamp){
             childToUpdate["/tasks/$userOrGroupId/$oldTimestamp/${taskModel.id}"] = null
             taskNotificationManager.removeAlarm(context = context, taskModel)
         }
 
+        /**
+         * if the task being added is private and is a task with a specific timeframe
+         * then set a notification ( notification will appear only if the start time is early enough
+         * (current time + amount of time before notification which is set in settings, default 15min) )
+         */
         if(userOrGroupId == auth.uid && !taskModel.allDay){
             taskNotificationManager.setAlarm(context = context, taskModel)
         }
 
         database.reference.updateChildren(childToUpdate).addOnCompleteListener {
             taskUiState = if(it.isSuccessful){
-                taskUiState.copy(isDataSending = false, isDateSent = true)
+                taskUiState.apply {
+                    isDataSending = false
+                    isDateSent = true
+                }
             }else{
-                taskUiState.copy(isDataSending = false, isDateSent = false, taskErrorMessage = it.exception?.localizedMessage)
+                taskUiState.apply {
+                    isDataSending = false
+                    isDateSent = false
+                    taskErrorMessage = it.exception?.localizedMessage
+                }
             }
         }
     }

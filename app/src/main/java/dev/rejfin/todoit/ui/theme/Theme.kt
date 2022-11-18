@@ -1,10 +1,13 @@
 package dev.rejfin.todoit.ui.theme
 
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.Colors
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.*
+import androidx.compose.ui.graphics.Color.Companion.Red
 
 
 private val CustomLightColors = CustomColors(
@@ -46,8 +49,17 @@ private fun CustomLocalProvider(
         colors.copy()
     }
 
+    val customTextSelectionColors = TextSelectionColors(
+        handleColor = colors.primaryColor,
+        backgroundColor = colors.primaryColor.copy(alpha = 0.4f),
+    )
+
     colorPalette.update(colors)
-    CompositionLocalProvider(LocalColorsProvider provides colorPalette, content = content)
+    CompositionLocalProvider(
+        LocalColorsProvider provides colorPalette,
+        LocalTextSelectionColors provides customTextSelectionColors,
+        content = content
+    )
 }
 
 private val CustomTheme.colors: Pair<Colors, CustomColors>
@@ -78,7 +90,7 @@ fun CustomJetpackComposeTheme(
 
     CustomLocalProvider(colors = lcColor) {
         MaterialTheme(
-            colors = colorPalette,
+            colors = colorPalette.copy(primary = lcColor.primaryColor),
             typography = Typography,
             shapes = Shapes,
             content = content

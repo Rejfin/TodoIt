@@ -48,8 +48,6 @@ fun NewTaskScreen(navigator: DestinationsNavigator?,
                   viewModel: NewTaskViewModel = viewModel()
 ){
     val uiState = viewModel.taskUiState
-    val calendarUtility = viewModel.calendarUtility
-
     val mContext = LocalContext.current
 
     LaunchedEffect(key1 = Unit){
@@ -70,7 +68,7 @@ fun NewTaskScreen(navigator: DestinationsNavigator?,
             InputField(
                 label = stringResource(id = R.string.task_title),
                 onTextChange = {
-                    viewModel.updateTitle(it)
+                    uiState.taskTitle = it
                 },
                 validationResult = uiState.taskTitleValidation,
                 imeAction = ImeAction.Next,
@@ -80,7 +78,7 @@ fun NewTaskScreen(navigator: DestinationsNavigator?,
             InputField(
                 label = stringResource(id = R.string.task_description),
                 onTextChange = {
-                    viewModel.updateDescription(it)
+                    uiState.taskDescription = it
                 },
                 validationResult = uiState.taskDescriptionValidation,
                 imeAction = ImeAction.Done,
@@ -90,7 +88,7 @@ fun NewTaskScreen(navigator: DestinationsNavigator?,
                     .fillMaxWidth(0.9f)
                     .heightIn(min = 110.dp)
             )
-            if(uiState.taskParts.isNotEmpty()) {
+            if(uiState.taskParts.size > 0) {
                 Text(
                     text = stringResource(id = R.string.task_parts),
                     color = CustomThemeManager.colors.textColorSecond,
@@ -105,7 +103,9 @@ fun NewTaskScreen(navigator: DestinationsNavigator?,
                                 viewModel.updateTaskPart(index, it)
                             },
                             colors = TextFieldDefaults.textFieldColors(
-                                backgroundColor = CustomThemeManager.colors.cardBackgroundColor
+                                backgroundColor = CustomThemeManager.colors.cardBackgroundColor,
+                                cursorColor = CustomThemeManager.colors.primaryColor,
+                                focusedIndicatorColor = CustomThemeManager.colors.primaryColor,
                             ),
                             singleLine = true,
                             shape = RoundedCornerShape(10.dp),
@@ -129,7 +129,7 @@ fun NewTaskScreen(navigator: DestinationsNavigator?,
                 modifier = Modifier
                     .padding(vertical = 12.dp)
                     .clickable {
-                        viewModel.addTaskPart("")
+                        viewModel.addTaskPart()
                     }
             ) {
                 Icon(imageVector = Icons.Filled.Add,
@@ -191,7 +191,7 @@ fun NewTaskScreen(navigator: DestinationsNavigator?,
                         options = mapOf(0 to "yes", 1 to "no"),
                         selected = if(uiState.isAllDay) 0 else 1,
                         onSelectChanged = {
-                            viewModel.updateIsAllDay(it == 0)
+                            uiState.isAllDay = (it == 0)
                         }
                     )
                 }
@@ -225,7 +225,7 @@ fun NewTaskScreen(navigator: DestinationsNavigator?,
                                     .clickable {
                                         showTimePicker(
                                             mContext,
-                                            calendarUtility.getCurrentDate()
+                                            uiState.startDate
                                         ) { date ->
                                             viewModel.updateStartHour(date)
                                         }
@@ -256,7 +256,7 @@ fun NewTaskScreen(navigator: DestinationsNavigator?,
                                     .clickable {
                                         showTimePicker(
                                             mContext,
-                                            calendarUtility.getCurrentDate()
+                                            uiState.endDate
                                         ) { date ->
                                             viewModel.updateEndHour(date)
                                         }
@@ -388,12 +388,13 @@ fun NewTaskScreen(navigator: DestinationsNavigator?,
                 )
             }
         }
-        if(uiState.isDateSent != null && uiState.isDateSent){
+        if(uiState.isDateSent != null && uiState.isDateSent!!){
             navigator?.popBackStack()
         }
+
         if(uiState.taskErrorMessage != null){
-            ErrorDialog(title = stringResource(id = R.string.error), errorText = uiState.taskErrorMessage) {
-                viewModel.clearError()
+            ErrorDialog(title = stringResource(id = R.string.error), errorText = uiState.taskErrorMessage!!) {
+                uiState.taskErrorMessage = null
             }
         }
     }
@@ -401,7 +402,7 @@ fun NewTaskScreen(navigator: DestinationsNavigator?,
 
 @Preview(showBackground = true, backgroundColor = 0xF0F0F0)
 @Composable
-private fun PreviewNewTaskScreen(){
+private fun NewTaskScreenPreview(){
     CustomJetpackComposeTheme{
         NewTaskScreen(navigator = null, "", TaskModel())
     }
