@@ -15,12 +15,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -35,7 +37,9 @@ fun CustomImage(
     size: DpSize,
     placeholder: Painter,
     modifier: Modifier = Modifier,
-    editable: Boolean = false
+    editable: Boolean = false,
+    backgroundColor: Color = CustomThemeManager.colors.cardBackgroundColor.copy(alpha = 0.8f),
+    imageResize: Dp = 25.dp
 ){
     var showCircleBackground by remember{ mutableStateOf(true) }
     
@@ -45,10 +49,10 @@ fun CustomImage(
     ) {
         if(showCircleBackground){
             Box(
-                modifier = modifier
+                modifier = Modifier
                     .fillMaxSize()
                     .clip(CircleShape)
-                    .background(CustomThemeManager.colors.cardBackgroundColor.copy(alpha = 0.8f))
+                    .background(backgroundColor)
             )
         }
         
@@ -90,7 +94,7 @@ fun CustomImage(
                 .align(Alignment.Center)
                 .size(
                     if (showCircleBackground)
-                        size.copy(size.width - 25.dp, size.height - 25.dp)
+                        size.copy(size.width - imageResize, size.height - imageResize)
                     else
                         size
                 )

@@ -19,18 +19,21 @@ import dev.rejfin.todoit.models.SmallUserModel
 import java.util.*
 
 class GroupsViewModel : ViewModel() {
+    /** ui related variables */
     val groupList = mutableStateListOf<GroupModel>()
     private val userGroupList = mutableMapOf<String, Map<String,String>>()
     var errorState by mutableStateOf<String?>(null)
     var isLoadingData by mutableStateOf(false)
 
+    /** firebase related variables */
+    private val firebaseAuth = Firebase.auth
     private val database = Firebase.database
     private val storage = FirebaseStorage.getInstance()
     private val dbGroupRef = database.getReference("groups")
     private val dbUsersRef = database.getReference("users")
-    private val firebaseAuth = Firebase.auth
     private val storageRef = storage.getReference("groups")
 
+    /** at start download information about group that user is member of */
     init {
         isLoadingData = true
         dbUsersRef.child(firebaseAuth.uid!!).child("groups").addValueEventListener(
@@ -56,6 +59,7 @@ class GroupsViewModel : ViewModel() {
         )
     }
 
+    /** download information about group with passed id */
     fun getGroup(groupId: String){
         dbGroupRef.child(groupId).addListenerForSingleValueEvent(
             object: ValueEventListener{
@@ -76,11 +80,12 @@ class GroupsViewModel : ViewModel() {
         )
     }
 
+    /** function sends image to firebase storage and returns link to it by callback */
     private fun sendImage(image:Uri, groupId: String, callback: (imageUrl:String?) -> Unit){
         val ref = storageRef.child(groupId)
         val uploadTask = ref.putFile(image)
 
-        val urlTask = uploadTask.continueWithTask { task ->
+        uploadTask.continueWithTask { task ->
             if (!task.isSuccessful) {
                 callback(null)
             }
@@ -94,6 +99,7 @@ class GroupsViewModel : ViewModel() {
         }
     }
 
+    /** function create new group, that user who create is owner */
     fun createNewGroup(name:String, description: String, image: Uri){
         val groupId = UUID.randomUUID().toString()
         sendImage(image, groupId){ imageUrl ->

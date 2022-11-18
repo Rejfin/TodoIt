@@ -13,10 +13,10 @@ import com.google.common.hash.Hashing
 import dev.rejfin.todoit.models.TaskModel
 
 class TaskNotificationManager {
-    fun setAlarm(context: Context, task: TaskModel) {
+    fun setAlarm(context: Context, task: TaskModel, groupName: String? = null) {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            createNotificationChannel(context)
+            createNotificationChannel(context, groupName)
         }
 
         val pref = context.getSharedPreferences("TodoItPref", ComponentActivity.MODE_PRIVATE)
@@ -47,10 +47,10 @@ class TaskNotificationManager {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun createNotificationChannel(context: Context) {
+    private fun createNotificationChannel(context: Context, groupName: String? = null) {
         val importance = NotificationManager.IMPORTANCE_HIGH
-        val channel = NotificationChannel("todoit", "User Tasks Notification", importance).apply {
-            description = "Notification for Tasks in user private list"
+        val channel = NotificationChannel("todoit", groupName ?: "User Tasks Notification", importance).apply {
+            description = if(groupName != null) "Notification for tasks from group: $groupName" else "Notification for Tasks in user private list"
         }
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)

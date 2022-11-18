@@ -110,6 +110,6 @@ fun GroupsScreen(navigator: DestinationsNavigator?, viewModel: GroupsViewModel =
 
 @Preview
 @Composable
-fun GroupsScreen_Preview(){
+fun GroupsScreenPreview(){
     GroupsScreen(navigator = null)
 }

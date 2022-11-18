@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.ServerValue
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.getValue
 import com.google.firebase.storage.FirebaseStorage
@@ -14,13 +13,13 @@ import dev.rejfin.todoit.models.*
 import dev.rejfin.todoit.models.states.BaseTaskUiState
 import dev.rejfin.todoit.models.states.GroupDetailUiState
 import kotlinx.coroutines.launch
-import okhttp3.internal.wait
 import java.util.*
 
 class GroupDetailViewModel : BaseTaskManagerViewModel() {
     private val storage = FirebaseStorage.getInstance()
     private val storageRef = storage.getReference("groups")
     private val _uiState by mutableStateOf(GroupDetailUiState())
+
     val uiState: GroupDetailUiState
         get() = _uiState
 

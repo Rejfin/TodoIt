@@ -226,11 +226,11 @@ abstract class BaseTaskManagerViewModel: ViewModel() {
      * function will either create a new notification
      * or delete an existing one if exists
      */
-    fun setNotification(context: Context, task: TaskModel){
+    fun setNotification(context: Context, task: TaskModel, groupName: String?=null){
         if(taskNotificationManager.isAlarmExisting(context, task)){
             taskNotificationManager.removeAlarm(context, task)
         }else{
-            taskNotificationManager.setAlarm(context, task)
+            taskNotificationManager.setAlarm(context, task, groupName)
         }
     }
 }

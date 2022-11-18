@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
@@ -20,24 +19,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.rejfin.todoit.viewmodels.GroupDetailViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.ramcosta.composedestinations.navigation.popUpTo
 import dev.rejfin.todoit.R
 import dev.rejfin.todoit.models.TaskModel
 import dev.rejfin.todoit.ui.components.Calendar
+import dev.rejfin.todoit.ui.components.CustomImage
 import dev.rejfin.todoit.ui.components.TaskCard
 import dev.rejfin.todoit.ui.dialogs.EditGroupDialog
 import dev.rejfin.todoit.ui.dialogs.ErrorDialog
@@ -55,6 +53,7 @@ fun GroupDetailsScreen(
     viewModel: GroupDetailViewModel = viewModel()
 ) {
     val uiState = viewModel.uiState
+    val mContext = LocalContext.current
 
     var confirmationDeleteDialog by remember { mutableStateOf(false) }
     var taskToRemove by remember { mutableStateOf<TaskModel?>(null) }
@@ -80,19 +79,14 @@ fun GroupDetailsScreen(
                         viewModel.showGroupDetails()
                     }
             ) {
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(uiState.groupData.imageUrl)
-                        .crossfade(true)
-                        .build(),
-                    placeholder = rememberVectorPainter(Icons.Filled.Group),
+                CustomImage(
+                    imageUrl = uiState.groupData.imageUrl,
                     contentDescription = uiState.groupData.name,
-                    contentScale = ContentScale.Crop,
-                    error = rememberVectorPainter(Icons.Filled.Group),
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .clip(CircleShape)
-                        .size(50.dp, 50.dp)
+                    size = DpSize(50.dp, 50.dp),
+                    placeholder = rememberVectorPainter(Icons.Filled.Group),
+                    backgroundColor = CustomThemeManager.colors.appBackground,
+                    imageResize = 12.dp,
+                    modifier = Modifier.padding(8.dp)
                 )
                 Column(
                     verticalArrangement = Arrangement.Center,
@@ -113,22 +107,20 @@ fun GroupDetailsScreen(
                             .fillMaxWidth()
                             .padding(top = 2.dp)
                     ) {
-                        uiState.groupData.membersList.forEach { member ->
-                            AsyncImage(
-                                model = ImageRequest.Builder(LocalContext.current)
-                                    .data(member.value.imageUrl)
-                                    .crossfade(true)
-                                    .build(),
-                                placeholder = rememberVectorPainter(Icons.Filled.Person),
-                                contentDescription = member.value.displayName,
-                                contentScale = ContentScale.Crop,
-                                error = rememberVectorPainter(Icons.Filled.Person),
-                                modifier = Modifier
-                                    .padding(end = 8.dp)
-                                    .clip(CircleShape)
-                                    .size(20.dp, 20.dp)
-                                    .background(CustomThemeManager.colors.textColorThird)
-                            )
+                        uiState.groupData.membersList.onEachIndexed { index, member ->
+                            if(index < 5){
+                                CustomImage(
+                                    imageUrl = member.value.imageUrl,
+                                    contentDescription = member.value.displayName,
+                                    size = DpSize(20.dp, 20.dp),
+                                    placeholder = rememberVectorPainter(Icons.Filled.Person),
+                                    backgroundColor = CustomThemeManager.colors.appBackground,
+                                    imageResize = 1.dp,
+                                    modifier = Modifier.padding(end = 4.dp)
+                                )
+                            }else{
+                                Text("+${uiState.groupData.membersList.size - 5}")
+                            }
                         }
 
                     }
@@ -178,6 +170,8 @@ fun GroupDetailsScreen(
                             }, onRemoveClick = {
                                 taskToRemove = it
                                 confirmationDeleteDialog = true
+                            }, onBellClick = {
+                                viewModel.setNotification(mContext, it, uiState.groupData.name)
                             })
                     }
                 }

@@ -2,7 +2,6 @@ package dev.rejfin.todoit.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -12,13 +11,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import dev.rejfin.todoit.models.GroupModel
 import dev.rejfin.todoit.ui.theme.CustomThemeManager
 
@@ -32,18 +28,13 @@ fun GroupListEntry(groupModel: GroupModel, modifier: Modifier = Modifier){
             .padding(8.dp)
 
     ){
-        AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(groupModel.imageUrl)
-                .crossfade(true)
-                .build(),
-            placeholder = rememberVectorPainter(Icons.Filled.Group),
+        CustomImage(
+            imageUrl = groupModel.imageUrl,
             contentDescription = groupModel.name,
-            contentScale = ContentScale.Crop,
-            error = rememberVectorPainter(Icons.Filled.Group),
-            modifier = Modifier
-                .clip(CircleShape)
-                .size(50.dp, 50.dp)
+            size = DpSize(50.dp, 50.dp),
+            placeholder = rememberVectorPainter(Icons.Filled.Group),
+            backgroundColor = CustomThemeManager.colors.appBackground,
+            imageResize = 12.dp
         )
         Column(verticalArrangement = Arrangement.Center,
             modifier = Modifier
@@ -66,7 +57,7 @@ fun GroupListEntry(groupModel: GroupModel, modifier: Modifier = Modifier){
 
 @Preview
 @Composable
-fun GroupListEntry_Preview(){
+fun GroupListEntryPreview(){
     GroupListEntry(
         GroupModel("asdasd","test group", "short description of group", "asdasd","https://cdn.dribbble.com/userupload/3158902/file/original-7c71bfa677e61dea61bc2acd59158d32.jpg")
     )
