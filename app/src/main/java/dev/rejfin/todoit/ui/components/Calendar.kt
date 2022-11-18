@@ -73,7 +73,7 @@ fun Calendar(listOfDays: List<CalendarDay>, onDayClick:(clickedDayDate: CustomDa
                 }
 
 
-                if(calendarDay.numberOfTasks > 0){
+                if(calendarDay.numberOfTasks > 0 && calendarUtility.areDateSame(calendarUtility.getCurrentDate(), calendarDay.date)){
                     Box(
                         modifier = Modifier
                             .padding(top = 4.dp, bottom = 4.dp)

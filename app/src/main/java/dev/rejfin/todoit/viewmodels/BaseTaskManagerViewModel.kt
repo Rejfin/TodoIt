@@ -166,6 +166,7 @@ abstract class BaseTaskManagerViewModel: ViewModel() {
         getBaseUiState().showDetailsDialog = false
     }
 
+    /** Function will mark task as done and update user stats who end it */
     fun markTaskAsDone(task: TaskModel){
         val parts = task.taskParts.map { it.copy(status = true) }
         val mTask = task.copy(done = true, taskParts = parts)
@@ -188,6 +189,11 @@ abstract class BaseTaskManagerViewModel: ViewModel() {
         }
     }
 
+    /**
+     * First function will check if this task can be done by logged user
+     * then it will determine if this is group or user task
+     * at the end it will set the task part to completed or not ( depending on the previous state)
+     */
     fun taskPartsUpdate(task: TaskModel){
         if(task.done || (task.lockedByUserId != null && task.lockedByUserId != getBaseUiState().userId)){
             return
@@ -198,6 +204,10 @@ abstract class BaseTaskManagerViewModel: ViewModel() {
             "/tasks/$id/${task.timestamp}/${task.id}/taskParts" to task.taskParts,
         )
 
+        /**
+         * if at least one task part is done set it to locked
+         * only user who start doing this task will be able to finish it
+         */
         if(task.taskParts.any { it.status } && getBaseUiState().groupId != null){
             childToUpdate["tasks/$id/${task.timestamp}/${task.id}/lockedByUserId"] = getBaseUiState().userId
         }else{
@@ -212,8 +222,11 @@ abstract class BaseTaskManagerViewModel: ViewModel() {
         database.reference.updateChildren(childToUpdate)
     }
 
+    /**
+     * function will either create a new notification
+     * or delete an existing one if exists
+     */
     fun setNotification(context: Context, task: TaskModel){
-        //val pref = context.getSharedPreferences("TodoItPref", ComponentActivity.MODE_PRIVATE)
         if(taskNotificationManager.isAlarmExisting(context, task)){
             taskNotificationManager.removeAlarm(context, task)
         }else{

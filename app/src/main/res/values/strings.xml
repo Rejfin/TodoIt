@@ -91,4 +91,9 @@
     <string name="send_feedback">Send feedback</string>
     <string name="feedback_settings_desc">Report technical issues or suggest new feature</string>
     <string name="edit_photo">Edit photo</string>
+    <string name="dont_have_plans">You don\'t have any plans for today</string>
+    <string name="task_time">task time</string>
+    <string name="task_undone">task undone</string>
+    <string name="task_done">task done</string>
+    <string name="task_locked">task locked</string>
 </resources>

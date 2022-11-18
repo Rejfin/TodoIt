@@ -7,7 +7,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
-import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -18,7 +17,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import dev.rejfin.todoit.R
 import dev.rejfin.todoit.models.NotificationModel
-import dev.rejfin.todoit.models.NotificationType
 import dev.rejfin.todoit.models.TaskModel
 import dev.rejfin.todoit.ui.theme.CustomThemeManager
 
@@ -74,10 +72,10 @@ fun NotificationListDialog(notificationList: List<NotificationModel>, onNotifica
 fun NotificationList_Preview(){
     NotificationListDialog(
         listOf(
-            NotificationModel("asd", NotificationType.INVITATION, "testasdasd", null),
-            NotificationModel("a23sd", NotificationType.INVITATION, "testasdasd", null),
-            NotificationModel("asr4d", NotificationType.INVITATION, "testasdasd", null),
-            NotificationModel("as32d", NotificationType.INVITATION, "testasdasd", null)
+            NotificationModel("asd", "testasdasd", ""),
+            NotificationModel("a23sd",  "testasdasd", "null"),
+            NotificationModel("asr4d",  "testasdasd", "null"),
+            NotificationModel("as32d",  "testasdasd", "null")
         ),
         onNotificationClick = {},
         onClose = {}

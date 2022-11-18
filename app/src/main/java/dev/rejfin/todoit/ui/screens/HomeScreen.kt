@@ -62,7 +62,7 @@ fun HomeScreen(navigator: DestinationsNavigator?, viewModel: HomeViewModel = vie
                     .fillMaxWidth()
                     .padding(8.dp)
                     .clip(RoundedCornerShape(8.dp))
-                    .background(Color.White)
+                    .background(CustomThemeManager.colors.cardBackgroundColor)
             ) {
                 Text(
                     text = stringResource(id = R.string.welcome, uiState.loggedUserDisplayName),
@@ -72,11 +72,13 @@ fun HomeScreen(navigator: DestinationsNavigator?, viewModel: HomeViewModel = vie
                     modifier = Modifier.padding(8.dp, 8.dp, 8.dp, 0.dp)
                 )
                 Text(
-                    text = stringResource(
-                        id = R.string.done_tasks,
-                        uiState.numberOfDoneTask,
-                        uiState.numberOfAllTasks
-                    ),
+                    text = if(uiState.numberOfAllTasks > 0)
+                        stringResource(id = R.string.done_tasks,
+                            uiState.numberOfDoneTask,
+                            uiState.numberOfAllTasks
+                        )
+                    else
+                        stringResource(id = R.string.dont_have_plans),
                     color = CustomThemeManager.colors.textColorSecond,
                     modifier = Modifier.padding(8.dp, 0.dp, 8.dp, 8.dp)
                 )
@@ -201,6 +203,6 @@ fun HomeScreen(navigator: DestinationsNavigator?, viewModel: HomeViewModel = vie
 
 @Preview(showBackground = true)
 @Composable
-fun HomePreview() {
+fun HomeScreenPreview() {
     HomeScreen(navigator = null)
 }

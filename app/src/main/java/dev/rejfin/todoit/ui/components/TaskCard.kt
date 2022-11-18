@@ -21,7 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -59,12 +58,12 @@ fun TaskCard(task: TaskModel,
             clip = true
         )
         .clip(RoundedCornerShape(8.dp))
-        .background(Color.White)
+        .background(CustomThemeManager.colors.cardBackgroundColor)
     ) {
         Row(verticalAlignment = Alignment.Top,
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxWidth()) {
-            Column() {
+            Column{
                 Text(text = task.title,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
@@ -78,11 +77,11 @@ fun TaskCard(task: TaskModel,
                     style = if(task.taskParts.all { it.status } && task.done) TextStyle(textDecoration = TextDecoration.LineThrough) else TextStyle.Default
                 )
             }
-            Row(){
+            Row{
                 if(task.lockedByUserId != null && task.lockedByUserId != userId){
                     Icon(
                         imageVector = Icons.Default.Lock,
-                        contentDescription = "task locked",
+                        contentDescription = stringResource(id = R.string.task_locked),
                         tint = CustomThemeManager.colors.textColorThird,
                         modifier = Modifier.padding(top = 11.dp)
                     )
@@ -101,14 +100,14 @@ fun TaskCard(task: TaskModel,
                     Row(modifier = Modifier.fillMaxWidth()) {
                         if (pair.status) {
                             Icon(imageVector = Icons.Filled.CheckCircle,
-                                contentDescription = "task done",
+                                contentDescription = stringResource(id = R.string.task_done),
                                 modifier = Modifier.size(20.dp),
                                 tint = if (task.taskParts.all { it.status } && task.done) CustomThemeManager.colors.textColorSecond else CustomThemeManager.colors.doneColor
                             )
                         } else {
                             Icon(
                                 imageVector = Icons.Outlined.Circle,
-                                contentDescription = "task undone",
+                                contentDescription = stringResource(id = R.string.task_undone),
                                 modifier = Modifier.size(20.dp),
                                 tint = CustomThemeManager.colors.primaryColor
                             )
@@ -124,7 +123,7 @@ fun TaskCard(task: TaskModel,
                 LinearProgressIndicator(
                     progress = task.taskParts.count { it.status } * 1f / task.taskParts.size,
                     color = if (task.taskParts.all { it.status } && task.done) CustomThemeManager.colors.textColorThird else CustomThemeManager.colors.primaryColor,
-                    backgroundColor = CustomThemeManager.colors.textColorThird,
+                    backgroundColor = CustomThemeManager.colors.primaryColor.copy(alpha = 0.3f),
                     modifier = Modifier
                         .padding(top = 8.dp)
                         .height(10.dp)
@@ -152,7 +151,7 @@ fun TaskCard(task: TaskModel,
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Notifications,
-                        contentDescription = "task time",
+                        contentDescription = stringResource(id = R.string.task_time),
                         tint = bellTint,
                     )
                     Text(text = "${String.format("%02d",task.startDate.hour)}:${String.format("%02d",task.startDate.minutes)} - ${String.format("%02d",task.endDate.hour)}:${String.format("%02d",task.endDate.minutes)}",
@@ -161,7 +160,7 @@ fun TaskCard(task: TaskModel,
                     )
                 }
             }else{
-                Box(){}
+                Box{}
             }
             Text(
                 text = "${task.xpForTask} xp",

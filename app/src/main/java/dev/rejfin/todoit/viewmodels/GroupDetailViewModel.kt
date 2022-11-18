@@ -79,9 +79,8 @@ class GroupDetailViewModel : BaseTaskManagerViewModel() {
                 notifyDbRef.child(userId["userId"].toString()).child(notifyId).setValue(
                     NotificationModel(
                         id = notifyId,
-                        NotificationType.INVITATION,
                         "Invitation to group: \"${_uiState.groupData.name}\"",
-                        mapOf("groupId" to _uiState.groupId!!)
+                        _uiState.groupId!!
                     )
                 )
                 _uiState.infoMessage = "Invitation has been sent"
