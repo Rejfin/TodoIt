@@ -27,12 +27,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.rejfin.todoit.viewmodels.NewTaskViewModel
 import dev.rejfin.todoit.R
 import dev.rejfin.todoit.ui.components.InputField
 import dev.rejfin.todoit.ui.theme.CustomJetpackComposeTheme
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.ramcosta.composedestinations.result.ResultBackNavigator
 import dev.rejfin.todoit.models.CustomDateFormat
 import dev.rejfin.todoit.models.TaskModel
 import dev.rejfin.todoit.ui.components.ButtonRadioGroup
@@ -42,7 +42,7 @@ import dev.rejfin.todoit.ui.theme.CustomThemeManager
 
 @Destination
 @Composable
-fun NewTaskScreen(navigator: DestinationsNavigator?,
+fun NewTaskScreen(resultNavigator: ResultBackNavigator<TaskModel>?,
                   userOrGroupId:String?,
                   taskToEdit: TaskModel? = null,
                   viewModel: NewTaskViewModel = viewModel()
@@ -341,7 +341,7 @@ fun NewTaskScreen(navigator: DestinationsNavigator?,
             ){
                 Button(
                     onClick = {
-                        navigator?.popBackStack()
+                        resultNavigator?.navigateBack()
                     },
                     modifier = Modifier
                         .weight(1f)
@@ -389,7 +389,7 @@ fun NewTaskScreen(navigator: DestinationsNavigator?,
             }
         }
         if(uiState.isDateSent != null && uiState.isDateSent!!){
-            navigator?.popBackStack()
+            resultNavigator?.navigateBack(result = viewModel.readyTaskModel)
         }
 
         if(uiState.taskErrorMessage != null){
@@ -404,7 +404,7 @@ fun NewTaskScreen(navigator: DestinationsNavigator?,
 @Composable
 private fun NewTaskScreenPreview(){
     CustomJetpackComposeTheme{
-        NewTaskScreen(navigator = null, "", TaskModel())
+        NewTaskScreen(resultNavigator = null, "", TaskModel())
     }
 }
 

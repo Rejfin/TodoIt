@@ -32,6 +32,8 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.rejfin.todoit.viewmodels.GroupDetailViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ramcosta.composedestinations.navigation.popUpTo
+import com.ramcosta.composedestinations.result.NavResult
+import com.ramcosta.composedestinations.result.ResultRecipient
 import dev.rejfin.todoit.R
 import dev.rejfin.todoit.models.TaskModel
 import dev.rejfin.todoit.ui.components.Calendar
@@ -49,9 +51,16 @@ import dev.rejfin.todoit.ui.theme.CustomThemeManager
 @Composable
 fun GroupDetailsScreen(
     navigator: DestinationsNavigator?,
+    resultRecipient: ResultRecipient<NewTaskScreenDestination, TaskModel>?,
     groupId: String,
     viewModel: GroupDetailViewModel = viewModel()
 ) {
+    resultRecipient?.onNavResult { result ->
+        if(result is NavResult.Value){
+            viewModel.uiState.taskToShowDetails = result.value
+        }
+    }
+
     val uiState = viewModel.uiState
     val mContext = LocalContext.current
 

@@ -41,6 +41,10 @@ class GroupDetailViewModel : BaseTaskManagerViewModel() {
                     _uiState.isDataLoading = false
                 }
             }
+        }else if(_uiState.groupData.name.isEmpty()){
+            viewModelScope.launch {
+                getInfoAboutGroup()
+            }
         }
     }
 

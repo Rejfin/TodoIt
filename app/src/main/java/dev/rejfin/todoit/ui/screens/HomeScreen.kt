@@ -31,6 +31,8 @@ import dev.rejfin.todoit.viewmodels.HomeViewModel
 import dev.rejfin.todoit.ui.components.Calendar
 import dev.rejfin.todoit.ui.theme.CustomThemeManager
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.ramcosta.composedestinations.result.NavResult
+import com.ramcosta.composedestinations.result.ResultRecipient
 import dev.rejfin.todoit.R
 import dev.rejfin.todoit.models.states.HomeUiState
 import dev.rejfin.todoit.ui.components.TaskCard
@@ -42,7 +44,17 @@ import dev.rejfin.todoit.ui.screens.destinations.NewTaskScreenDestination
 
 @Destination
 @Composable
-fun HomeScreen(navigator: DestinationsNavigator?, viewModel: HomeViewModel = viewModel()) {
+fun HomeScreen(
+    navigator: DestinationsNavigator?,
+    resultRecipient: ResultRecipient<NewTaskScreenDestination, TaskModel>?,
+    viewModel: HomeViewModel = viewModel()
+) {
+    resultRecipient?.onNavResult { result ->
+        if(result is NavResult.Value){
+            viewModel.uiState.taskToShowDetails = result.value
+        }
+    }
+
     val uiState: HomeUiState = viewModel.uiState
 
     var confirmationDeleteDialog by remember { mutableStateOf(false) }
@@ -204,5 +216,5 @@ fun HomeScreen(navigator: DestinationsNavigator?, viewModel: HomeViewModel = vie
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenPreview() {
-    HomeScreen(navigator = null)
+    HomeScreen(navigator = null, null)
 }

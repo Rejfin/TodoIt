@@ -22,6 +22,8 @@ class NewTaskViewModel: ViewModel() {
     var calendarUtility: CalendarUtility
         private set
 
+    var readyTaskModel: TaskModel = TaskModel()
+
     private val database = Firebase.database
     private val auth = FirebaseAuth.getInstance()
     private lateinit var userOrGroupId: String
@@ -238,6 +240,7 @@ class NewTaskViewModel: ViewModel() {
 
         database.reference.updateChildren(childToUpdate).addOnCompleteListener {
             taskUiState = if(it.isSuccessful){
+                readyTaskModel = taskModel
                 taskUiState.apply {
                     isDataSending = false
                     isDateSent = true
