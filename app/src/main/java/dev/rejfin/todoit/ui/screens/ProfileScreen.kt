@@ -49,7 +49,6 @@ import dev.rejfin.todoit.ui.theme.CustomJetpackComposeTheme
 fun ProfileScreen(navigator: DestinationsNavigator?, viewModel: ProfileViewModel = viewModel()){
     val uiState = viewModel.uiState
     val mContext = LocalContext.current
-    val nickMessage by remember { mutableStateOf(mContext.getString(R.string.user_nick_dialog_text, uiState.userData.nick)) }
 
     Column(horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -76,7 +75,7 @@ fun ProfileScreen(navigator: DestinationsNavigator?, viewModel: ProfileViewModel
                     Icon(Icons.Default.Notifications, stringResource(id = R.string.notification))
                 }
                 IconButton(onClick = {
-                    uiState.infoMessage = nickMessage
+                    uiState.infoMessage = mContext.getString(R.string.user_nick_dialog_text, uiState.userData.nick)
                 }) {
                     Icon(Icons.Default.Share, stringResource(id = R.string.share_profile))
                 }

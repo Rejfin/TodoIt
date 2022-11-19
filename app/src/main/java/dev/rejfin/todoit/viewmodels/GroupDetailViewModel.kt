@@ -95,7 +95,7 @@ class GroupDetailViewModel : BaseTaskManagerViewModel() {
 
     /** update group info ex. group name, description and group photo */
     fun updateGroupInfo(name:String, description:String, imageUri: Uri?, groupData: GroupModel){
-        if(groupData.name != name || groupData.desc != description){
+        if(groupData.name != name || groupData.desc != description || (imageUri != null && groupData.imageUrl != imageUri.toString())){
             val childToUpdate = mutableMapOf<String, Any?>(
                 "/groups/${groupData.id}/desc" to description,
                 "/groups/${groupData.id}/name" to name,
@@ -147,6 +147,8 @@ class GroupDetailViewModel : BaseTaskManagerViewModel() {
             if(uiState.groupData.membersList.size == 1){
                 childToUpdate["/groups/${_uiState.groupData.id}"] = null
                 childToUpdate["/tasks/${_uiState.groupData.id}"] = null
+
+                storageRef.child(_uiState.groupData.id).delete()
             }else{
                 childToUpdate["/groups/${_uiState.groupData.id}/membersList/${user.id}"] = null
             }

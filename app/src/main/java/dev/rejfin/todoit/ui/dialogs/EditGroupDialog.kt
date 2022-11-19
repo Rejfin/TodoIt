@@ -41,7 +41,7 @@ import dev.rejfin.todoit.ui.theme.CustomThemeManager
 fun EditGroupDialog(
     groupData: GroupModel,
     userId: String,
-    onSaveClick: (name: String, description: String, image: Uri) -> Unit,
+    onSaveClick: (name: String, description: String, image: Uri?) -> Unit,
     onCloseClick: () -> Unit,
     sendRequestToUser: (nick: String) -> Unit = {},
     onUserLeaveGroup: (SmallUserModel) -> Unit = {}
@@ -102,7 +102,7 @@ fun EditGroupDialog(
             }
             groupName = editedGroupName
             groupDesc = editedGroupDesc
-            onSaveClick(editedGroupName, editedGroupDesc, selectedImage as Uri)
+            onSaveClick(editedGroupName, editedGroupDesc, selectedImage as Uri?)
             editModeChange()
         }
     }

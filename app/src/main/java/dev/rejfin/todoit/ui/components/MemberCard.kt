@@ -68,7 +68,14 @@ fun MemberCard(memberData: SmallUserModel,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-            if(memberData.id == groupOwnerId){
+            if(memberData.id == currentUserId){
+                Text(text = if(memberData.id == groupOwnerId) "You, owner of group" else "You",
+                    color = CustomThemeManager.colors.textColorSecond,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    fontSize = 14.sp
+                )
+            } else if(memberData.id == groupOwnerId){
                 Text(text = "Owner of group",
                     color = CustomThemeManager.colors.textColorSecond,
                     maxLines = 1,
