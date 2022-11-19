@@ -96,4 +96,6 @@
     <string name="task_undone">task undone</string>
     <string name="task_done">task done</string>
     <string name="task_locked">task locked</string>
+    <string name="join_group_message">Are  you sure you want to join group %1$s</string>
+    <string name="invitation_to">Invitation from group: \'%1$s\'</string>
 </resources>

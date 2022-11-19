@@ -1,5 +1,7 @@
 package dev.rejfin.todoit.ui.screens
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -34,6 +36,7 @@ import dev.rejfin.todoit.ui.theme.CustomThemeManager
 import dev.rejfin.todoit.viewmodels.ProfileViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ramcosta.composedestinations.navigation.popUpTo
+import dev.rejfin.todoit.models.InvitationModel
 import dev.rejfin.todoit.models.TrophyModel
 import dev.rejfin.todoit.ui.components.CustomImage
 import dev.rejfin.todoit.ui.components.TrophyCard
@@ -49,6 +52,16 @@ import dev.rejfin.todoit.ui.theme.CustomJetpackComposeTheme
 fun ProfileScreen(navigator: DestinationsNavigator?, viewModel: ProfileViewModel = viewModel()){
     val uiState = viewModel.uiState
     val mContext = LocalContext.current
+    var showDialogDecision by remember { mutableStateOf(false) }
+    var invitationModel by remember { mutableStateOf<InvitationModel?>(null) }
+
+    val galleryLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            if(uri != null){
+                uiState.userData = uiState.userData.copy(imageUrl = uri.toString())
+                viewModel.setUserImage(uri)
+            }
+        }
 
     Column(horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -91,7 +104,11 @@ fun ProfileScreen(navigator: DestinationsNavigator?, viewModel: ProfileViewModel
             imageUrl = uiState.userData.imageUrl,
             contentDescription = uiState.userData.displayName,
             size = DpSize(120.dp, 120.dp),
-            placeholder = rememberVectorPainter(Icons.Filled.Person)
+            placeholder = rememberVectorPainter(Icons.Filled.Person),
+            editable = true,
+            onEditClick = {
+                galleryLauncher.launch("image/*")
+            }
         )
 
         Text(
@@ -140,11 +157,28 @@ fun ProfileScreen(navigator: DestinationsNavigator?, viewModel: ProfileViewModel
     if(uiState.showNotificationListDialog){
         NotificationListDialog(notificationList = uiState.notificationList,
             onNotificationClick = {
-                viewModel.joinGroup(it.groupId, it.id)
+                invitationModel = it
+                showDialogDecision = true
             }
         ) {
             uiState.showNotificationListDialog = false
         }
+    }
+
+    if(showDialogDecision){
+        InfoDialog(
+            title = "Are you sure",
+            infoText = stringResource(id = R.string.join_group_message, invitationModel!!.groupName),
+            onConfirm = {
+                viewModel.joinGroup(invitationModel!!.groupId, invitationModel!!.id)
+                showDialogDecision = false
+            },
+            onCancel = {
+                viewModel.joinGroup(null, invitationModel!!.id)
+                showDialogDecision = false
+            },
+            isDecisionDialog = true
+        )
     }
 
     if(uiState.showLoadingDialog){

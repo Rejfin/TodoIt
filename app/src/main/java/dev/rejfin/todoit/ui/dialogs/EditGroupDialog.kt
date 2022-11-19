@@ -168,7 +168,7 @@ fun EditGroupDialog(
                         verticalArrangement = Arrangement.spacedBy(6.dp),
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        items(items = groupData.membersList.values.toList(),
+                        items(items = groupData.memList.values.toList(),
                             key = { member -> member.id },
                             contentType = { TaskModel::class.java }
                         )
@@ -177,7 +177,7 @@ fun EditGroupDialog(
                                 memberData = member,
                                 currentUserId = userId,
                                 groupOwnerId = groupData.ownerId,
-                                groupMemberCount = groupData.membersList.size,
+                                groupMemberCount = groupData.memList.size,
                                 onLeaveGroup = {
                                     userToRemoveFromGroup = it
                                     confirmLeaveDialog = true
@@ -298,7 +298,7 @@ fun EditGroupDialog(
     if(confirmLeaveDialog){
         InfoDialog(
             title = stringResource(id = R.string.leave_group),
-            infoText = if(groupData.membersList.size == 1) stringResource(id = R.string.leave_group_text_last, groupData.name) else stringResource(id = R.string.leave_group_text, groupData.name),
+            infoText = if(groupData.memList.size == 1) stringResource(id = R.string.leave_group_text_last, groupData.name) else stringResource(id = R.string.leave_group_text, groupData.name),
             isDecisionDialog = true,
             onConfirm = {
                 onUserLeaveGroup(userToRemoveFromGroup!!)
@@ -341,7 +341,7 @@ fun EditGroupDialog_Preview() {
             "asdasddsf  sdf sd",
             "asdasd",
             "asdsdfsdf",
-            mapOf(
+            mutableMapOf(
                 "asdasd" to SmallUserModel("asdasd", "test", null),
                 "asdasd" to SmallUserModel("asdasd", "test", null),
                 "asdasd" to SmallUserModel("asdasd", "test", null),

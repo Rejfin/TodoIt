@@ -16,12 +16,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import dev.rejfin.todoit.R
-import dev.rejfin.todoit.models.NotificationModel
+import dev.rejfin.todoit.models.InvitationModel
 import dev.rejfin.todoit.models.TaskModel
 import dev.rejfin.todoit.ui.theme.CustomThemeManager
 
 @Composable
-fun NotificationListDialog(notificationList: List<NotificationModel>, onNotificationClick: (NotificationModel) -> Unit, onClose: () -> Unit){
+fun NotificationListDialog(notificationList: List<InvitationModel>, onNotificationClick: (InvitationModel) -> Unit, onClose: () -> Unit){
     AlertDialog(
         properties = DialogProperties(
             dismissOnClickOutside = true,
@@ -48,7 +48,7 @@ fun NotificationListDialog(notificationList: List<NotificationModel>, onNotifica
                     )
                     {notification ->
                         Text(
-                            text = notification.text,
+                            text = stringResource(id = R.string.invitation_to, notification.groupName),
                             modifier = Modifier
                                 .padding(8.dp)
                                 .clip(RoundedCornerShape(8.dp))
@@ -72,10 +72,10 @@ fun NotificationListDialog(notificationList: List<NotificationModel>, onNotifica
 fun NotificationList_Preview(){
     NotificationListDialog(
         listOf(
-            NotificationModel("asd", "testasdasd", ""),
-            NotificationModel("a23sd",  "testasdasd", "null"),
-            NotificationModel("asr4d",  "testasdasd", "null"),
-            NotificationModel("as32d",  "testasdasd", "null")
+            InvitationModel("asd", "testasdasd", ""),
+            InvitationModel("a23sd",  "testasdasd", "null"),
+            InvitationModel("asr4d",  "testasdasd", "null"),
+            InvitationModel("as32d",  "testasdasd", "null")
         ),
         onNotificationClick = {},
         onClose = {}

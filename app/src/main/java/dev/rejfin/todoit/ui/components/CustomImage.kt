@@ -2,6 +2,7 @@ package dev.rejfin.todoit.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
@@ -25,6 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import dev.rejfin.todoit.R
@@ -39,13 +41,17 @@ fun CustomImage(
     modifier: Modifier = Modifier,
     editable: Boolean = false,
     backgroundColor: Color = CustomThemeManager.colors.cardBackgroundColor.copy(alpha = 0.8f),
-    imageResize: Dp = 25.dp
+    imageResize: Dp = 25.dp,
+    onEditClick: () -> Unit = {}
 ){
     var showCircleBackground by remember{ mutableStateOf(true) }
     
     Box(
         modifier = modifier
             .size(size)
+            .clickable(enabled = editable){
+                onEditClick()
+            }
     ) {
         if(showCircleBackground){
             Box(
@@ -65,6 +71,7 @@ fun CustomImage(
                     .border(1.dp, CustomThemeManager.colors.textColorFirst.copy(0.5f), CircleShape)
                     .background(CustomThemeManager.colors.cardBackgroundColor)
                     .align(Alignment.BottomEnd)
+                    .zIndex(2f)
             ) {
                 Icon(
                     imageVector = Icons.Default.Edit,
@@ -98,6 +105,7 @@ fun CustomImage(
                     else
                         size
                 )
+                .zIndex(1f)
         )
     }
 }

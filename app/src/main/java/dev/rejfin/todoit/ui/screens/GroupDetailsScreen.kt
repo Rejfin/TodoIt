@@ -116,7 +116,7 @@ fun GroupDetailsScreen(
                             .fillMaxWidth()
                             .padding(top = 2.dp)
                     ) {
-                        uiState.groupData.membersList.onEachIndexed { index, member ->
+                        uiState.groupData.memList.onEachIndexed { index, member ->
                             if(index < 5){
                                 CustomImage(
                                     imageUrl = member.value.imageUrl,

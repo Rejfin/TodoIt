@@ -12,6 +12,7 @@ import com.google.firebase.storage.FirebaseStorage
 import dev.rejfin.todoit.models.*
 import dev.rejfin.todoit.models.states.BaseTaskUiState
 import dev.rejfin.todoit.models.states.GroupDetailUiState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -63,6 +64,18 @@ class GroupDetailViewModel : BaseTaskManagerViewModel() {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     snapshot.getValue<GroupModel>()?.let{
                         _uiState.groupData = it
+
+                        it.membersList.forEach { userMap ->
+                            database.getReference("users").child(userMap.key).get().addOnSuccessListener {
+                                val user = it.getValue(UserModel::class.java)
+                                if(user?.imageUrl != null && _uiState.groupData.membersList[userMap.key] != null){
+                                    val userInList = _uiState.groupData.membersList[userMap.key]
+                                    _uiState.groupData.memList[userMap.key] = userInList!!.copy(imageUrl = user.imageUrl)
+                                }else{
+                                    _uiState.groupData.memList[userMap.key] = _uiState.groupData.membersList[userMap.key]!!
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -80,10 +93,10 @@ class GroupDetailViewModel : BaseTaskManagerViewModel() {
                 val userId = it.result.value as Map<*, *>
                 val notifyId = UUID.randomUUID().toString()
                 notifyDbRef.child(userId["userId"].toString()).child(notifyId).setValue(
-                    NotificationModel(
+                    InvitationModel(
                         id = notifyId,
-                        "Invitation to group: \"${_uiState.groupData.name}\"",
-                        _uiState.groupId!!
+                        groupId = _uiState.groupData.id,
+                        groupName = _uiState.groupData.name
                     )
                 )
                 _uiState.infoMessage = "Invitation has been sent"

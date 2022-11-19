@@ -103,9 +103,10 @@ class GroupsViewModel : ViewModel() {
     fun createNewGroup(name:String, description: String, image: Uri){
         val groupId = UUID.randomUUID().toString()
         sendImage(image, groupId){ imageUrl ->
-            dbGroupRef.child(groupId).setValue(GroupModel(groupId, name, description, firebaseAuth.uid!! , imageUrl, mapOf(firebaseAuth.uid!! to
+            dbGroupRef.child(groupId).setValue(GroupModel(groupId, name, description, firebaseAuth.uid!! , imageUrl, hashMapOf(firebaseAuth.uid!! to
                 SmallUserModel(id = firebaseAuth.uid!!, displayName = firebaseAuth.currentUser!!.displayName!!, firebaseAuth.currentUser!!.photoUrl.toString())
-            )))
+            )
+            ))
             val newGroupList = userGroupList
             newGroupList[groupId] = mapOf("id" to groupId)
             dbUsersRef.child(firebaseAuth.uid!!).child("groups").setValue(newGroupList)

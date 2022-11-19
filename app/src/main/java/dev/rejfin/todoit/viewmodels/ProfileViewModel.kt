@@ -1,5 +1,6 @@
 package dev.rejfin.todoit.viewmodels
 
+import android.net.Uri
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -10,7 +11,8 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.getValue
-import dev.rejfin.todoit.models.NotificationModel
+import com.google.firebase.storage.FirebaseStorage
+import dev.rejfin.todoit.models.InvitationModel
 import dev.rejfin.todoit.models.SmallUserModel
 import dev.rejfin.todoit.models.UserModel
 import dev.rejfin.todoit.models.states.ProfileUiState
@@ -24,6 +26,8 @@ class ProfileViewModel : ViewModel() {
     private val database = FirebaseDatabase.getInstance()
     private val notifyDbRef = database.getReference("notify")
     private val usersDbRef = database.getReference("users")
+    private val storage = FirebaseStorage.getInstance()
+    private val storageRef = storage.getReference("users")
 
     init {
         uiState.isUserStillLoggedIn = auth.currentUser != null
@@ -41,8 +45,9 @@ class ProfileViewModel : ViewModel() {
         notifyDbRef.child(auth.uid.toString()).addValueEventListener(
             object: ValueEventListener{
                 override fun onDataChange(snapshot: DataSnapshot) {
+                    uiState.notificationList.clear()
                     for(notificationData in snapshot.children){
-                        notificationData.getValue<NotificationModel>()?.let{notification->
+                        notificationData.getValue<InvitationModel>()?.let{ notification->
                             uiState.notificationList.add(notification)
                         }
                     }
@@ -89,35 +94,71 @@ class ProfileViewModel : ViewModel() {
     /**
      * Function allows a user to join if the target group has sent him an invitation
      */
-    fun joinGroup(groupId: String, notificationId: String){
+    fun joinGroup(groupId: String?, notificationId: String){
         uiState.showLoadingDialog = true
-
         val user = SmallUserModel(auth.uid!!, auth.currentUser!!.displayName!!, auth.currentUser!!.photoUrl.toString())
-        val group = mapOf("id" to groupId)
 
-        /** set all paths that will be updated in firebase at once */
-        val childToUpdate = mutableMapOf(
-            "/users/${auth.uid!!}/groups/${groupId}" to group,
-            "/groups/$groupId/membersList/${auth.uid!!}" to user,
-            "/notify/${user.id}/$notificationId" to null
-        )
+        if(groupId == null){
+            notifyDbRef.child(user.id).child(notificationId).setValue(null).addOnCompleteListener {
+                uiState.showLoadingDialog = false
+            }
+        }else{
 
-        database.reference.updateChildren(childToUpdate).addOnCompleteListener { task->
-            uiState = if(task.isSuccessful){
-                uiState.apply {
-                    showLoadingDialog = false
-                    infoMessage = "you successfully joined group"
-                }
-            }else{
-                uiState.apply {
-                    showLoadingDialog = false
-                    infoMessage = "you successfully joined group"
-                }
-                uiState.apply {
-                    showLoadingDialog = false
-                    infoMessage = task.exception?.localizedMessage
+            val group = mapOf("id" to groupId)
+
+            /** set all paths that will be updated in firebase at once */
+            val childToUpdate = mutableMapOf(
+                "/users/${auth.uid!!}/groups/${groupId}" to group,
+                "/groups/$groupId/membersList/${auth.uid!!}" to user,
+                "/notify/${user.id}/$notificationId" to null
+            )
+
+            database.reference.updateChildren(childToUpdate).addOnCompleteListener { task->
+                uiState = if(task.isSuccessful){
+                    uiState.apply {
+                        showLoadingDialog = false
+                        infoMessage = "you successfully joined group"
+                    }
+                }else{
+                    uiState.apply {
+                        showLoadingDialog = false
+                        infoMessage = "you successfully joined group"
+                    }
+                    uiState.apply {
+                        showLoadingDialog = false
+                        infoMessage = task.exception?.localizedMessage
+                    }
                 }
             }
+        }
+    }
+
+    /**
+     * Function used to send user profile picture to firebase storage
+     * if the operation is successful, the callback argument will return valid image url
+     * if the operation is not successful, the callback argument will return null
+     */
+    private fun sendImage(image: Uri, userId: String, callback: (imageUrl:String?) -> Unit){
+        val ref = storageRef.child(userId)
+        val uploadTask = ref.putFile(image)
+
+        uploadTask.continueWithTask { task ->
+            if (!task.isSuccessful) {
+                callback(null)
+            }
+            ref.downloadUrl
+        }.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                callback(task.result.toString())
+            } else {
+                callback(null)
+            }
+        }
+    }
+
+    fun setUserImage(image: Uri){
+        sendImage(image, auth.uid!!){ link ->
+            usersDbRef.child(auth.uid!!).child("imageUrl").setValue(link)
         }
     }
 }
