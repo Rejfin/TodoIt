@@ -49,6 +49,7 @@ fun TaskCard(task: TaskModel,
     val beforeTime = pref.getInt("notification_time", 15)
     var bellClicked by remember { mutableStateOf(pref.contains(task.id) && !task.done && task.startTimestamp - (beforeTime*60*1000) > CalendarUtility().getCurrentTimestamp())}
     val bellTint = if(bellClicked) CustomThemeManager.colors.secondaryColor else CustomThemeManager.colors.textColorThird
+    val calendar by remember { mutableStateOf(CalendarUtility()) }
 
     Column(modifier = modifier
         .fillMaxWidth()
@@ -154,7 +155,7 @@ fun TaskCard(task: TaskModel,
                         contentDescription = stringResource(id = R.string.task_time),
                         tint = bellTint,
                     )
-                    Text(text = "${String.format("%02d",task.startDate.hour)}:${String.format("%02d",task.startDate.minutes)} - ${String.format("%02d",task.endDate.hour)}:${String.format("%02d",task.endDate.minutes)}",
+                    Text(text = "${calendar.timestampToHourString(task.startTimestamp)} - ${calendar.timestampToHourString(task.endTimestamp)}",
                         color = CustomThemeManager.colors.textColorSecond,
                         style = if(task.taskParts.all { it.status } && task.done) TextStyle(textDecoration = TextDecoration.LineThrough) else TextStyle.Default
                     )

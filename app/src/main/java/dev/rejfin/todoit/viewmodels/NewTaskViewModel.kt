@@ -174,11 +174,11 @@ class NewTaskViewModel: ViewModel() {
         val startTimestamp: Long
         val endTimestamp: Long
         if(taskUiState.isAllDay){
-            startTimestamp = calendarUtility.timestampFromDate(taskUiState.startDate.copy(hour = 0, minutes = 0))
-            endTimestamp = calendarUtility.timestampFromDate(taskUiState.endDate.copy(hour = 23, minutes = 59))
+            startTimestamp = calendarUtility.timestampFromDate(taskUiState.startDate.copy(hour = 0, minutes = 0), true)
+            endTimestamp = calendarUtility.timestampFromDate(taskUiState.endDate.copy(hour = 23, minutes = 59), true)
         }else{
-            startTimestamp = calendarUtility.timestampFromDate(taskUiState.startDate)
-            endTimestamp = calendarUtility.timestampFromDate(taskUiState.endDate)
+            startTimestamp = calendarUtility.timestampFromDate(taskUiState.startDate, true)
+            endTimestamp = calendarUtility.timestampFromDate(taskUiState.endDate, true)
         }
 
         /**

@@ -6,14 +6,12 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class CalendarUtility {
-    private val sdfName = SimpleDateFormat("EEE", Locale.UK)
-    private val sdfDate = SimpleDateFormat("dd.MM.yyyy", Locale.UK)
-    private val sdf2Date = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.UK)
-    private val calendarInstance: Calendar = Calendar.getInstance(Locale.UK)
-
-    init {
-        sdfDate.timeZone = TimeZone.getTimeZone("GMT")
-    }
+    private val sdfName by lazy {SimpleDateFormat("EEE", Locale.getDefault())}
+    private val sdfDate by lazy {SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())}
+    private val sdf2Date by lazy {SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())}
+    private val sdfHour by lazy {SimpleDateFormat("HH:mm", Locale.getDefault())}
+    private val calendarInstance: Calendar = Calendar.getInstance(Locale.getDefault())
+    private val now by lazy { Date().time }
 
     fun getDaysInCurrentWeek(): List<CalendarDay>{
         val cal: Calendar = Calendar.getInstance(Locale.UK)
@@ -29,7 +27,7 @@ class CalendarUtility {
     }
 
     fun getCurrentTimestamp():Long{
-        return calendarInstance.timeInMillis
+        return System.currentTimeMillis()
     }
 
     private fun timestampToDayName(timestamp:Long?):String{
@@ -59,15 +57,22 @@ class CalendarUtility {
 
     fun timestampFromDate(year: Int, month: Int, day: Int): Long{
         val date: Date = sdfDate.parse("$day.$month.$year") as Date
-        return date.time
+        return date.time + calendarInstance.timeZone.rawOffset
     }
 
-    fun timestampFromDate(date: CustomDateFormat): Long{
+    fun timestampFromDate(date: CustomDateFormat, adding: Boolean = false): Long{
+        val tz = TimeZone.getDefault()
+        val offsetFromUtc = tz.getOffset(now)
+
         val mDate: Date = sdf2Date.parse("${date.day}.${date.month}.${date.year} ${date.hour}:${date.minutes}") as Date
-        return mDate.time
+        return if(adding) mDate.time else mDate.time + offsetFromUtc
     }
 
     fun areDateSame(date: CustomDateFormat, date2: CustomDateFormat):Boolean{
         return date.year == date2.year && date.month == date2.month && date.day == date2.day
+    }
+
+    fun timestampToHourString(timestamp: Long): String{
+        return sdfHour.format(timestamp)
     }
 }

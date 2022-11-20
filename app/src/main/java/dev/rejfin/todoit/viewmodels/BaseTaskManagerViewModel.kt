@@ -142,17 +142,21 @@ abstract class BaseTaskManagerViewModel: ViewModel() {
      * to let the user know what went wrong
      */
     fun removeTask(task: TaskModel){
-        val id = getBaseUiState().groupId ?: getBaseUiState().userId
+        if(task.endTimestamp >= System.currentTimeMillis()){
+            val id = getBaseUiState().groupId ?: getBaseUiState().userId
 
-        val childToUpdate = mutableMapOf(
-            "/tasks/$id/${task.timestamp}/${task.id}" to null,
-            "/users/${auth.uid}/allTask" to ServerValue.increment(-1),
-        )
+            val childToUpdate = mutableMapOf(
+                "/tasks/$id/${task.timestamp}/${task.id}" to null,
+                "/users/${auth.uid}/allTask" to ServerValue.increment(-1),
+            )
 
-        database.reference.updateChildren(childToUpdate).addOnCompleteListener {
-            if(!it.isSuccessful){
-                getBaseUiState().errorMessage = it.exception?.localizedMessage
+            database.reference.updateChildren(childToUpdate).addOnCompleteListener {
+                if(!it.isSuccessful){
+                    getBaseUiState().errorMessage = it.exception?.localizedMessage
+                }
             }
+        }else{
+            getBaseUiState().errorMessage = "you can't delete this task, the time for it has already expired"
         }
     }
 
