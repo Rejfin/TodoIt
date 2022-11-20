@@ -40,12 +40,27 @@ class AuthViewModel: ViewModel() {
     fun registerUserWithEmail(){
         registerUiState.isAuthInProgress.value = true
 
-        /** validate every input field in registration form */
-        validateNick(registerUiState.nick.value)
-        validateDisplayName(registerUiState.displayName.value)
-        validateEmail(registerUiState.email.value)
-        validatePassword(registerUiState.password.value)
-        validateRepeatedPassword(registerUiState.password.value, registerUiState.repeatedPassword.value)
+        /** validate every input field in registration form and if necessary set errors*/
+        registerUiState.nickValidation.value = ValidationResult(
+            isError = !validateNick(registerUiState.nick.value),
+            errorMessage = "Nick has to be at least 4 characters, and cant contains spaces"
+        )
+        registerUiState.displayNameValidation.value = ValidationResult(
+            isError = !validateDisplayName(registerUiState.displayName.value),
+            errorMessage = "Display name has to be at least 4 characters"
+        )
+        registerUiState.emailValidation.value = ValidationResult(
+            isError = !validateEmail(registerUiState.email.value),
+            errorMessage = "bad email format"
+        )
+        registerUiState.passwordValidation.value = ValidationResult(
+            isError = (!validatePassword(registerUiState.password.value)),
+            errorMessage = "your password must:\n- be at least 8 characters long\n- have at least one letter and one number"
+        )
+        registerUiState.repeatedPasswordValidation.value = ValidationResult(
+            isError = !validateRepeatedPassword(registerUiState.password.value, registerUiState.repeatedPassword.value),
+            errorMessage = "Your passwords doesn't match"
+        )
 
         if(registerUiState.nickValidation.value.isError || registerUiState.emailValidation.value.isError || registerUiState.passwordValidation.value.isError || registerUiState.repeatedPasswordValidation.value.isError || registerUiState.displayNameValidation.value.isError){
             registerUiState.isAuthInProgress.value = false
@@ -198,34 +213,24 @@ class AuthViewModel: ViewModel() {
         registerUiState.authFailedMessage.value = null
     }
 
-    private fun validateNick(nick:String): Boolean{
-        val isNickOk = nick.length >= 4 && !nick.contains(" ")
-        registerUiState.nickValidation.value = ValidationResult(isError = !isNickOk, errorMessage = "Nick has to be at least 4 characters, and cant contains spaces")
-        return isNickOk
+    private fun validateNick(nick: String): Boolean {
+        return nick.length >= 4 && !nick.contains(" ")
     }
 
-    private fun validateDisplayName(displayName:String): Boolean{
-        val isDisplayNameOk = displayName.length >= 4
-        registerUiState.displayNameValidation.value = ValidationResult(isError = !isDisplayNameOk, errorMessage = "Display name has to be at least 4 characters")
-        return isDisplayNameOk
+    private fun validateDisplayName(displayName: String): Boolean {
+        return displayName.length >= 4
     }
 
-    private fun validateEmail(email:String): Boolean{
-        val isEmailOk = email.contains("@")
-        registerUiState.emailValidation.value = ValidationResult(isError = !isEmailOk, errorMessage = "bad email format")
-        return isEmailOk
+    fun validateEmail(email: String): Boolean {
+        return email.contains("@") && email.contains(".")
     }
 
-    private fun validatePassword(password: String): Boolean{
-        val isPasswordOk = password.length >= 8 && password.any { it.isDigit()} && password.any{it.isLetter()}
-        registerUiState.passwordValidation.value = ValidationResult(isError = (!isPasswordOk), errorMessage = "your password must:\n- be at least 8 characters long\n- have at least one letter and one number")
-        return isPasswordOk
+    private fun validatePassword(password: String): Boolean {
+        return password.length >= 8 && password.any { it.isDigit() } && password.any { it.isLetter() }
     }
 
-    private fun validateRepeatedPassword(password: String, repeatedPassword: String): Boolean{
-        val isRepeatedPasswordOk = password == repeatedPassword
-        registerUiState.repeatedPasswordValidation.value = ValidationResult(isError = !isRepeatedPasswordOk, errorMessage = "Your passwords doesn't match")
-        return isRepeatedPasswordOk
+    private fun validateRepeatedPassword(password: String, repeatedPassword: String): Boolean {
+        return password == repeatedPassword
     }
 
     /**

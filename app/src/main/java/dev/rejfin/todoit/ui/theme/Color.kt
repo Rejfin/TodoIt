@@ -21,6 +21,7 @@ val textColorOnPrimary = Color(0xFFFFFFFF)
 val appBackground = Color(0xFFF0F0F0)
 val cardBorderColor = Color(0xFFCACACA)
 val doneColor = Color(0xFF03B14B)
+val errorColor = Color(0xFFEF5350)
 
 
 //Dark colors
@@ -47,7 +48,8 @@ class CustomColors(
     textColorOnPrimary: Color,
     appBackground: Color,
     cardBorderColor: Color,
-    doneColor: Color
+    doneColor: Color,
+    errorColor: Color
 ){
     var primaryColor by mutableStateOf(primaryColor)
         private set
@@ -77,6 +79,10 @@ class CustomColors(
         private set
 
     var doneColor by mutableStateOf(doneColor)
+        private set
+
+    var errorColor by mutableStateOf(errorColor)
+        private set
 
 
     fun update(colors: CustomColors){
@@ -90,6 +96,7 @@ class CustomColors(
         this.appBackground = colors.appBackground
         this.cardBorderColor = colors.cardBorderColor
         this.doneColor = colors.doneColor
+        this.errorColor = colors.errorColor
     }
 
     fun copy() = CustomColors(
@@ -102,6 +109,7 @@ class CustomColors(
         textColorOnPrimary,
         appBackground,
         cardBorderColor,
-        doneColor
+        doneColor,
+        errorColor
     )
 }

@@ -20,7 +20,8 @@ private val CustomLightColors = CustomColors(
     textColorOnPrimary = textColorOnPrimary,
     appBackground = appBackground,
     cardBorderColor = cardBorderColor,
-    doneColor = doneColor
+    doneColor = doneColor,
+    errorColor = errorColor
 )
 
 private val CustomDarkColors = CustomColors(
@@ -33,7 +34,8 @@ private val CustomDarkColors = CustomColors(
     textColorOnPrimary = darkTextColorOnPrimary,
     appBackground = darkAppBackground,
     cardBorderColor = darkCardBorderColor,
-    doneColor = darkDoneColor
+    doneColor = darkDoneColor,
+    errorColor = errorColor
 )
 
 private val LocalColorsProvider = staticCompositionLocalOf {
