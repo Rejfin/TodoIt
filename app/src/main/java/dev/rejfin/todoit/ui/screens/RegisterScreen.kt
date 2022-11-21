@@ -29,9 +29,9 @@ import dev.rejfin.todoit.viewmodels.AuthViewModel
 import dev.rejfin.todoit.R
 import dev.rejfin.todoit.ui.components.AppLogo
 import dev.rejfin.todoit.ui.components.CustomImage
-import dev.rejfin.todoit.ui.dialogs.ErrorDialog
-import dev.rejfin.todoit.ui.dialogs.InfoDialog
 import dev.rejfin.todoit.ui.components.InputField
+import dev.rejfin.todoit.ui.dialogs.CustomDialog
+import dev.rejfin.todoit.ui.dialogs.DialogType
 import dev.rejfin.todoit.ui.screens.destinations.LoginScreenDestination
 import dev.rejfin.todoit.ui.screens.destinations.RegisterScreenDestination
 import dev.rejfin.todoit.ui.theme.CustomJetpackComposeTheme
@@ -183,15 +183,21 @@ fun RegisterScreen(navigator: DestinationsNavigator?, viewModel: AuthViewModel =
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
             if(uiState.authFailedMessage.value != null){
-                ErrorDialog(title = stringResource(id = R.string.register_error), errorText = uiState.authFailedMessage.value!!, onDialogClose = {
-                    viewModel.dismissAuthError()
-                })
+                CustomDialog(
+                    dialogType = DialogType.ERROR,
+                    title = stringResource(id = R.string.register_error),
+                    message = uiState.authFailedMessage.value!!,
+                    onConfirmClick = {
+                        viewModel.dismissAuthError()
+                    }
+                )
             }
             if(uiState.registerSuccess.value){
-                InfoDialog(
+                CustomDialog(
+                    dialogType = DialogType.INFO,
                     title = stringResource(id = R.string.register_success),
-                    infoText = stringResource(id = R.string.register_success_message),
-                    onDialogClose = {
+                    message = stringResource(id = R.string.register_success_message),
+                    onConfirmClick = {
                         navigator?.navigate(LoginScreenDestination){
                             popUpTo(RegisterScreenDestination) {
                                 inclusive = true

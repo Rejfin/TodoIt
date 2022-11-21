@@ -88,6 +88,10 @@ class GroupDetailViewModel : BaseTaskManagerViewModel() {
 
     /** send invitation to group if user with given nick exist */
     fun sendInvitation(nick: String){
+        if(nick.isEmpty()){
+            _uiState.errorMessage = "User does not exist"
+            return
+        }
         nicksDbRef.child(nick).get().addOnCompleteListener {
             if(it.result.exists()){
                 val userId = it.result.value as Map<*, *>

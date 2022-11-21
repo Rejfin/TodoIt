@@ -23,7 +23,8 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.popUpTo
-import dev.rejfin.todoit.ui.dialogs.ErrorDialog
+import dev.rejfin.todoit.ui.dialogs.CustomDialog
+import dev.rejfin.todoit.ui.dialogs.DialogType
 import dev.rejfin.todoit.ui.screens.destinations.ForgottenPasswordScreenDestination
 import dev.rejfin.todoit.ui.screens.destinations.HomeScreenDestination
 import dev.rejfin.todoit.ui.screens.destinations.LoginScreenDestination
@@ -109,12 +110,14 @@ fun LoginScreen(navigator: DestinationsNavigator?, viewModel: AuthViewModel = vi
                     LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                 }
                 if(uiState.authFailedMessage.value != null){
-                    ErrorDialog(
+                    CustomDialog(
+                        dialogType = DialogType.ERROR,
                         title = stringResource(id = R.string.log_in_error),
-                        errorText = uiState.authFailedMessage.value!!,
-                        onDialogClose = {
+                        message = uiState.authFailedMessage.value!!,
+                        onConfirmClick = {
                             viewModel.dismissAuthError()
-                        })
+                        }
+                    )
                 }
                 if(uiState.isUserLoggedIn.value){
                     navigator?.navigate(HomeScreenDestination){

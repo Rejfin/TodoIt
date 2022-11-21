@@ -29,7 +29,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.rejfin.todoit.R
 import dev.rejfin.todoit.models.TaskModel
 import dev.rejfin.todoit.ui.components.GroupListEntry
-import dev.rejfin.todoit.ui.dialogs.ErrorDialog
+import dev.rejfin.todoit.ui.dialogs.CustomDialog
+import dev.rejfin.todoit.ui.dialogs.DialogType
 import dev.rejfin.todoit.ui.dialogs.GroupCreationDialog
 import dev.rejfin.todoit.ui.screens.destinations.GroupDetailsScreenDestination
 import dev.rejfin.todoit.ui.theme.CustomThemeManager
@@ -101,9 +102,13 @@ fun GroupsScreen(navigator: DestinationsNavigator?, viewModel: GroupsViewModel =
     }
 
     if(viewModel.errorState != null){
-        ErrorDialog(title = stringResource(id = R.string.error), errorText = viewModel.errorState!!){
-            viewModel.clearError()
-        }
+        CustomDialog(
+            dialogType = DialogType.ERROR,
+            message = viewModel.errorState!!,
+            onConfirmClick = {
+                viewModel.clearError()
+            }
+        )
     }
 
 }

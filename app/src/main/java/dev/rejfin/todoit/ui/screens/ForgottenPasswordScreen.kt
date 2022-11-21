@@ -23,7 +23,8 @@ import dev.rejfin.todoit.ui.components.InputField
 import dev.rejfin.todoit.ui.theme.CustomThemeManager
 import dev.rejfin.todoit.viewmodels.AuthViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import dev.rejfin.todoit.ui.dialogs.InfoDialog
+import dev.rejfin.todoit.ui.dialogs.CustomDialog
+import dev.rejfin.todoit.ui.dialogs.DialogType
 
 @Destination
 @Composable
@@ -83,12 +84,14 @@ fun ForgottenPasswordScreen(navigator: DestinationsNavigator?, viewModel: AuthVi
         }
 
         if(emailSent){
-            InfoDialog(
-                title = "Email sent",
-                infoText = stringResource(id = R.string.reset_password_email_sent),
-                onDialogClose = {
+            CustomDialog(
+                dialogType = DialogType.INFO,
+                title = stringResource(id = R.string.email_sent),
+                message = stringResource(id = R.string.reset_password_email_sent),
+                onConfirmClick = {
                     navigator?.popBackStack()
-                })
+                },
+            )
         }
     }
 }

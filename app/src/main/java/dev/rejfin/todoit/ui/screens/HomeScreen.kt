@@ -17,7 +17,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -37,8 +36,8 @@ import dev.rejfin.todoit.R
 import dev.rejfin.todoit.models.states.HomeUiState
 import dev.rejfin.todoit.ui.components.TaskCard
 import dev.rejfin.todoit.models.TaskModel
-import dev.rejfin.todoit.ui.dialogs.ErrorDialog
-import dev.rejfin.todoit.ui.dialogs.InfoDialog
+import dev.rejfin.todoit.ui.dialogs.CustomDialog
+import dev.rejfin.todoit.ui.dialogs.DialogType
 import dev.rejfin.todoit.ui.dialogs.TaskDetailsDialog
 import dev.rejfin.todoit.ui.screens.destinations.NewTaskScreenDestination
 
@@ -149,28 +148,30 @@ fun HomeScreen(
             }
             
             if (confirmationDeleteDialog) {
-                InfoDialog(
+                CustomDialog(
+                    dialogType = DialogType.DECISION,
                     title = stringResource(id = R.string.confirm_task_remove_title),
-                    infoText = stringResource(id = R.string.task_remove_text, taskToRemove!!.title),
-                    isDecisionDialog = true,
-                    onConfirm = {
+                    message = stringResource(id = R.string.task_remove_text, taskToRemove!!.title),
+                    onConfirmClick = {
                         viewModel.removeTask(taskToRemove!!)
                         confirmationDeleteDialog = false
                         taskToRemove = null
                     },
-                    onCancel = {
+                    onCancelClick = {
                         confirmationDeleteDialog = false
                         taskToRemove = null
                     }
                 )
             }
             if (uiState.errorMessage != null) {
-                ErrorDialog(
-                    title = stringResource(id = R.string.error),
-                    errorText = uiState.errorMessage!!
-                ) {
-                    viewModel.clearErrorMessages()
-                }
+                CustomDialog(
+                    dialogType = DialogType.ERROR,
+                    title = stringResource(id = R.string.confirm_task_remove_title),
+                    message = uiState.errorMessage!!,
+                    onConfirmClick = {
+                        viewModel.clearErrorMessages()
+                    }
+                )
             }
             if (uiState.showDetailsDialog) {
                 TaskDetailsDialog(

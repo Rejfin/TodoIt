@@ -23,7 +23,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.rejfin.todoit.BuildConfig
 import dev.rejfin.todoit.R
 import dev.rejfin.todoit.ui.dialogs.DarkModePickerDialog
-import dev.rejfin.todoit.ui.dialogs.DelaySetterDialog
+import dev.rejfin.todoit.ui.dialogs.InputDialog
 
 @Destination
 @Composable
@@ -91,17 +91,22 @@ fun SettingsScreen(viewModel: SettingsViewModel = viewModel()){
         if(uiState.showOptionsPickerDialog){
             DarkModePickerDialog(initSelectedMode = uiState.darkMode, onConfirm = {mode, desc ->
                 viewModel.changeDarkMode(mode, desc)
+            }, onCancelClick = {
+                uiState.showOptionsPickerDialog = false
             })
         }
 
         if(uiState.showNotificationReminderTimeDialog){
-            DelaySetterDialog(
-                initTime = uiState.notificationReminderTimeInMinutes.toString(),
-                onDialogClose = {
-                    viewModel.changeNotificationTime(null)
+            InputDialog(
+                text = uiState.notificationReminderTimeInMinutes.toString(),
+                message = stringResource(id = R.string.notification_settings_desc),
+                errorMessage = stringResource(id = R.string.only_numbers),
+                allowedRegex = Regex("^$|^([1-9][0-9]{0,3})"),
+                onConfirmClick = {
+                    viewModel.changeNotificationTime(it.toIntOrNull())
                 },
-                onTimeSet = {
-                    viewModel.changeNotificationTime(it)
+                onCancelClick = {
+                    viewModel.changeNotificationTime(null)
                 }
             )
         }

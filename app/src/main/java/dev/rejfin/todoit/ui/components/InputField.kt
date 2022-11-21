@@ -102,7 +102,7 @@ fun InputField(
                 text = validationResult.errorMessage!!,
                 color = MaterialTheme.colors.error,
                 fontSize = 13.sp,
-                modifier = Modifier.padding(horizontal = 8.dp)
+                modifier = modifier.padding(start = 8.dp)
             )
         }
     }

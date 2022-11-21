@@ -39,10 +39,7 @@ import dev.rejfin.todoit.models.TaskModel
 import dev.rejfin.todoit.ui.components.Calendar
 import dev.rejfin.todoit.ui.components.CustomImage
 import dev.rejfin.todoit.ui.components.TaskCard
-import dev.rejfin.todoit.ui.dialogs.EditGroupDialog
-import dev.rejfin.todoit.ui.dialogs.ErrorDialog
-import dev.rejfin.todoit.ui.dialogs.InfoDialog
-import dev.rejfin.todoit.ui.dialogs.TaskDetailsDialog
+import dev.rejfin.todoit.ui.dialogs.*
 import dev.rejfin.todoit.ui.screens.destinations.HomeScreenDestination
 import dev.rejfin.todoit.ui.screens.destinations.NewTaskScreenDestination
 import dev.rejfin.todoit.ui.theme.CustomThemeManager
@@ -187,31 +184,38 @@ fun GroupDetailsScreen(
             }
 
             if (confirmationDeleteDialog) {
-                InfoDialog(
+                CustomDialog(
+                    dialogType = DialogType.DECISION,
                     title = stringResource(id = R.string.confirm_task_remove_title),
-                    infoText = stringResource(id = R.string.task_remove_text, taskToRemove!!.title),
-                    isDecisionDialog = true,
-                    onConfirm = {
-                        viewModel.removeTask(taskToRemove!!)
+                    message = stringResource(id = R.string.task_remove_text, taskToRemove!!.title),
+                    onCancelClick = {
                         confirmationDeleteDialog = false
                         taskToRemove = null
                     },
-                    onCancel = {
+                    onConfirmClick = {
+                        viewModel.removeTask(taskToRemove!!)
                         confirmationDeleteDialog = false
                         taskToRemove = null
                     }
                 )
             }
             if (uiState.errorMessage != null) {
-                ErrorDialog(
-                    title = stringResource(id = R.string.error),
-                    errorText = uiState.errorMessage!!
-                ) {
-                    viewModel.clearErrorMessages()
-                }
+                CustomDialog(
+                    dialogType = DialogType.ERROR,
+                    message = uiState.errorMessage!!,
+                    onConfirmClick = {
+                        viewModel.clearErrorMessages()
+                    }
+                )
             }
             if (uiState.infoMessage != null) {
-                InfoDialog(title = "Info", infoText = uiState.infoMessage!!, onDialogClose = {viewModel.clearInfoMessages()})
+                CustomDialog(
+                    dialogType = DialogType.INFO,
+                    message = uiState.infoMessage!!,
+                    onConfirmClick = {
+                        viewModel.clearInfoMessages()
+                    }
+                )
             }
             if (uiState.showDetailsDialog) {
                 TaskDetailsDialog(

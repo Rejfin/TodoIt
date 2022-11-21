@@ -21,7 +21,7 @@ val textColorOnPrimary = Color(0xFFFFFFFF)
 val appBackground = Color(0xFFF0F0F0)
 val cardBorderColor = Color(0xFFCACACA)
 val doneColor = Color(0xFF03B14B)
-val errorColor = Color(0xFFEF5350)
+val errorColor = Color(0xFFEB3C39)
 
 
 //Dark colors

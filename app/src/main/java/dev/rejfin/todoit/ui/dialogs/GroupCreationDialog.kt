@@ -26,12 +26,14 @@ import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import dev.rejfin.todoit.R
 import dev.rejfin.todoit.models.ValidationResult
+import dev.rejfin.todoit.ui.components.CustomImage
 import dev.rejfin.todoit.ui.components.InputField
 import dev.rejfin.todoit.ui.theme.CustomThemeManager
 
@@ -68,24 +70,17 @@ fun GroupCreationDialog(onCreateClick: (name:String, description:String, image:U
 
                 Text("", modifier = Modifier.height(0.dp))
 
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(selectedImage)
-                        .crossfade(true)
-                        .build(),
-                    contentDescription = "group Image",
-                    error = rememberVectorPainter(Icons.Default.PhotoCamera),
+                CustomImage(
+                    imageUrl = selectedImage.toString(),
+                    contentDescription = stringResource(id = R.string.group_image),
+                    size = DpSize(100.dp, 100.dp),
                     placeholder = rememberVectorPainter(Icons.Default.PhotoCamera),
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .size(80.dp, 80.dp)
-                        .background(CustomThemeManager.colors.appBackground)
-                        .clickable {
-                            galleryLauncher.launch("image/*")
-                        }
+                    backgroundColor = CustomThemeManager.colors.appBackground,
+                    editable = true,
+                    onEditClick = {
+                        galleryLauncher.launch("image/*")
+                    }
                 )
-
 
                 InputField(
                     label = stringResource(id = R.string.group_name),
@@ -117,7 +112,8 @@ fun GroupCreationDialog(onCreateClick: (name:String, description:String, image:U
                         onCancelClick()
                     },
                     colors = ButtonDefaults.buttonColors(
-                        backgroundColor = MaterialTheme.colors.error
+                        backgroundColor = CustomThemeManager.colors.errorColor,
+                        contentColor = CustomThemeManager.colors.textColorOnPrimary
                     ),
                     modifier = Modifier
                     .padding(all = 8.dp)

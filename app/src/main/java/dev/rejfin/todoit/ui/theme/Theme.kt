@@ -92,7 +92,7 @@ fun CustomJetpackComposeTheme(
 
     CustomLocalProvider(colors = lcColor) {
         MaterialTheme(
-            colors = colorPalette.copy(primary = lcColor.primaryColor, secondary = lcColor.secondaryColor),
+            colors = colorPalette.copy(primary = lcColor.primaryColor, secondary = lcColor.primaryColor),
             typography = Typography,
             shapes = Shapes,
             content = content

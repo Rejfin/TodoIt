@@ -12,7 +12,6 @@ class ProfileUiState{
     var isUserStillLoggedIn by mutableStateOf(true)
     var showNotificationListDialog by mutableStateOf(false)
     var notificationList = mutableListOf<InvitationModel>()
-    var showLoadingDialog by mutableStateOf(false)
     var errorMessage by mutableStateOf<String?>(null)
     var trophyList = mutableListOf<TrophyModel>()
     var infoMessage by mutableStateOf<String?>(null)

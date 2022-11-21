@@ -36,8 +36,9 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import dev.rejfin.todoit.models.CustomDateFormat
 import dev.rejfin.todoit.models.TaskModel
 import dev.rejfin.todoit.ui.components.ButtonRadioGroup
-import dev.rejfin.todoit.ui.dialogs.ErrorDialog
 import dev.rejfin.todoit.ui.components.StepsProgressBar
+import dev.rejfin.todoit.ui.dialogs.CustomDialog
+import dev.rejfin.todoit.ui.dialogs.DialogType
 import dev.rejfin.todoit.ui.theme.CustomThemeManager
 
 @Destination
@@ -393,9 +394,14 @@ fun NewTaskScreen(resultNavigator: ResultBackNavigator<TaskModel>?,
         }
 
         if(uiState.taskErrorMessage != null){
-            ErrorDialog(title = stringResource(id = R.string.error), errorText = uiState.taskErrorMessage!!) {
-                uiState.taskErrorMessage = null
-            }
+            CustomDialog(
+                dialogType = DialogType.ERROR,
+                title = stringResource(id = R.string.error),
+                message = uiState.taskErrorMessage!!,
+                onConfirmClick = {
+                    uiState.taskErrorMessage = null
+                }
+            )
         }
     }
 }

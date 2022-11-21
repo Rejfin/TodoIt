@@ -40,10 +40,7 @@ import dev.rejfin.todoit.models.InvitationModel
 import dev.rejfin.todoit.models.TrophyModel
 import dev.rejfin.todoit.ui.components.CustomImage
 import dev.rejfin.todoit.ui.components.TrophyCard
-import dev.rejfin.todoit.ui.dialogs.ErrorDialog
-import dev.rejfin.todoit.ui.dialogs.InfoDialog
-import dev.rejfin.todoit.ui.dialogs.LoadingDialog
-import dev.rejfin.todoit.ui.dialogs.NotificationListDialog
+import dev.rejfin.todoit.ui.dialogs.*
 import dev.rejfin.todoit.ui.screens.destinations.LoginScreenDestination
 import dev.rejfin.todoit.ui.theme.CustomJetpackComposeTheme
 
@@ -155,46 +152,52 @@ fun ProfileScreen(navigator: DestinationsNavigator?, viewModel: ProfileViewModel
     }
 
     if(uiState.showNotificationListDialog){
-        NotificationListDialog(notificationList = uiState.notificationList,
-            onNotificationClick = {
-                invitationModel = it
+        CustomDialog(
+            dialogType = DialogType.NOTIFICATION_LIST,
+            title = stringResource(id = R.string.notification_list),
+            selectableList = uiState.notificationList,
+            textOnListEmpty = stringResource(id = R.string.none_notification),
+            onEntryListClick = {
+                invitationModel = it as InvitationModel
                 showDialogDecision = true
+            },
+            onDismissClick = {
+                uiState.showNotificationListDialog = false
             }
-        ) {
-            uiState.showNotificationListDialog = false
-        }
-    }
-
-    if(showDialogDecision){
-        InfoDialog(
-            title = "Are you sure",
-            infoText = stringResource(id = R.string.join_group_message, invitationModel!!.groupName),
-            onConfirm = {
-                viewModel.joinGroup(invitationModel!!.groupId, invitationModel!!.id)
-                showDialogDecision = false
-            },
-            onCancel = {
-                viewModel.joinGroup(null, invitationModel!!.id)
-                showDialogDecision = false
-            },
-            isDecisionDialog = true
         )
     }
 
-    if(uiState.showLoadingDialog){
-        LoadingDialog()
+    if(showDialogDecision){
+        CustomDialog(
+            dialogType = DialogType.INFO,
+            title = "Are you sure",
+            message = stringResource(id = R.string.join_group_message, invitationModel!!.groupName),
+            onConfirmClick = {
+                viewModel.joinGroup(invitationModel!!.groupId, invitationModel!!.id)
+                showDialogDecision = false
+            },
+            onCancelClick = {
+                viewModel.joinGroup(null, invitationModel!!.id)
+                showDialogDecision = false
+            }
+        )
     }
 
     if(uiState.errorMessage != null){
-        ErrorDialog(title = stringResource(id = R.string.error), errorText = uiState.errorMessage!!){
-            uiState.errorMessage = null
-        }
+        CustomDialog(
+            dialogType = DialogType.ERROR,
+            message = uiState.errorMessage!!,
+            onConfirmClick = {
+                uiState.errorMessage = null
+            }
+        )
     }
 
     if(uiState.infoMessage != null){
-        InfoDialog(title = "Info",
-            infoText = uiState.infoMessage!!,
-            onDialogClose = {
+        CustomDialog(
+            dialogType = DialogType.INFO,
+            message = uiState.infoMessage!!,
+            onConfirmClick = {
                 uiState.infoMessage = null
             }
         )

@@ -286,26 +286,31 @@ fun EditGroupDialog(
     )
 
     if(showInputDialog){
-        InputFieldDialog(
-            text = "Input user nick to send him request to join your group",
-            onOkButtonClick = {
+        InputDialog(
+            message = "Input user nick to send him request to join your group",
+            errorMessage = stringResource(id = R.string.empty_field_error),
+            allowedRegex = Regex("[^\\s]*"),
+            onConfirmClick = {
                 sendRequestToUser(it)
                 showInputDialog = !showInputDialog
             },
-        onCancelButtonClick = {showInputDialog = !showInputDialog})
+            onCancelClick = {
+                showInputDialog = !showInputDialog
+            }
+        )
     }
 
     if(confirmLeaveDialog){
-        InfoDialog(
+        CustomDialog(
+            dialogType = DialogType.DECISION,
             title = stringResource(id = R.string.leave_group),
-            infoText = if(groupData.memList.size == 1) stringResource(id = R.string.leave_group_text_last, groupData.name) else stringResource(id = R.string.leave_group_text, groupData.name),
-            isDecisionDialog = true,
-            onConfirm = {
-                onUserLeaveGroup(userToRemoveFromGroup!!)
+            message = if(groupData.memList.size == 1) stringResource(id = R.string.leave_group_text_last, groupData.name) else stringResource(id = R.string.leave_group_text, groupData.name),
+            onCancelClick = {
                 userToRemoveFromGroup = null
                 confirmLeaveDialog = false
             },
-            onCancel = {
+            onConfirmClick = {
+                onUserLeaveGroup(userToRemoveFromGroup!!)
                 userToRemoveFromGroup = null
                 confirmLeaveDialog = false
             }
@@ -313,16 +318,16 @@ fun EditGroupDialog(
     }
 
     if(confirmRemoveUserDialog){
-        InfoDialog(
+        CustomDialog(
+            dialogType = DialogType.INFO,
             title = stringResource(id = R.string.remove_from_group),
-            infoText = stringResource(id = R.string.remove_from_group_text, userToRemoveFromGroup!!.displayName, groupData.name),
-            isDecisionDialog = true,
-            onConfirm = {
-                onUserLeaveGroup(userToRemoveFromGroup!!)
+            message = stringResource(id = R.string.remove_from_group_text, userToRemoveFromGroup!!.displayName, groupData.name),
+            onCancelClick = {
                 userToRemoveFromGroup = null
                 confirmRemoveUserDialog = false
             },
-            onCancel = {
+            onConfirmClick = {
+                onUserLeaveGroup(userToRemoveFromGroup!!)
                 userToRemoveFromGroup = null
                 confirmRemoveUserDialog = false
             }

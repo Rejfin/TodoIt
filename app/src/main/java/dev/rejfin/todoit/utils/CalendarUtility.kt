@@ -75,4 +75,8 @@ class CalendarUtility {
     fun timestampToHourString(timestamp: Long): String{
         return sdfHour.format(timestamp)
     }
+
+    fun timestampToDateString(timestamp: Long): String{
+        return sdfDate.format(timestamp)
+    }
 }

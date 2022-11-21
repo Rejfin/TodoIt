@@ -56,7 +56,6 @@ class ProfileViewModel : ViewModel() {
                 override fun onCancelled(error: DatabaseError) {
                     uiState.apply {
                         errorMessage = error.message
-                        showLoadingDialog = false
                     }
                 }
 
@@ -95,12 +94,10 @@ class ProfileViewModel : ViewModel() {
      * Function allows a user to join if the target group has sent him an invitation
      */
     fun joinGroup(groupId: String?, notificationId: String){
-        uiState.showLoadingDialog = true
         val user = SmallUserModel(auth.uid!!, auth.currentUser!!.displayName!!, auth.currentUser!!.photoUrl.toString())
 
         if(groupId == null){
             notifyDbRef.child(user.id).child(notificationId).setValue(null).addOnCompleteListener {
-                uiState.showLoadingDialog = false
             }
         }else{
 
@@ -116,16 +113,13 @@ class ProfileViewModel : ViewModel() {
             database.reference.updateChildren(childToUpdate).addOnCompleteListener { task->
                 uiState = if(task.isSuccessful){
                     uiState.apply {
-                        showLoadingDialog = false
                         infoMessage = "you successfully joined group"
                     }
                 }else{
                     uiState.apply {
-                        showLoadingDialog = false
                         infoMessage = "you successfully joined group"
                     }
                     uiState.apply {
-                        showLoadingDialog = false
                         infoMessage = task.exception?.localizedMessage
                     }
                 }

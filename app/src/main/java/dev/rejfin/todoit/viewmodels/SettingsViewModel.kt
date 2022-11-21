@@ -20,6 +20,7 @@ import dev.rejfin.todoit.ui.theme.CustomThemeManager
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
     private val pref = application.getSharedPreferences("TodoItPref", ComponentActivity.MODE_PRIVATE)
+    private val prefEditor = pref.edit()
     private var _uiState by mutableStateOf(SettingsUiState())
     val uiState: SettingsUiState
         get() = _uiState
@@ -65,15 +66,15 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
             }
             when(mode){
                 DarkModeSettings.DARK -> {
-                    pref.edit().putString("dark_mode", "Dark").apply()
+                    prefEditor.putString("dark_mode", "Dark").commit()
                     CustomThemeManager.customTheme = CustomTheme.DARK
                 }
                 DarkModeSettings.LIGHT -> {
-                    pref.edit().putString("dark_mode", "Light").apply()
+                    prefEditor.putString("dark_mode", "Light").commit()
                     CustomThemeManager.customTheme = CustomTheme.LIGHT
                 }
                 DarkModeSettings.SYSTEM -> {
-                    pref.edit().putString("dark_mode", "System").apply()
+                    prefEditor.putString("dark_mode", "System").commit()
 
                     /** get system config and read ui settings then set appropriate theme */
                     val config = getApplication<Application>().resources.configuration
