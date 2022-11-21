@@ -101,4 +101,7 @@
     <string name="group_image">group image</string>
     <string name="email_sent">Email sent</string>
     <string name="task_details">Task details</string>
+    <string name="done">DONE</string>
+    <string name="undone">UNDONE</string>
+    <string name="locked">LOCKED</string>
 </resources>
