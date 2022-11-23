@@ -77,7 +77,16 @@ fun TaskDetailsDialog(task: TaskModel,
                         .fillMaxWidth()
                 ){
                     Text(
-                        text = stringResource(id = R.string.task_details),
+                        text = stringResource(id = R.string.task_details) +
+                                if(task.endTimestamp < System.currentTimeMillis() && !task.done){
+                                    " (${stringResource(id = R.string.undone)})"
+                                }else if(task.done){
+                                    " (${stringResource(id = R.string.done)})"
+                                }else if(task.lockedByUserId != null){
+                                    " (${stringResource(id = R.string.locked)})"
+                                }else{
+                                     ""
+                                },
                         color = CustomThemeManager.colors.textColorFirst,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.W500,
@@ -91,7 +100,7 @@ fun TaskDetailsDialog(task: TaskModel,
                         }
                     }
 
-                    if(task.lockedByUserId != null && task.lockedByUserId != userId){
+                    if(task.lockedByUserId != null && task.lockedByUserId != userId && task.endTimestamp > currentTimestamp){
                         Icon(imageVector = Icons.Default.Lock, contentDescription = "task locked")
                     }
                 }
@@ -158,10 +167,8 @@ fun TaskDetailsDialog(task: TaskModel,
                                 .background(CustomThemeManager.colors.textColorThird.copy(alpha = 0.16f))
                                 .padding(vertical = 8.dp)
                                 .fillMaxWidth()
-                                .clickable {
-                                    if (!task.done && (task.lockedByUserId == null || task.lockedByUserId == userId)) {
-                                        updateTaskPart(index)
-                                    }
+                                .clickable(task.endTimestamp > System.currentTimeMillis() && !task.done && (task.lockedByUserId == null || task.lockedByUserId == userId)) {
+                                    updateTaskPart(index)
                                 }
                         ) {
                             if(it.status){
@@ -272,13 +279,15 @@ fun TaskDetailsDialog(task: TaskModel,
                         Spacer(
                             modifier = Modifier
                                 .fillMaxHeight()
-                                .background(CustomThemeManager.colors.primaryColor.copy(
-                                    alpha = if(CustomThemeManager.isSystemDarkTheme()){
-                                        0.9f
-                                    }else{
-                                        0.6f
-                                    }
-                                ))
+                                .background(
+                                    CustomThemeManager.colors.primaryColor.copy(
+                                        alpha = if (CustomThemeManager.isSystemDarkTheme()) {
+                                            0.9f
+                                        } else {
+                                            0.6f
+                                        }
+                                    )
+                                )
                                 .width(1.dp)
                         )
                     }

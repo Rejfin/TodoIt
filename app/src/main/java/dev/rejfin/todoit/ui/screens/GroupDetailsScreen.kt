@@ -55,6 +55,7 @@ fun GroupDetailsScreen(
     resultRecipient?.onNavResult { result ->
         if(result is NavResult.Value){
             viewModel.uiState.taskToShowDetails = result.value
+            viewModel.switchTaskListDay(result.value.startDate)
         }
     }
 
@@ -163,6 +164,7 @@ fun GroupDetailsScreen(
                     contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
+
                     items(items = uiState.selectedTaskList,
                         key = { task -> task.id },
                         contentType = { TaskModel::class.java }

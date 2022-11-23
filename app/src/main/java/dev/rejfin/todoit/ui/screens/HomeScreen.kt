@@ -40,6 +40,7 @@ import dev.rejfin.todoit.ui.dialogs.CustomDialog
 import dev.rejfin.todoit.ui.dialogs.DialogType
 import dev.rejfin.todoit.ui.dialogs.TaskDetailsDialog
 import dev.rejfin.todoit.ui.screens.destinations.NewTaskScreenDestination
+import dev.rejfin.todoit.utils.TaskComparator
 
 @Destination
 @Composable
@@ -51,11 +52,11 @@ fun HomeScreen(
     resultRecipient?.onNavResult { result ->
         if(result is NavResult.Value){
             viewModel.uiState.taskToShowDetails = result.value
+            viewModel.switchTaskListDay(result.value.startDate)
         }
     }
 
     val uiState: HomeUiState = viewModel.uiState
-
     var confirmationDeleteDialog by remember { mutableStateOf(false) }
     var taskToRemove by remember { mutableStateOf<TaskModel?>(null) }
 

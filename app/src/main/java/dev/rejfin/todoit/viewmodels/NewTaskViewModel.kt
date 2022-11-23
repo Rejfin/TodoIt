@@ -1,6 +1,7 @@
 package dev.rejfin.todoit.viewmodels
 
 import android.content.Context
+import androidx.activity.ComponentActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -234,7 +235,9 @@ class NewTaskViewModel: ViewModel() {
          * then set a notification ( notification will appear only if the start time is early enough
          * (current time + amount of time before notification which is set in settings, default 15min) )
          */
-        if(userOrGroupId == auth.uid && !taskModel.allDay){
+        val pref = context.getSharedPreferences("TodoItPref", ComponentActivity.MODE_PRIVATE)
+        val offset = pref.getInt("notification_time", 15)
+        if(userOrGroupId == auth.uid && !taskModel.allDay && taskModel.startTimestamp + (offset * 60 * 1000) > System.currentTimeMillis()){
             taskNotificationManager.setAlarm(context = context, taskModel)
         }
 

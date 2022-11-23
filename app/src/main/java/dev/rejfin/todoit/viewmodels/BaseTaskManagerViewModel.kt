@@ -1,7 +1,8 @@
 package dev.rejfin.todoit.viewmodels
 
 import android.content.Context
-import androidx.activity.ComponentActivity
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
@@ -16,6 +17,7 @@ import dev.rejfin.todoit.models.CustomDateFormat
 import dev.rejfin.todoit.models.TaskModel
 import dev.rejfin.todoit.models.states.BaseTaskUiState
 import dev.rejfin.todoit.utils.CalendarUtility
+import dev.rejfin.todoit.utils.TaskComparator
 import dev.rejfin.todoit.utils.TaskNotificationManager
 import kotlinx.coroutines.*
 
@@ -28,6 +30,7 @@ abstract class BaseTaskManagerViewModel: ViewModel() {
     protected val notifyDbRef = database.getReference("notify")
     protected val groupsDbRef = database.getReference("groups")
     private val taskNotificationManager = TaskNotificationManager()
+    private lateinit var taskComparator: TaskComparator
 
     /**
      * abstract function that will be implemented in viewModel who is inherited from this class
@@ -41,6 +44,9 @@ abstract class BaseTaskManagerViewModel: ViewModel() {
      */
     suspend fun getInitialData(callback: () -> Unit = {}) = coroutineScope{
         getBaseUiState().userId = auth.uid!!
+
+        taskComparator = TaskComparator(getBaseUiState().userId)
+
         CalendarUtility().getDaysInCurrentWeek().forEach {
             getBaseUiState().calendarDays.add(it)
 
@@ -60,6 +66,7 @@ abstract class BaseTaskManagerViewModel: ViewModel() {
         val timestamp = calendarUtility.timestampFromDate(date.year, date.month, date.day)
         getBaseUiState().selectedTaskList.clear()
         getBaseUiState().selectedTaskList.addAll(getBaseUiState().allTaskList[timestamp] ?: emptyList())
+        getBaseUiState().selectedTaskList.sortWith(taskComparator)
         getBaseUiState().selectedDate = date
     }
 

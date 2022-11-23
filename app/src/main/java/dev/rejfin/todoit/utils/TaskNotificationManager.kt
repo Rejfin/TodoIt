@@ -14,7 +14,6 @@ import dev.rejfin.todoit.models.TaskModel
 
 class TaskNotificationManager {
     fun setAlarm(context: Context, task: TaskModel, groupName: String? = null) {
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createNotificationChannel(context, groupName)
         }
@@ -33,8 +32,6 @@ class TaskNotificationManager {
     fun removeAlarm(context: Context, task: TaskModel){
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(context, AlarmReceiver::class.java)
-        // It is not necessary to add putExtra
-        intent.putExtra("task_info", task)
         val pendingIntent = PendingIntent.getBroadcast(context, hashCode(task.id), intent, PendingIntent.FLAG_IMMUTABLE)
         alarmManager.cancel(pendingIntent)
         val pref = context.getSharedPreferences("TodoItPref", ComponentActivity.MODE_PRIVATE)

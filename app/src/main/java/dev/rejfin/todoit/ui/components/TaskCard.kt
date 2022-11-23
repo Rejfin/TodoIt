@@ -53,7 +53,7 @@ fun TaskCard(task: TaskModel,
 
     val pref = LocalContext.current.getSharedPreferences("TodoItPref", ComponentActivity.MODE_PRIVATE)
     val beforeTime = pref.getInt("notification_time", 15)
-    var bellClicked by remember { mutableStateOf(pref.contains(task.id) && !task.done && task.startTimestamp - (beforeTime*60*1000) > CalendarUtility().getCurrentTimestamp())}
+    var bellClicked by remember { mutableStateOf(pref.contains(task.id) && !task.done && task.startTimestamp + (beforeTime*60*1000) > System.currentTimeMillis())}
     val bellTint = if(bellClicked) CustomThemeManager.colors.secondaryColor else CustomThemeManager.colors.textColorThird
     val calendar by remember { mutableStateOf(CalendarUtility()) }
 
@@ -132,7 +132,7 @@ fun TaskCard(task: TaskModel,
                     )
                 }
                 Row{
-                    if(task.lockedByUserId != null && task.lockedByUserId != userId && !task.done){
+                    if(task.lockedByUserId != null && task.lockedByUserId != userId && !task.done && task.endTimestamp > System.currentTimeMillis()){
                         Icon(
                             imageVector = Icons.Default.Lock,
                             contentDescription = stringResource(id = R.string.task_locked),
@@ -204,11 +204,9 @@ fun TaskCard(task: TaskModel,
                 if(!task.allDay){
                     Row(
                         verticalAlignment = CenterVertically,
-                        modifier = Modifier.clickable {
-                            if(!task.done && task.startTimestamp - (beforeTime*60*1000) > CalendarUtility().getCurrentTimestamp()){
-                                onBellClick(task)
-                                bellClicked = !bellClicked
-                            }
+                        modifier = Modifier.clickable(!task.done && task.startTimestamp - (beforeTime*60*1000) > CalendarUtility().getCurrentTimestamp()) {
+                            onBellClick(task)
+                            bellClicked = !bellClicked
                         }
                     ) {
                         Icon(
