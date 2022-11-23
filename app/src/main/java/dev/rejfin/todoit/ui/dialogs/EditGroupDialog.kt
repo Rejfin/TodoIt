@@ -8,33 +8,28 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.DialogProperties
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
+import androidx.compose.ui.unit.sp
 import dev.rejfin.todoit.R
 import dev.rejfin.todoit.models.GroupModel
 import dev.rejfin.todoit.models.TaskModel
 import dev.rejfin.todoit.models.SmallUserModel
 import dev.rejfin.todoit.models.ValidationResult
+import dev.rejfin.todoit.ui.components.CustomImage
 import dev.rejfin.todoit.ui.components.InputField
 import dev.rejfin.todoit.ui.components.MemberCard
+import dev.rejfin.todoit.ui.theme.CustomJetpackComposeTheme
 import dev.rejfin.todoit.ui.theme.CustomThemeManager
 
 @Composable
@@ -55,16 +50,24 @@ fun EditGroupDialog(
     var nameValidation by remember { mutableStateOf(ValidationResult()) }
     var descValidation by remember { mutableStateOf(ValidationResult()) }
     val isOwner by remember { mutableStateOf(userId == groupData.ownerId) }
-    var showInputDialog by remember{ mutableStateOf(false) }
+    var showInputDialog by remember { mutableStateOf(false) }
     var groupImage by remember { mutableStateOf<Any?>(groupData.imageUrl) }
     var confirmLeaveDialog by remember { mutableStateOf(false) }
     var confirmRemoveUserDialog by remember { mutableStateOf(false) }
     var userToRemoveFromGroup by remember { mutableStateOf<SmallUserModel?>(null) }
 
-    var selectedImage by remember { mutableStateOf<Any?>(Uri.EMPTY) }
+    var selectedImage by remember { mutableStateOf<Any?>(groupData.imageUrl) }
+
+    fun onDataChanged(){
+        editMode = (editedGroupName != groupName || editedGroupDesc != groupDesc || groupImage != selectedImage)
+    }
+
     val galleryLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-            selectedImage = uri
+            if(uri != null){
+                selectedImage = uri
+                onDataChanged()
+            }
         }
 
     fun editModeChange() {
@@ -77,7 +80,7 @@ fun EditGroupDialog(
         editedGroupDesc = groupDesc
     }
 
-    fun saveChanges(){
+    fun saveChanges() {
         nameValidation = if (editedGroupName.isEmpty()) {
             nameValidation.copy(
                 isError = true,
@@ -97,72 +100,142 @@ fun EditGroupDialog(
         }
 
         if (!nameValidation.isError && !descValidation.isError) {
-            if(selectedImage != null){
+            if (selectedImage != null) {
                 groupImage = selectedImage
             }
             groupName = editedGroupName
             groupDesc = editedGroupDesc
-            onSaveClick(editedGroupName, editedGroupDesc, selectedImage as Uri?)
+
+            if(selectedImage == groupImage){
+                onSaveClick(editedGroupName, editedGroupDesc, null)
+            }else{
+                onSaveClick(editedGroupName, editedGroupDesc, selectedImage as Uri?)
+            }
+
+
             editModeChange()
         }
     }
 
-    AlertDialog(
-        properties = DialogProperties(
-            dismissOnClickOutside = false,
-            dismissOnBackPress = false,
-        ),
-        onDismissRequest = {
-            onCloseClick()
-        },
-        title = {
-        },
-        text = {
+    BaseDialog(
+        dialogType = DialogType.INFO,
+        dismissOnClickOutside = !isOwner,
+        onDismissRequest = { onCloseClick() },
+        content = {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.fillMaxWidth()
             ) {
-
-                Box(modifier = Modifier
-                    .clipToBounds()
-                    .fillMaxWidth()
-                    .padding(8.dp)) {
-                    if (!editMode && isOwner && !membersView) {
-                        IconButton(onClick = {
-                            editModeChange()
-                        }, modifier = Modifier.align(Alignment.CenterEnd)) {
-                            Icon(
-                                Icons.Default.Edit,
-                                stringResource(id = R.string.edit_group_details)
-                            )
-                        }
-                    }
-                    if(membersView && isOwner){
-                        IconButton(onClick = {
-                            showInputDialog = true
-                        }, modifier = Modifier.align(Alignment.CenterEnd)) {
-                            Icon(
-                                Icons.Default.Add,
-                                stringResource(id = R.string.add_member)
-                            )
-                        }
-                    }
-                    if(!editMode){
-                        Button(onClick = {
-                            membersView = !membersView
-                        }) {
-                            Text(
-                                if (membersView) stringResource(id = R.string.group_details) else stringResource(
-                                    id = R.string.members
+                //Tab
+                Row(horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .padding(end = 8.dp)
+                            .clickable {
+                                membersView = !membersView
+                                editModeChange()
+                            }
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.about),
+                            color = if(!membersView) CustomThemeManager.colors.primaryColor else CustomThemeManager.colors.textColorFirst.copy(alpha = 0.8f),
+                            fontWeight = if(!membersView) FontWeight.W500 else FontWeight.W400,
+                            modifier = Modifier
+                                .padding(6.dp)
+                        )
+                        Spacer(
+                            modifier = Modifier
+                                .width(75.dp)
+                                .background(CustomThemeManager.colors.primaryColor.copy(alpha = 0.9f))
+                                .height(
+                                    if (!membersView) {
+                                        2.dp
+                                    } else {
+                                        0.dp
+                                    }
                                 )
-                            )
-                        }
+                        )
+                    }
+
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .padding(start = 8.dp)
+                            .clickable {
+                                membersView = !membersView
+                                editModeChange()
+                            }
+                    ){
+                        Text(
+                            text = stringResource(id = R.string.members),
+                            color = if(membersView) CustomThemeManager.colors.primaryColor else CustomThemeManager.colors.textColorFirst.copy(alpha = 0.8f),
+                            fontWeight = if(membersView) FontWeight.W500 else FontWeight.W400,
+                            modifier = Modifier
+                                .padding(6.dp)
+                        )
+                        Spacer(
+                            modifier = Modifier
+                                .width(75.dp)
+                                .background(CustomThemeManager.colors.primaryColor.copy(alpha = 0.7f))
+                                .height(
+                                    if (membersView) {
+                                        2.dp
+                                    } else {
+                                        0.dp
+                                    }
+                                )
+                        )
                     }
                 }
 
-                Text("", modifier = Modifier.height(0.dp))
-
-                if (membersView) {
+                //Content
+                if(!membersView){
+                    CustomImage(
+                        imageUrl = if (editMode) selectedImage?.toString() else groupImage?.toString(),
+                        contentDescription = stringResource(id = R.string.group_image),
+                        size = DpSize(100.dp, 100.dp),
+                        placeholder = rememberVectorPainter(Icons.Default.PhotoCamera),
+                        backgroundColor = CustomThemeManager.colors.appBackground,
+                        editable = isOwner,
+                        onEditClick = {
+                            galleryLauncher.launch("image/*")
+                        },
+                        modifier = Modifier
+                            .padding(top = 24.dp, bottom = 8.dp)
+                    )
+                    InputField(
+                        label = stringResource(id = R.string.group_name),
+                        onTextChange = {
+                            editedGroupName = it
+                            onDataChanged()
+                        },
+                        enabled = isOwner,
+                        validationResult = nameValidation,
+                        text = if (editMode) editedGroupName else groupName,
+                    )
+                    InputField(
+                        label = stringResource(id = R.string.group_description),
+                        onTextChange = {
+                            editedGroupDesc = it
+                            onDataChanged()
+                        },
+                        enabled = isOwner,
+                        validationResult = descValidation,
+                        text = if (editMode) editedGroupDesc else groupDesc,
+                    )
+                }else{
+                    if(isOwner){
+                        Button(
+                            onClick = { showInputDialog = true },
+                            modifier = Modifier.padding(top = 8.dp)
+                        ) {
+                            Text(stringResource(id = R.string.add_member))
+                        } 
+                    }
+                    
                     LazyColumn(
                         contentPadding = PaddingValues(vertical = 8.dp),
                         verticalArrangement = Arrangement.spacedBy(6.dp),
@@ -189,103 +262,81 @@ fun EditGroupDialog(
                             )
                         }
                     }
-                } else {
-                    AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(if(editMode) selectedImage else groupImage)
-                            .crossfade(true)
-                            .build(),
-                        contentDescription = "group Image",
-                        error = rememberVectorPainter(Icons.Default.PhotoCamera),
-                        placeholder = rememberVectorPainter(Icons.Default.PhotoCamera),
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .size(80.dp, 80.dp)
-                            .background(CustomThemeManager.colors.appBackground)
-                            .clickable {
-                                if (editMode) {
-                                    galleryLauncher.launch("image/*")
-                                }
-                            }
-                    )
-                    InputField(
-                        label = stringResource(id = R.string.group_name),
-                        onTextChange = {
-                            editedGroupName = it
-                        },
-                        validationResult = nameValidation,
-                        enabled = editMode,
-                        text = if(editMode) editedGroupName else groupName,
-                    )
-                    InputField(
-                        label = stringResource(id = R.string.group_description),
-                        onTextChange = {
-                            editedGroupDesc = it
-                        },
-                        validationResult = descValidation,
-                        enabled = editMode,
-                        text = if(editMode) editedGroupDesc else groupDesc,
-                    )
                 }
-            }
-        },
-        buttons = {
-            Row(
-                modifier = Modifier
-                    .padding(all = 8.dp)
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                if (editMode) {
-                    Button(
-                        onClick = {
-                            editModeChange()
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            backgroundColor = MaterialTheme.colors.error
-                        ),
-                        modifier = Modifier
-                            .padding(all = 8.dp)
-                    ) {
-                        Text(text = stringResource(id = R.string.cancel))
-                    }
 
-                    Button(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(
-                            backgroundColor = CustomThemeManager.colors.primaryColor
-                        ),
-                        onClick = {
-                            saveChanges()
+
+                //Buttons
+                if(!membersView){
+                    Row(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 20.dp)
+                    ) {
+                        if(editMode){
+                            TextButton(onClick = {
+                                onCloseClick()
+                            }, modifier = Modifier
+                                .background(
+                                    CustomThemeManager.colors.errorColor.copy(
+                                        if (CustomThemeManager.isSystemDarkTheme()) {
+                                            0.65f
+                                        } else {
+                                            0.35f
+                                        }
+                                    )
+                                )
+                                .weight(1f)
+                            ) {
+                                Text(
+                                    stringResource(id = R.string.cancel),
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if(CustomThemeManager.isSystemDarkTheme()){
+                                        CustomThemeManager.colors.textColorOnPrimary
+                                    }else{
+                                        CustomThemeManager.colors.errorColor
+                                    },
+                                    modifier = Modifier.padding(top = 5.dp, bottom = 5.dp)
+                                )
+                            }
                         }
-                    ) {
-                        Text(
-                            stringResource(id = R.string.save),
-                            color = CustomThemeManager.colors.textColorOnPrimary
-                        )
-                    }
-                } else {
-                    Button(
-                        onClick = {
-                            onCloseClick()
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            backgroundColor = MaterialTheme.colors.primary
-                        ),
-                        modifier = Modifier
-                            .padding(all = 8.dp)
-                    ) {
-                        Text(text = stringResource(id = R.string.close))
+
+                        TextButton(onClick = {
+                            if(editMode){
+                                saveChanges()
+                            }else{
+                                onCloseClick()
+                            }
+                        }, modifier = Modifier
+                            .background(
+                                CustomThemeManager.colors.primaryColor.copy(
+                                    if (CustomThemeManager.isSystemDarkTheme()) {
+                                        0.65f
+                                    } else {
+                                        0.35f
+                                    }
+                                )
+                            )
+                            .weight(1f)
+                        ) {
+                            Text(
+                                text = if(editMode) stringResource(id = R.string.save) else stringResource(id = R.string.ok),
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = if(CustomThemeManager.isSystemDarkTheme()){
+                                    CustomThemeManager.colors.textColorOnPrimary
+                                }else{
+                                    CustomThemeManager.colors.primaryColor
+                                },
+                                modifier = Modifier.padding(top = 5.dp, bottom = 5.dp)
+                            )
+                        }
                     }
                 }
             }
-        },
-        modifier = Modifier.fillMaxWidth()
+        }
     )
 
-    if(showInputDialog){
+    if (showInputDialog) {
         InputDialog(
             message = "Input user nick to send him request to join your group",
             errorMessage = stringResource(id = R.string.empty_field_error),
@@ -300,11 +351,14 @@ fun EditGroupDialog(
         )
     }
 
-    if(confirmLeaveDialog){
+    if (confirmLeaveDialog) {
         CustomDialog(
             dialogType = DialogType.DECISION,
             title = stringResource(id = R.string.leave_group),
-            message = if(groupData.memList.size == 1) stringResource(id = R.string.leave_group_text_last, groupData.name) else stringResource(id = R.string.leave_group_text, groupData.name),
+            message = if (groupData.memList.size == 1) stringResource(
+                id = R.string.leave_group_text_last,
+                groupData.name
+            ) else stringResource(id = R.string.leave_group_text, groupData.name),
             onCancelClick = {
                 userToRemoveFromGroup = null
                 confirmLeaveDialog = false
@@ -317,11 +371,15 @@ fun EditGroupDialog(
         )
     }
 
-    if(confirmRemoveUserDialog){
+    if (confirmRemoveUserDialog) {
         CustomDialog(
             dialogType = DialogType.INFO,
             title = stringResource(id = R.string.remove_from_group),
-            message = stringResource(id = R.string.remove_from_group_text, userToRemoveFromGroup!!.displayName, groupData.name),
+            message = stringResource(
+                id = R.string.remove_from_group_text,
+                userToRemoveFromGroup!!.displayName,
+                groupData.name
+            ),
             onCancelClick = {
                 userToRemoveFromGroup = null
                 confirmRemoveUserDialog = false
@@ -339,25 +397,27 @@ fun EditGroupDialog(
 @Preview
 @Composable
 fun EditGroupDialog_Preview() {
-    EditGroupDialog(
-        GroupModel(
-            "asd",
-            "test group",
-            "asdasddsf  sdf sd",
+    CustomJetpackComposeTheme {
+        EditGroupDialog(
+            GroupModel(
+                "asd",
+                "test group",
+                "asdasddsf  sdf sd",
+                "asdasd",
+                "asdsdfsdf",
+                mutableMapOf(
+                    "asdasd" to SmallUserModel("asdasd", "test", null),
+                    "asdasd" to SmallUserModel("asdasd", "test", null),
+                    "asdasd" to SmallUserModel("asdasd", "test", null),
+                    "asdasd" to SmallUserModel("asdasd", "test", null),
+                    "asdasd" to SmallUserModel("asdasd", "test", null),
+                    "asdasd" to SmallUserModel("asdasd", "test", null),
+                    "asdasd" to SmallUserModel("asdasd", "test", null),
+                )
+            ),
             "asdasd",
-            "asdsdfsdf",
-            mutableMapOf(
-                "asdasd" to SmallUserModel("asdasd", "test", null),
-                "asdasd" to SmallUserModel("asdasd", "test", null),
-                "asdasd" to SmallUserModel("asdasd", "test", null),
-                "asdasd" to SmallUserModel("asdasd", "test", null),
-                "asdasd" to SmallUserModel("asdasd", "test", null),
-                "asdasd" to SmallUserModel("asdasd", "test", null),
-                "asdasd" to SmallUserModel("asdasd", "test", null),
-            )
-        ),
-        "asdasd",
-        onSaveClick = { _, _, _ -> },
-        onCloseClick = {}
-    )
+            onSaveClick = { _, _, _ -> },
+            onCloseClick = {}
+        )
+    }
 }
