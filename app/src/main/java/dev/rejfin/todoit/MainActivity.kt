@@ -33,7 +33,8 @@ class MainActivity : ComponentActivity() {
                 val listOfDestinationWithoutNavBar = listOf(
                     LoginScreenDestination.route,
                     RegisterScreenDestination.route,
-                    NewTaskScreenDestination.route
+                    NewTaskScreenDestination.route,
+                    SplashScreenDestination.route
                 )
 
                 navController.appCurrentDestinationAsState().value

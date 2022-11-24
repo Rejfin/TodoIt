@@ -32,7 +32,6 @@ import dev.rejfin.todoit.ui.screens.destinations.RegisterScreenDestination
 import dev.rejfin.todoit.ui.theme.CustomJetpackComposeTheme
 import dev.rejfin.todoit.ui.theme.CustomThemeManager
 
-@RootNavGraph(start = true)
 @Destination
 @Composable
 fun LoginScreen(navigator: DestinationsNavigator?, viewModel: AuthViewModel = viewModel()){
