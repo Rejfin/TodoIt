@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 package dev.rejfin.todoit.utils
 
 import android.app.PendingIntent
@@ -18,10 +20,9 @@ class AlarmReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context?, p1: Intent?) {
         val task = p1?.getSerializableExtra("task_info") as? TaskModel
-        // tapResultIntent gets executed when user taps the notification
         val tapResultIntent = Intent(context, MainActivity::class.java)
         tapResultIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
-        val pendingIntent: PendingIntent = getActivity( context, hashCode(task!!.id),tapResultIntent,FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE)
+        val pendingIntent: PendingIntent = getActivity( context, hashCode(task!!.id), tapResultIntent,FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE)
 
         val pref = context?.getSharedPreferences("TodoItPref", ComponentActivity.MODE_PRIVATE)
         pref?.edit()?.remove(task.id)?.apply()
@@ -38,8 +39,7 @@ class AlarmReceiver : BroadcastReceiver() {
         }
         notificationManager = context?.let { NotificationManagerCompat.from(it) }
         notification?.let {
-            task.let {
-                    it1 -> notificationManager?.notify(0, it)
+            task.let { _ -> notificationManager?.notify(0, it)
             }
         }
     }

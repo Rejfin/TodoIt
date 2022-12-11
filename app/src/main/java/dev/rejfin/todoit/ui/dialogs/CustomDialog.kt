@@ -89,7 +89,7 @@ fun CustomDialog(
                             )
                             {index, entry ->
                                 Text(
-                                    text = entry.getString(),
+                                    text = stringResource(id = R.string.invitation_to, entry.getString()),
                                     color = CustomThemeManager.colors.textColorFirst,
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -118,11 +118,14 @@ fun CustomDialog(
                         TextButton(onClick = {
                             onCancelClick()
                         }, modifier = Modifier
-                            .background(CustomThemeManager.colors.errorColor.copy(if(CustomThemeManager.isSystemDarkTheme()){
-                                    0.65f
-                                }else{
-                                    0.35f
-                                })
+                            .background(
+                                CustomThemeManager.colors.errorColor.copy(
+                                    if (CustomThemeManager.isSystemDarkTheme()) {
+                                        0.65f
+                                    } else {
+                                        0.35f
+                                    }
+                                )
                             )
                             .weight(1f)
                         ) {
@@ -146,11 +149,14 @@ fun CustomDialog(
                                 onConfirmClick()
                             }
                         }, modifier = Modifier
-                            .background(CustomThemeManager.colors.primaryColor.copy(if(CustomThemeManager.isSystemDarkTheme()){
-                                    0.65f
-                                }else{
-                                    0.35f
-                                })
+                            .background(
+                                CustomThemeManager.colors.primaryColor.copy(
+                                    if (CustomThemeManager.isSystemDarkTheme()) {
+                                        0.65f
+                                    } else {
+                                        0.35f
+                                    }
+                                )
                             )
                             .weight(1f)
                         ) {
@@ -176,7 +182,7 @@ fun CustomDialog(
 @Composable
 @Preview
 fun CustomDialogPreview(){
-    CustomJetpackComposeTheme(customTheme = CustomTheme.DARK) {
+    CustomJetpackComposeTheme(customTheme = CustomTheme.LIGHT) {
         CustomDialog(
             dialogType = DialogType.INFO,
             title = "test title asd asd as dasd asd",

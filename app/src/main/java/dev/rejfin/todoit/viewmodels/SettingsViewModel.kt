@@ -119,7 +119,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     fun sendFeedback(){
         val intentEmail = Intent(Intent.ACTION_SENDTO)
         intentEmail.data = Uri.parse("mailto:")
-        intentEmail.putExtra(Intent.EXTRA_EMAIL, Array(1) { "arakdiusz.palka@outlook.com" })
+        intentEmail.putExtra(Intent.EXTRA_EMAIL, Array(1) { "arkadiusz.palka@outlook.com" })
         intentEmail.putExtra(Intent.EXTRA_SUBJECT, "Feedback - TodoIt v${BuildConfig.VERSION_NAME}")
         val newIntent = Intent.createChooser(intentEmail, "Send feedback")
         newIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK

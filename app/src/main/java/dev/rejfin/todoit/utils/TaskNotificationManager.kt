@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 package dev.rejfin.todoit.utils
 
 import android.app.AlarmManager

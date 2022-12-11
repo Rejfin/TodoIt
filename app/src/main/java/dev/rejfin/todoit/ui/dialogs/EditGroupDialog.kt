@@ -35,6 +35,7 @@ import dev.rejfin.todoit.ui.theme.CustomThemeManager
 @Composable
 fun EditGroupDialog(
     groupData: GroupModel,
+    membersList: Map<String, SmallUserModel>,
     userId: String,
     onSaveClick: (name: String, description: String, image: Uri?) -> Unit,
     onCloseClick: () -> Unit,
@@ -241,7 +242,7 @@ fun EditGroupDialog(
                         verticalArrangement = Arrangement.spacedBy(6.dp),
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        items(items = groupData.memList.values.toList(),
+                        items(items = membersList.values.toList(),
                             key = { member -> member.id },
                             contentType = { TaskModel::class.java }
                         )
@@ -250,7 +251,7 @@ fun EditGroupDialog(
                                 memberData = member,
                                 currentUserId = userId,
                                 groupOwnerId = groupData.ownerId,
-                                groupMemberCount = groupData.memList.size,
+                                groupMemberCount = membersList.size,
                                 onLeaveGroup = {
                                     userToRemoveFromGroup = it
                                     confirmLeaveDialog = true
@@ -355,7 +356,7 @@ fun EditGroupDialog(
         CustomDialog(
             dialogType = DialogType.DECISION,
             title = stringResource(id = R.string.leave_group),
-            message = if (groupData.memList.size == 1) stringResource(
+            message = if (membersList.size == 1) stringResource(
                 id = R.string.leave_group_text_last,
                 groupData.name
             ) else stringResource(id = R.string.leave_group_text, groupData.name),
@@ -415,6 +416,7 @@ fun EditGroupDialog_Preview() {
                     "asdasd" to SmallUserModel("asdasd", "test", null),
                 )
             ),
+            mutableMapOf(),
             "asdasd",
             onSaveClick = { _, _, _ -> },
             onCloseClick = {}

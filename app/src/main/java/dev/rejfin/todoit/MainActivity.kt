@@ -11,6 +11,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.FirebaseApp
+import com.google.firebase.appcheck.FirebaseAppCheck
+import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory
 import com.ramcosta.composedestinations.DestinationsNavHost
 import dev.rejfin.todoit.ui.components.BottomBar
 import dev.rejfin.todoit.ui.screens.NavGraphs
@@ -25,6 +28,14 @@ class MainActivity : ComponentActivity() {
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        /** This block of code is for AppCheck from Firebase */
+        FirebaseApp.initializeApp(this)
+        val firebaseAppCheck = FirebaseAppCheck.getInstance()
+        firebaseAppCheck.installAppCheckProviderFactory(
+            PlayIntegrityAppCheckProviderFactory.getInstance()
+        )
+
         loadTheme(this)
         setContent {
             CustomJetpackComposeTheme {
@@ -34,7 +45,8 @@ class MainActivity : ComponentActivity() {
                     LoginScreenDestination.route,
                     RegisterScreenDestination.route,
                     NewTaskScreenDestination.route,
-                    SplashScreenDestination.route
+                    SplashScreenDestination.route,
+                    ForgottenPasswordScreenDestination.route
                 )
 
                 navController.appCurrentDestinationAsState().value

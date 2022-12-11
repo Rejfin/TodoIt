@@ -14,6 +14,6 @@ data class InvitationModel(
     }
 
     override fun getString(): String {
-        return invitationText
+        return groupName
     }
 }

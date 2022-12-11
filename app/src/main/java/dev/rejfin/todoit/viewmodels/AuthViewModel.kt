@@ -69,6 +69,8 @@ class AuthViewModel: ViewModel() {
              * first check if entered nick not exist in database
              * nick must be unique for every user, so if it exist show error
              */
+            val database = Firebase.database
+            val nicksDbRef = database.getReference("nicks")
             nicksDbRef.child(registerUiState.nick.value).get().addOnSuccessListener { dbNick ->
                 if(!dbNick.exists()){
                     /**
@@ -165,8 +167,14 @@ class AuthViewModel: ViewModel() {
         loginUiState.isAuthInProgress.value = true
         if(loginUiState.email.value.isEmpty() || loginUiState.password.value.isEmpty()){
             loginUiState.isAuthInProgress.value = false
-            loginUiState.emailValidation.value = ValidationResult(isError = loginUiState.email.value.isEmpty(), "field can't be empty")
-            loginUiState.passwordValidation.value = ValidationResult(isError = loginUiState.password.value.isEmpty(), "field can't be empty")
+            loginUiState.emailValidation.value = ValidationResult(
+                isError = loginUiState.email.value.isEmpty(),
+                errorMessage = "field can't be empty"
+            )
+            loginUiState.passwordValidation.value = ValidationResult(
+                isError = loginUiState.password.value.isEmpty(),
+                errorMessage = "field can't be empty"
+            )
         }else{
             auth.signInWithEmailAndPassword(loginUiState.email.value, loginUiState.password.value).addOnCompleteListener {
                 loginUiState = if(it.isSuccessful){

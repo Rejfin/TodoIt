@@ -5,9 +5,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import dev.rejfin.todoit.models.*
 
-class GroupDetailUiState(
-
-) : BaseTaskUiState(){
+class GroupDetailUiState: BaseTaskUiState(){
     var groupData by mutableStateOf(GroupModel())
     var showGroupDetails by mutableStateOf(false)
     var endedGroupRemovingUser by mutableStateOf(false)

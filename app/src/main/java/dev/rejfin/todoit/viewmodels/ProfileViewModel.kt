@@ -97,8 +97,7 @@ class ProfileViewModel : ViewModel() {
         val user = SmallUserModel(auth.uid!!, auth.currentUser!!.displayName!!, auth.currentUser!!.photoUrl.toString())
 
         if(groupId == null){
-            notifyDbRef.child(user.id).child(notificationId).setValue(null).addOnCompleteListener {
-            }
+            notifyDbRef.child(user.id).child(notificationId).setValue(null)
         }else{
 
             val group = mapOf("id" to groupId)
@@ -116,9 +115,6 @@ class ProfileViewModel : ViewModel() {
                         infoMessage = "you successfully joined group"
                     }
                 }else{
-                    uiState.apply {
-                        infoMessage = "you successfully joined group"
-                    }
                     uiState.apply {
                         infoMessage = task.exception?.localizedMessage
                     }

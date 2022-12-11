@@ -114,7 +114,7 @@ fun GroupDetailsScreen(
                             .fillMaxWidth()
                             .padding(top = 2.dp)
                     ) {
-                        uiState.groupData.memList.onEachIndexed { index, member ->
+                        viewModel.memList.onEachIndexed { index, member ->
                             if(index < 5){
                                 CustomImage(
                                     imageUrl = member.value.imageUrl,
@@ -261,6 +261,7 @@ fun GroupDetailsScreen(
     if (uiState.showGroupDetails) {
         EditGroupDialog(
             uiState.groupData,
+            viewModel.memList,
             uiState.userId,
             onSaveClick = { name, description, imageUri ->
                 viewModel.updateGroupInfo(name, description, imageUri, uiState.groupData)

@@ -2,6 +2,7 @@ package dev.rejfin.todoit.viewmodels
 
 import android.net.Uri
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.database.DataSnapshot
@@ -23,6 +24,8 @@ class GroupDetailViewModel : BaseTaskManagerViewModel() {
 
     val uiState: GroupDetailUiState
         get() = _uiState
+
+    val memList = mutableStateMapOf<String, SmallUserModel>()
 
     override fun getBaseUiState(): BaseTaskUiState {
         return _uiState
@@ -70,9 +73,9 @@ class GroupDetailViewModel : BaseTaskManagerViewModel() {
                                 val user = it.getValue(UserModel::class.java)
                                 if(user?.imageUrl != null && _uiState.groupData.membersList[userMap.key] != null){
                                     val userInList = _uiState.groupData.membersList[userMap.key]
-                                    _uiState.groupData.memList[userMap.key] = userInList!!.copy(imageUrl = user.imageUrl)
+                                    memList[userMap.key] = userInList!!.copy(imageUrl = user.imageUrl)
                                 }else{
-                                    _uiState.groupData.memList[userMap.key] = _uiState.groupData.membersList[userMap.key]!!
+                                    memList[userMap.key] = _uiState.groupData.membersList[userMap.key]!!
                                 }
                             }
                         }

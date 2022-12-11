@@ -20,7 +20,6 @@ import dev.rejfin.todoit.ui.components.AppLogo
 import dev.rejfin.todoit.ui.components.InputField
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.popUpTo
 import dev.rejfin.todoit.ui.dialogs.CustomDialog
